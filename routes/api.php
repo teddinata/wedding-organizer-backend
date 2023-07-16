@@ -2,11 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\ProtectedController;
-use App\Http\Controllers\Api\RoleController;
-use App\Http\Controllers\Api\PermissionController;
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\Web\AuthController;
+use App\Http\Controllers\Api\Web\ProtectedController;
+use App\Http\Controllers\Api\Web\RoleController;
+use App\Http\Controllers\Api\Web\PermissionController;
+use App\Http\Controllers\Api\Web\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,4 +40,4 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 });
 
 Route::post('v2/login', [AuthController::class, 'login']);
-Route::post('v2//logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('v2/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
