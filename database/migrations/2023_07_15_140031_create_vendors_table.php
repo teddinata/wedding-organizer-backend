@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('vendors', function (Blueprint $table) {
             $table->id();
+            // limit_id
+            $table->foreignId('vendor_limit_id')->nullable();
+            // grade_id
+            $table->foreignId('vendor_grade_id')->nullable();
+            // membership_id
+            $table->foreignId('membership_id')->nullable();
+
             // logo
             $table->string('logo')->nullable();
             $table->string('code')->nullable();
@@ -26,12 +33,14 @@ return new class extends Migration
             // address use longtext
             $table->longText('address')->nullable();
             $table->string('city')->nullable();
+
+            // relationship
             // limit_id
-            $table->foreignId('limit_id')->nullable();
+            $table->foreign('vendor_limit_id')->references('id')->on('vendor_limits')->onDelete('cascade');
             // grade_id
-            $table->foreignId('grade_id')->nullable();
+            $table->foreign('vendor_grade_id')->references('id')->on('vendor_grades')->onDelete('cascade');
             // membership_id
-            $table->foreignId('membership_id')->nullable();
+            $table->foreign('membership_id')->references('id')->on('memberships')->onDelete('cascade');
 
             // created by
             $table->integer('created_by')->nullable();

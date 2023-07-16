@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\Web\ProtectedController;
 use App\Http\Controllers\Api\Web\RoleController;
 use App\Http\Controllers\Api\Web\PermissionController;
 use App\Http\Controllers\Api\Web\UserController;
+use App\Http\Controllers\Api\Web\VendorLimitController;
+use App\Http\Controllers\Api\Web\VendorGradeController;
+use App\Http\Controllers\Api\Web\VendorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +36,15 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
         // user
         Route::resource('user', UserController::class)->names('user');
+
+        // vendor limit
+        Route::resource('vendor-limit', VendorLimitController::class)->names('vendor-limit');
+
+        // vendor grade
+        Route::resource('vendor-grade', VendorGradeController::class)->names('vendor-grade');
+
+        // vendor
+        Route::resource('vendor', VendorController::class)->names('vendor');
     });
 
     // route for permission
