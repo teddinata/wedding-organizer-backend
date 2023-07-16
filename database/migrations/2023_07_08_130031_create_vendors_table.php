@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->string('code')->nullable();
             $table->string('name');
+            // point
+            $table->integer('point')->nullable();
             $table->string('contact_person')->nullable();
             $table->string('contact_number')->nullable();
             $table->string('website')->nullable();
@@ -30,9 +32,21 @@ return new class extends Migration
             $table->foreignId('grade_id')->nullable();
             // membership_id
             $table->foreignId('membership_id')->nullable();
+
+            // created by
+            $table->integer('created_by')->nullable();
+            // updated by
+            $table->integer('updated_by')->nullable();
+            // deleted by
+            $table->integer('deleted_by')->nullable();
             // soft delete
             $table->softDeletes();
             $table->timestamps();
+
+            // index
+            $table->index('code');
+            $table->index('name');
+            $table->index('point');
         });
     }
 

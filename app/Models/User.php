@@ -12,6 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 // use Spatie\Activitylog\Traits\LogsActivity;
 // use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
@@ -21,6 +22,7 @@ class User extends Authenticatable
     use Notifiable;
     use TwoFactorAuthenticatable;
     use HasRoles;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -31,6 +33,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'created_by',
+        'updated_by',
+        'deleted_by',
     ];
 
     /**
@@ -70,6 +75,12 @@ class User extends Authenticatable
         });
 
     }
+
+    public function model_has_roles()
+    {
+        return $this->hasMany('App\Models\Model_Has_Roles', 'model_id', 'id');
+    }
+
 
     // public function getActivitylogOptions(): LogOptions
     // {

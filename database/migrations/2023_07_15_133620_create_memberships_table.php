@@ -23,9 +23,18 @@ return new class extends Migration
             $table->integer('until')->nullable();
             // point
             $table->integer('point')->nullable();
+            // created by
+            $table->integer('created_by')->nullable();
+            // updated by
+            $table->integer('updated_by')->nullable();
+            // deleted by
+            $table->integer('deleted_by')->nullable();
             // soft delete
             $table->softDeletes();
             $table->timestamps();
+
+            // index
+            $table->index('name');
         });
     }
 

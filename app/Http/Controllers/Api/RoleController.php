@@ -58,7 +58,40 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // validate request
+        $this->validate($request, [
+            'name' => 'required|unique:roles,name',
+            'permissions' => 'required'
+        ]);
+
+        // create role
+        $role = Role::create([
+            'name' => $request->name,
+            'guard_name' => 'web'
+        ]);
+
+        // assign give permission to role
+        $role->givePermissionTo($request->permissions);
+
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' create data role',
+            'description' => 'User ' . Auth::user()->name . ' create data role',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // return response
+        return response()->json([
+            'success' => true,
+            'message' => 'Role has been successfully created',
+            'data' => $role
+        ]);
     }
 
     /**
@@ -82,7 +115,43 @@ class RoleController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // validate request
+        $this->validate($request, [
+            'name' => 'required|unique:roles,name,' . $id,
+            'permissions' => 'required'
+        ]);
+
+        // find role by id
+        $role = Role::findOrFail($id);
+
+        // update role
+        $role->update([
+            'name' => $request->name,
+            'guard_name' => 'web'
+        ]);
+
+        // sync permission to role
+        $role->syncPermissions($request->permissions);
+
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' update data role',
+            'description' => 'User ' . Auth::user()->name . ' update data role',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // return response
+        return response()->json([
+            'success' => true,
+            'message' => 'Role has been successfully updated',
+            'data' => $role
+        ]);
     }
 
     /**
@@ -90,6 +159,30 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // find role by id
+        $role = Role::findOrFail($id);
+
+        // delete role
+        $role->delete();
+
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' delete data role',
+            'description' => 'User ' . Auth::user()->name . ' delete data role',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // return response
+        return response()->json([
+            'success' => true,
+            'message' => 'Role has been successfully deleted',
+            'data' => $role
+        ]);
     }
 }

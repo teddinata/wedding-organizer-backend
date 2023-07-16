@@ -14,17 +14,25 @@ return new class extends Migration
         Schema::create('vendor_grades', function (Blueprint $table) {
             $table->id();
             // vendor_id
-            $table->foreignId('vendor_id')->nullable();
+            // $table->foreignId('vendor_id')->nullable();
             // grade
             $table->string('name')->nullable();
             $table->string('description')->nullable();
 
             // relation
-            $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
-
+            // $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
+            // created by
+            $table->integer('created_by')->nullable();
+            // updated by
+            $table->integer('updated_by')->nullable();
+            // deleted by
+            $table->integer('deleted_by')->nullable();
             // soft delete
             $table->softDeletes();
             $table->timestamps();
+
+            // index
+            $table->index('name');
         });
     }
 
