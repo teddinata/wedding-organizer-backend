@@ -39,5 +39,13 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('v2/permission', [PermissionController::class, 'index']);
 });
 
-Route::post('v2/login', [AuthController::class, 'login']);
-Route::post('v2/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::prefix('v2')->group(function () {
+    // ...
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+});
+
+
