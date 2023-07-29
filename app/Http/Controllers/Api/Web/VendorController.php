@@ -159,7 +159,7 @@ class VendorController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Vendor has been successfully created!',
+            'message' => 'Vendor data saved successfully.',
             'data' => $vendor
         ], 200);
     }
@@ -241,7 +241,7 @@ class VendorController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Vendor has been successfully updated!',
+            'message' => 'Vendor data updated successfully.',
             'data' => $vendor
         ], 200);
     }
@@ -273,7 +273,7 @@ class VendorController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Vendor has been successfully deleted!',
+            'message' => 'Vendor data deleted successfully.',
             'data' => $vendor
         ], 200);
     }

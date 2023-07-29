@@ -10,6 +10,10 @@ use App\Http\Controllers\Api\Web\UserController;
 use App\Http\Controllers\Api\Web\VendorLimitController;
 use App\Http\Controllers\Api\Web\VendorGradeController;
 use App\Http\Controllers\Api\Web\VendorController;
+use App\Http\Controllers\Api\Web\ProductCategoryController;
+use App\Http\Controllers\Api\Web\ProductAttributeController;
+use App\Http\Controllers\Api\Web\ProductVariantController;
+use App\Http\Controllers\Api\Web\ChecklistItemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +49,18 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
         // vendor
         Route::resource('vendor', VendorController::class)->names('vendor');
+
+        // product category
+        Route::resource('product-category', ProductCategoryController::class)->names('product-category');
+
+        // product attribute
+        Route::resource('product-attribute', ProductAttributeController::class)->names('product-attribute');
+
+        // product variant
+        Route::resource('product-variant', ProductVariantController::class)->names('product-variant');
+
+        // checklist item
+        Route::resource('checklist-item', ChecklistItemController::class)->names('checklist-item');
     });
 
     // route for permission
