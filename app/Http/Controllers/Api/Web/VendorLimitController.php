@@ -122,7 +122,7 @@ class VendorLimitController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Data Vendor Limit has been successfully created!',
+            'message' => 'Vendor Limit data saved successfully.',
             'data' => $vendor_limit
         ], 201);
     }
@@ -179,7 +179,7 @@ class VendorLimitController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Data Vendor Limit has been successfully updated!',
+            'message' => 'Vendor Limit data updated successfully.',
             'data' => $vendor_limit
         ], 200);
     }
@@ -214,7 +214,7 @@ class VendorLimitController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Data Vendor Limit has been successfully deleted!',
+            'message' => 'Vendor Limit data deleted successfully.',
             'data' => $vendor_limit
         ], 200);
     }

@@ -123,7 +123,7 @@ class VendorGradeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Vendor Grade has been successfully created!',
+            'message' => 'Vendor Grade data saved successfully.',
             'data' => $vendor_grade
         ], 201);
     }
@@ -181,7 +181,7 @@ class VendorGradeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Vendor Grade has been successfully updated!',
+            'message' => 'Vendor Grade data updated successfully.',
             'data' => $vendor_grade
         ], 200);
     }
@@ -213,7 +213,7 @@ class VendorGradeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Vendor Grade has been successfully deleted!',
+            'message' => 'Vendor Grade data deleted successfully.',
             'data' => $vendor_grade
         ], 200);
     }

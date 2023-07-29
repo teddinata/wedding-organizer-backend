@@ -25,7 +25,7 @@ class UserController extends Controller
         // return response
         return response()->json([
             'success' => true,
-            'message' => 'List Semua User',
+            'message' => 'List Data User',
             'data' => $users
         ], 200);
     }
@@ -74,13 +74,13 @@ class UserController extends Controller
         if ($user) {
             return response()->json([
                 'success' => true,
-                'message' => 'User Berhasil Disimpan!',
+                'message' => 'User data saved successfully.',
                 'data' => $user
             ], 200);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'User Gagal Disimpan!',
+                'message' => 'User data failed to save.',
             ], 400);
         }
     }
@@ -149,13 +149,13 @@ class UserController extends Controller
         if ($user) {
             return response()->json([
                 'success' => true,
-                'message' => 'User Berhasil Diupdate!',
+                'message' => 'User data updated successfully.',
                 'data' => $user
             ], 200);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'User Gagal Diupdate!',
+                'message' => 'User data failed to update.',
             ], 500);
         }
     }
@@ -189,12 +189,12 @@ class UserController extends Controller
         if ($user) {
             return response()->json([
                 'success' => true,
-                'message' => 'User Berhasil Dihapus!',
+                'message' => 'User data deleted successfully.',
             ], 200);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'User Gagal Dihapus!',
+                'message' => 'User data failed to delete.',
             ], 500);
         }
     }
