@@ -35,8 +35,8 @@ class UserTableSeeder extends Seeder
 
         // user create for vendor
         $user = User::create([
-            'name'      => 'Vendor',
-            'email'     => 'vendor@gmail.com',
+            'name'      => 'Chandra',
+            'email'     => 'manager@gmail.com',
             'password'  => bcrypt('password'),
         ]);
 
@@ -45,7 +45,5 @@ class UserTableSeeder extends Seeder
 
         //assign role to user
         $user->assignRole($role);
-
-
     }
 }

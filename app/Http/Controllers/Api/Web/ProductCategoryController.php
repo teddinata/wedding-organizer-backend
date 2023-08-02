@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Web;
 use App\Models\ProductCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\ProductAttribute;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 
@@ -31,8 +32,8 @@ class ProductCategoryController extends Controller
         // Get data
         $product_categories = $query->paginate($perPage, ['*'], 'page', $page);
 
-         // Log Activity
-         Activity::create([
+        // Log Activity
+        Activity::create([
             'log_name' => 'User ' . Auth::user()->name . ' show data Product Category',
             'description' => 'User ' . Auth::user()->name . ' show data Product Category',
             'subject_id' => Auth::user()->id,
@@ -99,7 +100,6 @@ class ProductCategoryController extends Controller
                 'message' => 'Product Category saved successfully.',
                 'data' => $product_category
             ], 201);
-
         } catch (\Exception $e) {
 
             // return json response
@@ -108,10 +108,7 @@ class ProductCategoryController extends Controller
                 'message' => 'Product Category failed to save.',
                 'data' => $e->getMessage()
             ], 409);
-
         }
-
-
     }
 
     /**
@@ -166,7 +163,6 @@ class ProductCategoryController extends Controller
                 'message' => 'Product Category updated successfully.',
                 'data' => $product_category
             ], 201);
-
         } catch (\Exception $e) {
 
             // return json response
@@ -176,8 +172,6 @@ class ProductCategoryController extends Controller
                 'data' => $e->getMessage()
             ], 409);
         }
-
-
     }
 
     /**
@@ -214,7 +208,6 @@ class ProductCategoryController extends Controller
                 'message' => 'Product Category deleted successfully.',
                 'data' => $product_category
             ], 201);
-
         } catch (\Exception $e) {
 
             // return json response
