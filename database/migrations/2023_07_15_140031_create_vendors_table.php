@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->string('code', 7);
             $table->string('name');
+            // point
+            $table->integer('point')->default(0);
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
@@ -36,8 +38,8 @@ return new class extends Migration
             $table->string('notification_token')->nullable();
             // otp email
             $table->string('otp_email')->nullable();
-            // point
-            $table->integer('point')->default(0);
+            // check login first time for mobile
+            $table->boolean('is_first_login')->default(1);
             $table->string('contact_person');
             $table->string('contact_number', 15);
             $table->string('website')->nullable();
