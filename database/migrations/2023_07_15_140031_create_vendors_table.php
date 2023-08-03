@@ -14,25 +14,37 @@ return new class extends Migration
         Schema::create('vendors', function (Blueprint $table) {
             $table->id();
             // limit_id
-            $table->foreignId('vendor_limit_id')->nullable();
+            $table->foreignId('vendor_limit_id');
             // grade_id
-            $table->foreignId('vendor_grade_id')->nullable();
+            $table->foreignId('vendor_grade_id');
             // membership_id
-            $table->foreignId('membership_id')->nullable();
+            $table->foreignId('membership_id');
 
             // logo
             $table->string('logo')->nullable();
-            $table->string('code')->nullable();
+            $table->string('code', 7);
             $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password')->nullable();
+            // otp password
+            $table->string('otp')->nullable();
+            $table->timestamp('otp_verified_at')->nullable();
+            // reset token
+            $table->string('reset_token')->nullable();
+            // notification token
+            $table->string('notification_token')->nullable();
+            // otp email
+            $table->string('otp_email')->nullable();
             // point
-            $table->integer('point')->nullable();
-            $table->string('contact_person')->nullable();
-            $table->string('contact_number')->nullable();
+            $table->integer('point')->default(0);
+            $table->string('contact_person');
+            $table->string('contact_number', 15);
             $table->string('website')->nullable();
             $table->string('instagram')->nullable();
             // address use longtext
-            $table->longText('address')->nullable();
-            $table->string('city')->nullable();
+            $table->longText('address');
+            $table->string('city', 50);
 
             // relationship
             // limit_id
@@ -55,6 +67,7 @@ return new class extends Migration
             // index
             $table->index('code');
             $table->index('name');
+            $table->index('email');
             $table->index('point');
         });
     }
