@@ -24,7 +24,7 @@ class UserTableSeeder extends Seeder
         //get all permissions
         $permissions = Permission::all();
 
-        //get role admin
+        //get role super admin
         $role = Role::find(1);
 
         //assign permission to role
@@ -33,14 +33,14 @@ class UserTableSeeder extends Seeder
         //assign role to user
         $user->assignRole($role);
 
-        // user create for vendor
+        // user create for manager
         $user = User::create([
             'name'      => 'Chandra',
             'email'     => 'manager@gmail.com',
             'password'  => bcrypt('password'),
         ]);
 
-        //get role vendor
+        //get role manager
         $role = Role::find(2);
 
         //assign role to user
