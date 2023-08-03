@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name', 20);
             // created by
             $table->integer('created_by')->nullable();
             // updated by
@@ -22,6 +22,9 @@ return new class extends Migration
             $table->integer('deleted_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            // index
+            $table->index('name');
         });
     }
 
