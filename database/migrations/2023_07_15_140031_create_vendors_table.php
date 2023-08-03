@@ -55,14 +55,14 @@ return new class extends Migration
             $table->foreign('membership_id')->references('id')->on('memberships')->onDelete('cascade');
 
             // created by
-            $table->integer('created_by')->nullable();
+            $table->integer('created_by');
             // updated by
             $table->integer('updated_by')->nullable();
             // deleted by
             $table->integer('deleted_by')->nullable();
+            $table->timestamps();
             // soft delete
             $table->softDeletes();
-            $table->timestamps();
 
             // index
             $table->index('code');

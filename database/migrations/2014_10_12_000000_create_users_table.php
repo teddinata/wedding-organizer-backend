@@ -34,11 +34,13 @@ return new class extends Migration
             $table->boolean('is_dark_mode')->default(false);
 
             // soft delete
-            $table->integer('created_by')->nullable();
+            $table->integer('created_by');
             $table->integer('updated_by')->nullable();
             $table->integer('deleted_by')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            // soft delete
+            $table->softDeletes();
+
             // indexing
             $table->index('email');
             $table->index('name');

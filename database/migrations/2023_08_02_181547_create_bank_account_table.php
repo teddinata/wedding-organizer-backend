@@ -17,13 +17,14 @@ return new class extends Migration
             $table->string('account_holder', 75);
             $table->string('account_number', 16);
             // created by
-            $table->integer('created_by')->nullable();
+            $table->integer('created_by');
             // updated by
             $table->integer('updated_by')->nullable();
             // deleted by
             $table->integer('deleted_by')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            // soft delete
+            $table->softDeletes();
 
             // index
             $table->index('account_holder');

@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('decoration_area', function (Blueprint $table) {
             $table->id();
             $table->string('name', 15);
-            $table->softDeletes();
             $table->timestamps();
+            // soft delete
+            $table->softDeletes();
         });
     }
 

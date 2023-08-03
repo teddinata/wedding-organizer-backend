@@ -22,14 +22,15 @@ return new class extends Migration
 
             // relation
             $table->foreign('membership_id')->references('id')->on('memberships')->onDelete('cascade');
-
-            // soft delete
-            // soft delete
-            $table->integer('created_by')->nullable();
+            // created by
+            $table->integer('created_by');
+            // updated by
             $table->integer('updated_by')->nullable();
+            // deleted by
             $table->integer('deleted_by')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            // soft delete
+            $table->softDeletes();
         });
     }
 

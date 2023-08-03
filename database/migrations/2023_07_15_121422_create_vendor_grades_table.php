@@ -22,14 +22,14 @@ return new class extends Migration
             // relation
             // $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
             // created by
-            $table->integer('created_by')->nullable();
+            $table->integer('created_by');
             // updated by
             $table->integer('updated_by')->nullable();
             // deleted by
             $table->integer('deleted_by')->nullable();
+            $table->timestamps();
             // soft delete
             $table->softDeletes();
-            $table->timestamps();
 
             // index
             $table->index('name');

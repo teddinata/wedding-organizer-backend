@@ -16,9 +16,15 @@ return new class extends Migration
             // relation to checklist category
             $table->foreignId('checklist_category_id')->constrained('checklist_categories')->onDelete('cascade');
             $table->string('name');
-
-            $table->softDeletes();
+            // created by
+            $table->integer('created_by');
+            // updated by
+            $table->integer('updated_by')->nullable();
+            // deleted by
+            $table->integer('deleted_by')->nullable();
             $table->timestamps();
+            // soft delete
+            $table->softDeletes();
         });
     }
 

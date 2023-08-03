@@ -16,9 +16,15 @@ return new class extends Migration
             // relation to category
             $table->foreignId('product_category_id')->constrained('product_categories')->onDelete('cascade');
             $table->string('name', 75);
-
-            $table->softDeletes();
+            // created by
+            $table->integer('created_by');
+            // updated by
+            $table->integer('updated_by')->nullable();
+            // deleted by
+            $table->integer('deleted_by')->nullable();
             $table->timestamps();
+            // soft delete
+            $table->softDeletes();
         });
     }
 

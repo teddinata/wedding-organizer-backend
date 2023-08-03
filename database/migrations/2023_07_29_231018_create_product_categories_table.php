@@ -14,8 +14,15 @@ return new class extends Migration
         Schema::create('product_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name', 75);
-            $table->softDeletes();
+            // created by
+            $table->integer('created_by');
+            // updated by
+            $table->integer('updated_by')->nullable();
+            // deleted by
+            $table->integer('deleted_by')->nullable();
             $table->timestamps();
+            // soft delete
+            $table->softDeletes();
 
             // index
             $table->index('name');

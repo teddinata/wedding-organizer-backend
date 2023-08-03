@@ -16,9 +16,15 @@ return new class extends Migration
             // relation to product attribute
             $table->foreignId('product_attribute_id')->constrained('product_attributes')->onDelete('cascade');
             $table->string('name', 75);
-
-            $table->softDeletes();
+            // created by
+            $table->integer('created_by');
+            // updated by
+            $table->integer('updated_by')->nullable();
+            // deleted by
+            $table->integer('deleted_by')->nullable();
             $table->timestamps();
+            // soft delete
+            $table->softDeletes();
         });
     }
 
