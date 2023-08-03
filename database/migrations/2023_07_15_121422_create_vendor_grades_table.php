@@ -16,7 +16,7 @@ return new class extends Migration
             // vendor_id
             // $table->foreignId('vendor_id')->nullable();
             // grade
-            $table->string('name')->nullable();
+            $table->string('name', 15);
             $table->string('description')->nullable();
 
             // relation

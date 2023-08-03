@@ -16,8 +16,8 @@ return new class extends Migration
             // vendor_id
             // $table->foreignId('vendor_id')->nullable();
             // limit
-            $table->string('name')->nullable();
-            $table->integer('amount_limit')->nullable();
+            $table->string('name', 10);
+            $table->integer('amount_limit');
 
             // relation
             // $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');

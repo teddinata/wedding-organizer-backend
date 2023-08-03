@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('memberships', function (Blueprint $table) {
             $table->id();
             // icon
-            $table->string('icon')->nullable();
+            $table->string('icon');
             // name
-            $table->string('name')->nullable();
+            $table->string('name', 10);
             // from
-            $table->integer('from')->nullable();
+            $table->integer('from');
             // to
-            $table->integer('until')->nullable();
+            $table->integer('until');
             // point
-            $table->integer('point')->nullable();
+            $table->integer('point');
             // created by
             $table->integer('created_by')->nullable();
             // updated by
