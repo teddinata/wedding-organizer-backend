@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('memberships', function (Blueprint $table) {
             $table->id();
             // icon
-            $table->string('icon');
+            $table->string('image')->nullable();
             // name
             $table->string('name', 10);
             // from
