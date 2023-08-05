@@ -30,7 +30,8 @@ Route::middleware('auth:sanctum')->get('v2/me', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+// Route::middleware(['auth:sanctum', 'role:Super Admin'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('v2/admin', [ProtectedController::class, 'admin']);
 
     // route resource for role
