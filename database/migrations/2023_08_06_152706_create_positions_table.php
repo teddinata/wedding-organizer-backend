@@ -11,19 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vehicles', function (Blueprint $table) {
+        Schema::create('positions', function (Blueprint $table) {
             $table->id();
-            $table->string('model_name', 100);
-            $table->string('plate_number', 11);
+            $table->string('name');
+
             // created by
-            $table->integer('created_by');
+            $table->unsignedBigInteger('created_by')->nullable();
             // updated by
-            $table->integer('updated_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
             // deleted by
-            $table->integer('deleted_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
+
             $table->timestamps();
             // soft delete
             $table->softDeletes();
+
+            // index
+            $table->index('name');
         });
     }
 
@@ -32,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vehicle');
+        Schema::dropIfExists('positions');
     }
 };

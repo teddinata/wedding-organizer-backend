@@ -102,11 +102,11 @@ class VendorController extends Controller
             'name' => 'required',
             'vendor_grade_id' => 'required',
             'vendor_limit_id' => 'required',
+            'membership_id' => 'required',
             'code' => 'required',
             'name' => 'required',
-            // 'point' => 'required|numeric',
-            // point integer
-            'point' => 'required|integer',
+            'email' => 'required',
+            'point' => 'nullable|integer',
             'contact_number' => 'required',
             'contact_person' => 'required',
             'website' => 'required',
@@ -115,23 +115,15 @@ class VendorController extends Controller
             'city' => 'required',
         ]);
 
-        // dd($vendorGrade);
-        // $vendorGrade = VendorGrade::findOrFail($request->vendor_grade_id);
-
-        // // // vendor limit
-        // $vendorLimit = VendorLimit::findOrFail($request->vendor_limit_id);
-
-
-
         // create data vendor
         $vendor = Vendor::create([
-            // 'vendor_grade_id' => $vendorGrade->id,
-            // 'vendor_limit_id' => $vendorLimit->id,
             'vendor_grade_id' => $request->vendor_grade_id,
             'vendor_limit_id' => $request->vendor_limit_id,
+            'membership_id' => $request->membership_id,
             'code' => $request->code,
             'name' => $request->name,
             'point' => $request->point,
+            'email' => $request->email,
             'contact_number' => $request->contact_number,
             'contact_person' => $request->contact_person,
             'website' => $request->website,

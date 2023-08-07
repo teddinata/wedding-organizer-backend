@@ -10,10 +10,25 @@ use App\Http\Controllers\Api\Web\UserController;
 use App\Http\Controllers\Api\Web\VendorLimitController;
 use App\Http\Controllers\Api\Web\VendorGradeController;
 use App\Http\Controllers\Api\Web\VendorController;
+use App\Http\Controllers\Api\Web\MembershipController;
+use App\Http\Controllers\Api\Web\MembershipBenefitController;
 use App\Http\Controllers\Api\Web\ProductCategoryController;
 use App\Http\Controllers\Api\Web\ProductAttributeController;
 use App\Http\Controllers\Api\Web\ProductVariantController;
 use App\Http\Controllers\Api\Web\ChecklistItemController;
+use App\Http\Controllers\Api\Web\DepartmentController;
+use App\Http\Controllers\Api\Web\PositionController;
+use App\Http\Controllers\Api\Web\AllowanceController;
+use App\Http\Controllers\Api\Web\EmployeeController;
+use App\Http\Controllers\Api\Web\LevelController;
+use App\Http\Controllers\Api\Web\AttendanceController;
+use App\Http\Controllers\Api\Web\TeamController;
+use App\Http\Controllers\Api\Web\TeamLoanController;
+use App\Http\Controllers\Api\Web\OrderController;
+use App\Http\Controllers\Api\Web\OrderProductController;
+use App\Http\Controllers\Api\Web\DecorationAreaController;
+use App\Http\Controllers\Api\Web\OrderTeamController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +66,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // vendor
         Route::resource('vendor', VendorController::class)->names('vendor');
 
+        // vendor membership
+        Route::resource('membership', MembershipController::class)->names('membership');
+
+        // membership benefit
+        Route::resource('membership-benefit', MembershipBenefitController::class)->names('membership-benefit');
+
         // product category
         Route::resource('product-category', ProductCategoryController::class)->names('product-category');
 
@@ -62,6 +83,45 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // checklist item
         Route::resource('checklist-item', ChecklistItemController::class)->names('checklist-item');
+
+        // route department
+        Route::resource('department', DepartmentController::class)->names('department');
+
+        // route position
+        Route::resource('position', PositionController::class)->names('position');
+
+        // allowance
+        Route::resource('allowance', AllowanceController::class)->names('allowance');
+
+        // level
+        Route::resource('level', LevelController::class)->names('level');
+
+        // employee
+        Route::resource('employee', EmployeeController::class)->names('employee');
+        Route::post('/employee/{id}/generate-user-account', [EmployeeController::class, 'generateUserAccount'])->name('employee.generate-user-account');
+
+        // attendance
+        Route::resource('attendance', AttendanceController::class)->names('attendance');
+
+        // route team
+        Route::resource('team', TeamController::class)->names('team');
+
+        // route team loan
+        Route::resource('team-loan', TeamLoanController::class)->names('team-loan');
+
+        // route order
+        Route::resource('order', OrderController::class)->names('order');
+
+        // route order product
+        Route::resource('order-product', OrderProductController::class)->names('order-product');
+
+        // route order team
+        Route::resource('order-team', OrderTeamController::class)->names('order');
+
+        // route decoration area
+        Route::resource('decoration-area', DecorationAreaController::class)->names('decoration-area');
+
+
     });
 
     // route for permission

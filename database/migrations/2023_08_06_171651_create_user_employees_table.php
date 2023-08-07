@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('decoration_areas', function (Blueprint $table) {
+        Schema::create('user_employees', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 15);
+            // pivot table for user and employee
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('employee_id')->constrained('employees')->onDelete('cascade');
+
             $table->timestamps();
-            // soft delete
-            $table->softDeletes();
         });
     }
 
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('decoration_area');
+        Schema::dropIfExists('user_employees');
     }
 };

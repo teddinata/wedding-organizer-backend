@@ -76,6 +76,7 @@ class ProductVariantController extends Controller
             $product_variant = new ProductVariant;
             $product_variant->name = $request->input('name');
             $product_variant->product_attribute_id = $request->input('product_attribute_id');
+            $product_variant->created_by = Auth::user()->id;
             $product_variant->save();
 
             // Log Activity
@@ -144,6 +145,7 @@ class ProductVariantController extends Controller
             $productVariant->update([
                 'name' => $request->name,
                 'product_attribute_id' => $request->product_attribute_id,
+                'updated_by' => Auth::user()->id
             ]);
 
             // Log Activity

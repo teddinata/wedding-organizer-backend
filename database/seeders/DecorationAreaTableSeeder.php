@@ -14,7 +14,7 @@ class DecorationAreaTableSeeder extends Seeder
     public function run(): void
     {
         //
-        DB::table('decoration_area')->insert([
+        DB::table('decoration_areas')->insert([
             [
                 'name' => 'Stage Area',
                 'created_at' => now(),

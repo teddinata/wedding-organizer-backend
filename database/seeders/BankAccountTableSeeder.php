@@ -14,7 +14,7 @@ class BankAccountTableSeeder extends Seeder
     public function run(): void
     {
         //
-        DB::table('bank_account')->insert([
+        DB::table('bank_accounts')->insert([
             [
                 'bank' => 'BCA',
                 'account_holder' => 'Chandra Hosen',
