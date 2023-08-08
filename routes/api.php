@@ -28,7 +28,7 @@ use App\Http\Controllers\Api\Web\OrderController;
 use App\Http\Controllers\Api\Web\OrderProductController;
 use App\Http\Controllers\Api\Web\DecorationAreaController;
 use App\Http\Controllers\Api\Web\OrderTeamController;
-
+use App\Http\Controllers\Api\Web\SalesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,7 +121,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // route decoration area
         Route::resource('decoration-area', DecorationAreaController::class)->names('decoration-area');
 
-
+        // route sales
+        Route::resource('sales', SalesController::class)->names('sales');
     });
 
     // route for permission
@@ -136,5 +137,3 @@ Route::prefix('v2')->group(function () {
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 });
-
-

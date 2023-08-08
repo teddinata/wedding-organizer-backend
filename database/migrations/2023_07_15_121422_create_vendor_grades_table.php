@@ -22,7 +22,7 @@ return new class extends Migration
             // relation
             // $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
             // created by
-            $table->integer('created_by');
+            $table->integer('created_by')->nullable();
             // updated by
             $table->integer('updated_by')->nullable();
             // deleted by

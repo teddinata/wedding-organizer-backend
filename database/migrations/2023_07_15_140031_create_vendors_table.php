@@ -48,7 +48,7 @@ return new class extends Migration
             $table->longText('address');
             $table->string('city');
             // created by
-            $table->integer('created_by');
+            $table->integer('created_by')->nullable();
             // updated by
             $table->integer('updated_by')->nullable();
             // deleted by

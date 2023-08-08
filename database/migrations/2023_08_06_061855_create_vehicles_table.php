@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('model_name');
             $table->string('plate_number');
             // created by
-            $table->integer('created_by');
+            $table->integer('created_by')->nullable();
             // updated by
             $table->integer('updated_by')->nullable();
             // deleted by

@@ -23,6 +23,9 @@ class Sales extends Model
         'deleted_by',
     ];
 
+    // declaration for softdeletes
+    protected $dates = ['deleted_at'];
+
     // logs
     public function getActivitylogOptions(): LogOptions
     {

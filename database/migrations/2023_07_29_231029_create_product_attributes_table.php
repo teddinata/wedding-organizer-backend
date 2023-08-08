@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('product_category_id')->constrained('product_categories')->onDelete('cascade');
             $table->string('name');
             // created by
-            $table->integer('created_by');
+            $table->integer('created_by')->nullable();
             // updated by
             $table->integer('updated_by')->nullable();
             // deleted by

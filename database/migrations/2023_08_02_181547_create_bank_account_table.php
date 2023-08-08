@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('account_holder');
             $table->string('account_number');
             // created by
-            $table->integer('created_by');
+            $table->integer('created_by')->nullable();
             // updated by
             $table->integer('updated_by')->nullable();
             // deleted by
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bank_account');
+        Schema::dropIfExists('bank_accounts');
     }
 };

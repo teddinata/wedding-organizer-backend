@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('product_attribute_id')->constrained('product_attributes')->onDelete('cascade');
             $table->string('name');
             // created by
-            $table->integer('created_by');
+            $table->integer('created_by')->nullable();
             // updated by
             $table->integer('updated_by')->nullable();
             // deleted by
