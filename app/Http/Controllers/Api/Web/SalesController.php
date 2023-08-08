@@ -130,47 +130,7 @@ class SalesController extends Controller
      */
     public function update(Request $request, Sales $sales)
     {
-        // validate incoming request
-        $request->validate([
-            'name' => 'required|string|max:35,' . $sales->id,
-        ]);
-
-        //$sales = Sales::findOrFail($sales->id);
-        // update data
-        $sales->update([
-            'name' => $request->name,
-            'updated_by' => Auth::user()->id,
-        ]);
-
-        try {
-            // activity log
-            Activity::create([
-                'log_name' => 'User ' . Auth::user()->name . ' update data Sales ' . $sales->name,
-                'description' => 'User ' . Auth::user()->name . ' update data Sales ' . $sales->name,
-                'subject_id' => Auth::user()->id,
-                'subject_type' => 'App\Models\User',
-                'causer_id' => Auth::user()->id,
-                'causer_type' => 'App\Models\User',
-                'properties' => request()->ip(),
-                // 'host' => request()->ip(),
-                'updated_at' => now()
-            ]);
-
-            // return json response
-            return response()->json([
-                'success' => true,
-                'message' => 'Sales updated successfully.',
-                'data' => $sales
-            ], 201);
-        } catch (\Exception $e) {
-
-            // return json response
-            return response()->json([
-                'success' => false,
-                'message' => 'Sales failed to update.',
-                'data' => $e->getMessage()
-            ], 409);
-        }
+        //
     }
 
     /**
