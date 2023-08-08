@@ -30,6 +30,7 @@ class Vendor extends Model
         'address',
         'city',
         'point',
+        'email',
         'vendor_limit_id',
         'vendor_grade_id',
         'membership_id',
@@ -62,4 +63,9 @@ class Vendor extends Model
         return $this->belongsTo(VendorGrade::class, 'vendor_grade_id', 'id');
     }
 
+    // 1 vendor memiliki membership
+    public function membership()
+    {
+        return $this->belongsTo(Membership::class, 'membership_id', 'id');
+    }
 }

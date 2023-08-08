@@ -77,6 +77,7 @@ class ProductAttributeController extends Controller
         $product_attribute = ProductAttribute::create([
             'name' => $request->input('name'),
             'product_category_id' => $request->input('product_category_id'),
+            'created_by' => Auth::user()->id,
         ]);
 
 
@@ -136,6 +137,7 @@ class ProductAttributeController extends Controller
         try {
             $productAttribute->name = $request->input('name');
             $productAttribute->product_category_id = $request->input('product_category_id');
+            $productAttribute->updated_by = Auth::user()->id;
             $productAttribute->save();
             // activity log
             Activity::create([

@@ -78,6 +78,7 @@ class ProductCategoryController extends Controller
         try {
             $product_category = new ProductCategory;
             $product_category->name = $request->input('name');
+            $product_category->created_by = Auth::user()->id;
             $product_category->save();
 
             // activity log
@@ -141,6 +142,7 @@ class ProductCategoryController extends Controller
 
         try {
             $product_category->name = $request->input('name');
+            $product_category->updated_by = Auth::user()->id;
             $product_category->save();
 
             // activity log

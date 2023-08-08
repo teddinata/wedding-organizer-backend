@@ -2,25 +2,26 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\ChecklistItem;
+use App\Models\MembershipBenefit;
+use App\Models\Membership;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
 
-class ChecklistItemController extends Controller
+class MembershipBenefitController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // get all checklist items with filter and pagination
-        $query = ChecklistItem::query();
+        // get all membership benefits with filter and pagination
+        $query = MembershipBenefit::query();
 
         // filter by name
-        if (request()->has('name')) {
-            $query->where('name', 'like', '%' . request('name') . '%');
+        if (request()->has('description')) {
+            $query->where('description', 'like', '%' . request('description') . '%');
         }
 
         // Get pagination settings
@@ -28,12 +29,12 @@ class ChecklistItemController extends Controller
         $page = request('page', 1);
 
         // Get data
-        $checklist_items = $query->paginate($perPage, ['*'], 'page', $page);
+        $membership_benefits = $query->paginate($perPage, ['*'], 'page', $page);
 
-         // Log Activity
-         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' show data Checklist Item',
-            'description' => 'User ' . Auth::user()->name . ' show data Checklist Item',
+        // log activity
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' show data Membership Benefit',
+            'description' => 'User ' . Auth::user()->name . ' show data Membership Benefit',
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -47,8 +48,8 @@ class ChecklistItemController extends Controller
         // return json response
         return response()->json([
             'success' => true,
-            'message' => 'Checklist Items retrieved successfully.',
-            'data' => $checklist_items
+            'message' => 'Membership Benefits retrieved successfully.',
+            'data' => $membership_benefits
         ], 200);
     }
 
@@ -67,21 +68,24 @@ class ChecklistItemController extends Controller
     {
         // validate incoming request
         $request->validate([
-            'name' => 'required|string|unique:checklist_items,name',
-            'checklist_category_id' => 'required|exists:checklist_categories,id'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'description' => 'required|string',
+            'membership_id' => 'required|integer',
         ]);
 
-        // create data
-        $checklist_item = ChecklistItem::create([
-            'name' => $request->name,
-            'checklist_category_id' => $request->checklist_category_id,
+        // create membership benefit
+        $membership_benefit = MembershipBenefit::create([
+            'image' => $request->image,
+            'description' => $request->description,
+            'membership_id' => $request->membership_id,
+            'created_at' => now(),
             'created_by' => Auth::user()->id,
         ]);
 
-        // Log Activity
+        // log activity
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' store data Checklist Item',
-            'description' => 'User ' . Auth::user()->name . ' store data Checklist Item',
+            'log_name' => 'User ' . Auth::user()->name . ' store data Membership Benefit',
+            'description' => 'User ' . Auth::user()->name . ' store data Membership Benefit',
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -95,15 +99,16 @@ class ChecklistItemController extends Controller
         // return json response
         return response()->json([
             'success' => true,
-            'message' => 'Checklist Item saved successfully.',
-            'data' => $checklist_item
-        ], 201);
+            'message' => 'Membership Benefit saved successfully.',
+            'data' => $membership_benefit
+        ], 200);
+
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(ChecklistItem $checklistItem)
+    public function show(MembershipBenefit $membershipBenefit)
     {
         //
     }
@@ -111,7 +116,7 @@ class ChecklistItemController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ChecklistItem $checklistItem)
+    public function edit(MembershipBenefit $membershipBenefit)
     {
         //
     }
@@ -119,25 +124,27 @@ class ChecklistItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ChecklistItem $checklistItem)
+    public function update(Request $request, MembershipBenefit $membershipBenefit)
     {
         // validate incoming request
         $request->validate([
-            'name' => 'required|string|unique:checklist_items,name,' . $checklistItem->id,
-            'checklist_category_id' => 'required|exists:checklist_categories,id'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'description' => 'required|string',
+            'membership_id' => 'required|integer',
         ]);
 
-        // update data
-        $checklistItem->update([
-            'name' => $request->name,
-            'checklist_category_id' => $request->checklist_category_id,
+        // update membership benefit
+        $membership_benefit = $membershipBenefit->update([
+            'image' => $request->image,
+            'description' => $request->description,
+            'membership_id' => $request->membership_id,
             'updated_by' => Auth::user()->id,
         ]);
 
-        // Log Activity
+        // log activity
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update data Checklist Item',
-            'description' => 'User ' . Auth::user()->name . ' update data Checklist Item',
+            'log_name' => 'User ' . Auth::user()->name . ' update data Membership Benefit',
+            'description' => 'User ' . Auth::user()->name . ' update data Membership Benefit',
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -151,24 +158,30 @@ class ChecklistItemController extends Controller
         // return json response
         return response()->json([
             'success' => true,
-            'message' => 'Checklist Item updated successfully.',
-            'data' => $checklistItem
+            'message' => 'Membership Benefit updated successfully.',
+            'data' => $membership_benefit
         ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ChecklistItem $checklistItem)
+    public function destroy($id)
     {
-        // find data by id
-        $checklistItem = ChecklistItem::findOrFail($checklistItem->id);
-        $checklistItem->delete();
+        // find membership benefit
+        $membership_benefit = MembershipBenefit::find($id);
 
-        // Log Activity
+        // delete membership benefit
+        $membership_benefit->delete();
+
+        // deleted by
+        $membership_benefit->deleted_by = Auth::user()->id;
+        $membership_benefit->save();
+
+        // log activity
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete data Checklist Item',
-            'description' => 'User ' . Auth::user()->name . ' delete data Checklist Item',
+            'log_name' => 'User ' . Auth::user()->name . ' delete data Membership Benefit',
+            'description' => 'User ' . Auth::user()->name . ' delete data Membership Benefit',
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -182,8 +195,8 @@ class ChecklistItemController extends Controller
         // return json response
         return response()->json([
             'success' => true,
-            'message' => 'Checklist Item deleted successfully.',
-            'data' => $checklistItem
+            'message' => 'Membership Benefit deleted successfully.',
+            'data' => $membership_benefit
         ], 200);
     }
 }

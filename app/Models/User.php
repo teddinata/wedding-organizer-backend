@@ -81,6 +81,17 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Model_Has_Roles', 'model_id', 'id');
     }
 
+    // relasi dengan table employee
+    public function employee()
+    {
+        return $this->hasOne('App\Models\Employee', 'user_id', 'id');
+    }
+
+    public function team_lead()
+    {
+        return $this->belongsToMany(Team::class, 'team_lead', 'user_id', 'team_id')->withTimestamps();
+    }
+
 
     // public function getActivitylogOptions(): LogOptions
     // {

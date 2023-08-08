@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('decoration_areas', function (Blueprint $table) {
+        Schema::create('team_members', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 15);
+            $table->foreignId('team_id')->constrained('teams')->onDelete('cascade');
+            $table->foreignId('employee_id')->constrained('employees')->onDelete('cascade');
             $table->timestamps();
-            // soft delete
-            $table->softDeletes();
         });
     }
 
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('decoration_area');
+        Schema::dropIfExists('team_members');
     }
 };
