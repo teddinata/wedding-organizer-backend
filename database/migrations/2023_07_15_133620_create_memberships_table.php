@@ -16,7 +16,7 @@ return new class extends Migration
             // icon
             $table->string('image')->nullable();
             // name
-            $table->string('name', 10);
+            $table->string('name');
             // from
             $table->integer('from');
             // to

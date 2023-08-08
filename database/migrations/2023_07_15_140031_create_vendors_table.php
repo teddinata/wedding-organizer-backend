@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             // logo
             $table->string('logo')->nullable();
-            $table->string('code', 7);
+            $table->string('code');
             $table->string('name');
             // point
             $table->integer('point')->default(0);

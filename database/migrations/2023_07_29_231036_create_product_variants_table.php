@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             // relation to product attribute
             $table->foreignId('product_attribute_id')->constrained('product_attributes')->onDelete('cascade');
-            $table->string('name', 75);
+            $table->string('name');
             // created by
             $table->integer('created_by');
             // updated by

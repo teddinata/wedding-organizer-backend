@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->string('model_name', 100);
-            $table->string('plate_number', 11);
+            $table->string('model_name');
+            $table->string('plate_number');
             // created by
             $table->integer('created_by');
             // updated by
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vehicle');
+        Schema::dropIfExists('vehicles');
     }
 };

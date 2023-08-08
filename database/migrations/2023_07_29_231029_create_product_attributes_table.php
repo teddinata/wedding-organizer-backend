@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             // relation to category
             $table->foreignId('product_category_id')->constrained('product_categories')->onDelete('cascade');
-            $table->string('name', 75);
+            $table->string('name');
             // created by
             $table->integer('created_by');
             // updated by

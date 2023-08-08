@@ -16,7 +16,7 @@ return new class extends Migration
             // vendor_id
             // $table->foreignId('vendor_id')->nullable();
             // limit
-            $table->string('name', 10);
+            $table->string('name');
             $table->integer('amount_limit');
 
             // relation
