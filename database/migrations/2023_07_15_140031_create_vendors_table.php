@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('vendors', function (Blueprint $table) {
             $table->id();
+            // relationship
+            // limit_id
+            $table->foreignId('vendor_limit_id')->references('id')->on('vendor_limits')->onDelete('cascade');
+            // grade_id
+            $table->foreignId('vendor_grade_id')->references('id')->on('vendor_grades')->onDelete('cascade');
+            // membership_id
+            $table->foreignId('membership_id')->references('id')->on('memberships')->onDelete('cascade');
             // logo
             $table->string('logo')->nullable();
             $table->string('code');
@@ -39,16 +46,7 @@ return new class extends Migration
             $table->string('instagram')->nullable();
             // address use longtext
             $table->longText('address');
-            $table->string('city', 50);
-
-            // relationship
-            // limit_id
-            $table->foreign('vendor_limit_id')->references('id')->on('vendor_limits')->onDelete('cascade');
-            // grade_id
-            $table->foreign('vendor_grade_id')->references('id')->on('vendor_grades')->onDelete('cascade');
-            // membership_id
-            $table->foreign('membership_id')->references('id')->on('memberships')->onDelete('cascade');
-
+            $table->string('city');
             // created by
             $table->integer('created_by');
             // updated by
