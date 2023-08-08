@@ -132,16 +132,17 @@ class SalesController extends Controller
     {
         // validate incoming request
         $request->validate([
-            'name' => 'required|string|max:255,' . $sales->id,
+            'name' => 'required|string|max:35,' . $sales->id,
         ]);
 
         //$sales = Sales::findOrFail($sales->id);
+        // update data
+        $sales->update([
+            'name' => $request->name,
+            'updated_by' => Auth::user()->id,
+        ]);
 
         try {
-            $sales->name = $request->input('name');
-            $sales->updated_by = Auth::user()->id;
-            $sales->save();
-
             // activity log
             Activity::create([
                 'log_name' => 'User ' . Auth::user()->name . ' update data Sales ' . $sales->name,
@@ -177,11 +178,9 @@ class SalesController extends Controller
      */
     public function destroy($id)
     {
-
-        // get product category
-        $sales = Sales::findOrFail($id);
-
         try {
+            // get sales
+            $sales = Sales::findOrFail($id);
             $sales->delete();
             // deleted by
             $sales->deleted_by = Auth::user()->id;
