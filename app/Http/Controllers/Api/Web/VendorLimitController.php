@@ -95,7 +95,7 @@ class VendorLimitController extends Controller
     {
         // validate request
         $request->validate([
-            'name' => 'required|unique:vendor_limits,name',
+            'name' => 'required',
             'amount_limit' => 'required|numeric',
         ]);
 
@@ -153,7 +153,7 @@ class VendorLimitController extends Controller
 
         // validate request
         request()->validate([
-            'name' => 'required|unique:vendor_limits,name,' . $id,
+            'name' => 'required' . $id,
             'amount_limit' => 'required|numeric',
         ]);
 

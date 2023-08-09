@@ -67,7 +67,7 @@ class LevelController extends Controller
     {
         // validate request
         $request->validate([
-            'name' => 'required|unique:levels,name',
+            'name' => 'required',
             'icon' => 'nullable|string',
             'from' => 'required|numeric',
             'until' => 'required|numeric',
@@ -126,7 +126,7 @@ class LevelController extends Controller
     {
         // validate request
         $request->validate([
-            'name' => 'required|unique:levels,name,' . $level->id,
+            'name' => 'required' . $level->id,
             'icon' => 'nullable|string',
             'from' => 'required|numeric',
             'until' => 'required|numeric',

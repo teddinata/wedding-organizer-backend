@@ -67,12 +67,14 @@ class PositionController extends Controller
     {
         // validate request
         $request->validate([
-            'name' => 'required|unique:positions,name',
+            'name' => 'required',
+            'department_id' => 'required|exists:departments,id',
         ]);
 
         // create new position
         $position = Position::create([
             'name' => $request->name,
+            'department_id' => $request->department_id,
         ]);
 
         // log activity
@@ -120,12 +122,14 @@ class PositionController extends Controller
     {
         // validate request
         $request->validate([
-            'name' => 'required|unique:positions,name,' . $position->id,
+            'name' => 'required' . $position->id,
+            'department_id' => 'required|exists:departments,id',
         ]);
 
         // update position
         $position->update([
             'name' => $request->name,
+            'department_id' => $request->department_id,
         ]);
 
         // log activity

@@ -36,4 +36,10 @@ class Department extends Model
     {
         return $this->hasMany(Employee::class, 'department_id', 'id');
     }
+
+    // 1 department memiliki banyak position
+    public function position()
+    {
+        return $this->hasMany(Position::class, 'department_id', 'id');
+    }
 }

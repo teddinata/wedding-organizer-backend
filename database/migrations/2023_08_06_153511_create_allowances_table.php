@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
             // name
             $table->string('name');
-            $table->text('description')->nullable();
+            // $table->text('description')->nullable();
 
             // created by
             $table->unsignedBigInteger('created_by')->nullable();

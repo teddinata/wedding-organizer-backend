@@ -70,15 +70,13 @@ class AllowanceController extends Controller
     {
         // validate request
         $request->validate([
-            'name' => 'required|unique:allowances,name',
-            'description' => 'required',
+            'name' => 'required|min:3|max:75',
             'department_id' => 'required|exists:departments,id',
         ]);
 
         // create new allowance
         $allowance = Allowance::create([
             'name' => $request->name,
-            'description' => $request->description,
             'department_id' => $request->department_id,
         ]);
 
@@ -127,15 +125,13 @@ class AllowanceController extends Controller
     {
         // validate request
         $request->validate([
-            'name' => 'required|unique:allowances,name,' . $allowance->id,
-            'description' => 'required',
+            'name' => 'required|min:3|max:75',
             'department_id' => 'required|exists:departments,id',
         ]);
 
         // update allowance
         $allowance->update([
             'name' => $request->name,
-            'description' => $request->description,
             'department_id' => $request->department_id,
         ]);
 
@@ -173,7 +169,7 @@ class AllowanceController extends Controller
         $allowance->delete();
 
         // deleted by
-        $allowance->deleted_by = Auth::user()->name;
+        $allowance->deleted_by = Auth::user()->id;
         $allowance->save();
 
         // log activity

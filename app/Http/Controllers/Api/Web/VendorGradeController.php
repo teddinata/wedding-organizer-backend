@@ -95,7 +95,7 @@ class VendorGradeController extends Controller
     {
         // validate request
         $request->validate([
-            'name' => 'required|unique:vendor_grades,name',
+            'name' => 'required',
             'description' => 'required',
         ]);
 
@@ -151,7 +151,7 @@ class VendorGradeController extends Controller
     {
         // validate request
         $request->validate([
-            'name' => 'required|unique:vendor_grades,name,' . $id,
+            'name' => 'required' . $id,
             'description' => 'required',
         ]);
 
