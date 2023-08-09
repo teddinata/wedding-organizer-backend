@@ -67,7 +67,7 @@ class ChecklistItemController extends Controller
     {
         // validate incoming request
         $request->validate([
-            'name' => 'required|string|unique:checklist_items,name',
+            'name' => 'required|string',
             'checklist_category_id' => 'required|exists:checklist_categories,id'
         ]);
 
@@ -123,7 +123,7 @@ class ChecklistItemController extends Controller
     {
         // validate incoming request
         $request->validate([
-            'name' => 'required|string|unique:checklist_items,name,' . $checklistItem->id,
+            'name' => 'required|string' . $checklistItem->id,
             'checklist_category_id' => 'required|exists:checklist_categories,id'
         ]);
 

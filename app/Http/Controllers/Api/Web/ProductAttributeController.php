@@ -69,9 +69,7 @@ class ProductAttributeController extends Controller
         // validate incoming request
         $request->validate([
             'product_category_id' => 'required|exists:product_categories,id',
-            'name' => 'required|string|unique:product_attributes',
-        ], [
-            'name.unique' => 'The name of product attribute has already been taken.',
+            'name' => 'required|string',
         ]);
 
         $product_attribute = ProductAttribute::create([
@@ -131,7 +129,7 @@ class ProductAttributeController extends Controller
         // validate incoming request
         $request->validate([
             'product_category_id' => 'required|exists:product_categories,id',
-            'name' => 'required|string|unique:product_attributes,name,' . $productAttribute->id,
+            'name' => 'required|string' . $productAttribute->id,
         ]);
 
         try {

@@ -69,10 +69,7 @@ class ProductCategoryController extends Controller
     {
         // validate incoming request
         $request->validate([
-            'name' => 'required|string|unique:product_categories',
-        ], [
-            'name.required' => 'Name is required!',
-            'name.unique' => 'Name is already exists!',
+            'name' => 'required|string',
         ]);
 
         try {
@@ -135,7 +132,7 @@ class ProductCategoryController extends Controller
     {
         // validate incoming request
         $request->validate([
-            'name' => 'required|string|unique:product_categories,name,' . $productCategory->id,
+            'name' => 'required|string' . $productCategory->id,
         ]);
 
         $product_category = ProductCategory::findOrFail($productCategory->id);

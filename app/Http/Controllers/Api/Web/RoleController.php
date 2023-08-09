@@ -60,7 +60,7 @@ class RoleController extends Controller
     {
         // validate request
         $this->validate($request, [
-            'name' => 'required|unique:roles,name',
+            'name' => 'required',
             'permissions' => 'required'
         ]);
 
@@ -117,7 +117,7 @@ class RoleController extends Controller
     {
         // validate request
         $this->validate($request, [
-            'name' => 'required|unique:roles,name,' . $id,
+            'name' => 'required' . $id,
             'permissions' => 'required'
         ]);
 
