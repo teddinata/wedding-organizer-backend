@@ -106,7 +106,7 @@ class MembershipController extends Controller
             'success' => true,
             'message' => 'Membership created successfully.',
             'data' => $membership
-        ], 201);
+        ], 200);
     }
 
     /**

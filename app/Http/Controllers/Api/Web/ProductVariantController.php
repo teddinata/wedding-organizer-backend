@@ -98,7 +98,7 @@ class ProductVariantController extends Controller
                 'success' => true,
                 'message' => 'Product Variant created successfully.',
                 'data' => $product_variant
-            ], 201);
+            ], 200);
         } catch (\Exception $e) {
             // return json response
             return response()->json([

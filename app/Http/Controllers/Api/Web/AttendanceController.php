@@ -84,37 +84,16 @@ class AttendanceController extends Controller
         $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'date' => 'nullable|date',
-            'clock_in' => 'nullable|date_format:H:i:s',
-            'clock_out' => 'nullable|date_format:H:i:s',
-            // photo
-            'clock_in_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'clock_out_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            // location
-            'clock_in_location' => 'nullable|string|max:255',
-            'clock_out_location' => 'nullable|string|max:255',
-            // address
-            'clock_in_address' => 'nullable|string|max:255',
-            'clock_out_address' => 'nullable|string|max:255',
-            'status' => 'required|string|max:255',
+            'clock_in' => 'nullable',
+            'clock_out' => 'nullable',
         ]);
-
-        // upload photo
-        $clock_in_photo = $request->file('clock_in_photo')->store('public/attendances');
-        $clock_out_photo = $request->file('clock_out_photo')->store('public/attendances');
 
         // create attendance
         $attendance = Attendance::create([
             'employee_id' => $request->employee_id,
             'date' => $request->date,
             'clock_in' => $request->clock_in,
-            'clock_in_photo' => $clock_in_photo,
-            'clock_in_location' => $request->clock_in_location,
-            'clock_in_address' => $request->clock_in_address,
             'clock_out' => $request->clock_out,
-            'clock_out_photo' => $clock_out_photo,
-            'clock_out_location' => $request->clock_out_location,
-            'clock_out_address' => $request->clock_out_address,
-            'status' => $request->status,
             'platform' => 'web',
             'created_by' => Auth::user()->id,
             'updated_by' => Auth::user()->id,
@@ -139,7 +118,7 @@ class AttendanceController extends Controller
             'success' => true,
             'message' => 'Attendance created successfully.',
             'data' => $attendance
-        ], 201);
+        ], 200);
     }
 
     /**
@@ -192,37 +171,16 @@ class AttendanceController extends Controller
         $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'date' => 'nullable|date',
-            'clock_in' => 'nullable|date_format:H:i:s',
-            'clock_out' => 'nullable|date_format:H:i:s',
-            // photo
-            'clock_in_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'clock_out_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            // location
-            'clock_in_location' => 'nullable|string|max:255',
-            'clock_out_location' => 'nullable|string|max:255',
-            // address
-            'clock_in_address' => 'nullable|string|max:255',
-            'clock_out_address' => 'nullable|string|max:255',
-            'status' => 'required|string|max:255',
+            'clock_in' => 'nullable',
+            'clock_out' => 'nullable',
         ]);
-
-        // upload photo
-        $clock_in_photo = $request->file('clock_in_photo')->store('public/attendances');
-        $clock_out_photo = $request->file('clock_out_photo')->store('public/attendances');
 
         // update attendance
         $attendance->update([
             'employee_id' => $request->employee_id,
             'date' => $request->date,
             'clock_in' => $request->clock_in,
-            'clock_in_photo' => $clock_in_photo,
-            'clock_in_location' => $request->clock_in_location,
-            'clock_in_address' => $request->clock_in_address,
             'clock_out' => $request->clock_out,
-            'clock_out_photo' => $clock_out_photo,
-            'clock_out_location' => $request->clock_out_location,
-            'clock_out_address' => $request->clock_out_address,
-            'status' => $request->status,
             'platform' => 'web',
             'updated_by' => Auth::user()->id,
         ]);

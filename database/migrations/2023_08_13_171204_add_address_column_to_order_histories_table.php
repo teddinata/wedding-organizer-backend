@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('positions', function (Blueprint $table) {
-            //
-            $table->foreignId('department_id')->after('id')->constrained('departments')->onDelete('cascade');
+        Schema::table('order_histories', function (Blueprint $table) {
+            // add column
+            $table->text('address')->after('photo')->nullable();
         });
     }
 
@@ -22,9 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('positions', function (Blueprint $table) {
+        Schema::table('order_histories', function (Blueprint $table) {
             // drop column
-            $table->dropColumn('department_id');
+            $table->dropColumn('address');
         });
     }
 };

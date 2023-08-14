@@ -97,7 +97,7 @@ class ChecklistItemController extends Controller
             'success' => true,
             'message' => 'Checklist Item saved successfully.',
             'data' => $checklist_item
-        ], 201);
+        ], 200);
     }
 
     /**

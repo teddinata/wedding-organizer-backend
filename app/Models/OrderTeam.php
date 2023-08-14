@@ -17,7 +17,6 @@ class OrderTeam extends Model
     protected $table = 'order_teams';
 
     protected $fillable = [
-        'order_id',
         'employee_id',
         'order_product_id',
         'team_id',
@@ -31,7 +30,7 @@ class OrderTeam extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['order_id', 'employee_id', 'order_product_id', 'team_id', 'salary', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['employee_id', 'order_product_id', 'team_id', 'salary', 'created_by', 'updated_by', 'deleted_by']);
     }
 
     // relasi dengan order
@@ -41,10 +40,15 @@ class OrderTeam extends Model
     }
 
     // relasi dengan employee
-    public function employee()
+    public function employees()
     {
-        return $this->belongsTo(Employee::class, 'employee_id', 'id');
+        return $this->belongsToMany(Employee::class, 'employee_id', 'id');
     }
+    // public function employees()
+    // {
+    //     return $this->belongsToMany(Employee::class, 'order_employee', 'order_team_id', 'employee_id');
+    // }
+
 
     // relasi dengan order product
     public function order_product()

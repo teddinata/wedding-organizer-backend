@@ -95,7 +95,7 @@ class TeamController extends Controller
             'success' => true,
             'message' => 'Team created successfully.',
             'data' => $team
-        ], 201);
+        ], 200);
     }
 
     /**

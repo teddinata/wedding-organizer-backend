@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('positions', function (Blueprint $table) {
-            //
-            $table->foreignId('department_id')->after('id')->constrained('departments')->onDelete('cascade');
+        Schema::table('teams', function (Blueprint $table) {
+            // add soft deletes
+            $table->softDeletes();
         });
     }
 
@@ -22,9 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('positions', function (Blueprint $table) {
-            // drop column
-            $table->dropColumn('department_id');
+        Schema::table('teams', function (Blueprint $table) {
+            //
         });
     }
 };

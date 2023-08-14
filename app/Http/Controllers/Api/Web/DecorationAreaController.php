@@ -62,7 +62,7 @@ class DecorationAreaController extends Controller
             'success' => true,
             'message' => 'Decoration area created successfully.',
             'data' => $decorationArea
-        ], 201);
+        ], 200);
     }
 
     /**

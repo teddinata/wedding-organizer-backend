@@ -97,7 +97,7 @@ class SalesController extends Controller
                 'success' => true,
                 'message' => 'Sales saved successfully.',
                 'data' => $sales
-            ], 201);
+            ], 200);
         } catch (\Exception $e) {
 
             // return json response
@@ -163,7 +163,7 @@ class SalesController extends Controller
                 'success' => true,
                 'message' => 'Sales deleted successfully.',
                 'data' => $sales
-            ], 201);
+            ], 200);
         } catch (\Exception $e) {
 
             // return json response
