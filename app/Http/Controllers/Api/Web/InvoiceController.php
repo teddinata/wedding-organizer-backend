@@ -97,7 +97,7 @@ class InvoiceController extends Controller
             'success' => true,
             'message' => 'Invoice created successfully.',
             'data' => $invoice
-        ], 201);
+        ], 200);
 
     }
 

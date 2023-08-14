@@ -124,7 +124,7 @@ class VendorLimitController extends Controller
             'success' => true,
             'message' => 'Vendor Limit data saved successfully.',
             'data' => $vendor_limit
-        ], 201);
+        ], 200);
     }
 
     /**

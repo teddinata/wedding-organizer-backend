@@ -125,7 +125,7 @@ class VendorGradeController extends Controller
             'success' => true,
             'message' => 'Vendor Grade data saved successfully.',
             'data' => $vendor_grade
-        ], 201);
+        ], 200);
     }
 
     /**

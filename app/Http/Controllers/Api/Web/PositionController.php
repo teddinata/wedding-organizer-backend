@@ -96,7 +96,7 @@ class PositionController extends Controller
             'success' => true,
             'message' => 'Position created successfully.',
             'data' => $position
-        ], 201);
+        ], 200);
     }
 
     /**

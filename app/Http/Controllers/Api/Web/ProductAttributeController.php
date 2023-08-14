@@ -101,7 +101,7 @@ class ProductAttributeController extends Controller
             'success' => true,
             'message' => 'Product Attribute created successfully.',
             'data' => $product_attribute
-        ], 201);
+        ], 200);
 
     }
 
@@ -156,7 +156,7 @@ class ProductAttributeController extends Controller
                 'success' => true,
                 'message' => 'Product Attribute updated successfully.',
                 'data' => $productAttribute
-            ], 201);
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

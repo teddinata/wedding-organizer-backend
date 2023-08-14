@@ -93,7 +93,7 @@ class OrderProductController extends Controller
             'success' => true,
             'message' => 'Order product created successfully.',
             'data' => $orderProduct
-        ], 201);
+        ], 200);
     }
 
     /**

@@ -97,7 +97,7 @@ class ProductCategoryController extends Controller
                 'success' => true,
                 'message' => 'Product Category saved successfully.',
                 'data' => $product_category
-            ], 201);
+            ], 200);
         } catch (\Exception $e) {
 
             // return json response
@@ -161,7 +161,7 @@ class ProductCategoryController extends Controller
                 'success' => true,
                 'message' => 'Product Category updated successfully.',
                 'data' => $product_category
-            ], 201);
+            ], 200);
         } catch (\Exception $e) {
 
             // return json response
@@ -206,7 +206,7 @@ class ProductCategoryController extends Controller
                 'success' => true,
                 'message' => 'Product Category deleted successfully.',
                 'data' => $product_category
-            ], 201);
+            ], 200);
         } catch (\Exception $e) {
 
             // return json response

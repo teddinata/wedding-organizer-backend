@@ -132,7 +132,7 @@ class OrderController extends Controller
             'success' => true,
             'message' => 'Order created successfully.',
             'data' => $order
-        ], 201);
+        ], 200);
     }
 
     /**

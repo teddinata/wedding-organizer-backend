@@ -63,7 +63,7 @@ class Order extends Model
     // relasi dengan employee
     public function employee()
     {
-        return $this->belongsTo(Employee::class, 'employee_id', 'id');
+        return $this->belongsToMany(Employee::class, 'employee_id', 'id');
     }
 
     // relasi dengan vendor

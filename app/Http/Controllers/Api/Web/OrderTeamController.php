@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Web;
 
+use App\Models\Order;
 use App\Models\OrderTeam;
 use App\Models\OrderProduct;
 use Illuminate\Http\Request;
@@ -54,41 +55,26 @@ class OrderTeamController extends Controller
     {
         // validate request
         $request->validate([
-            'product_id' => 'required|exists:order_products,id',
-            // 'employee_id' => 'required|exists:employees,id',
-            'employees' => 'required|array',
+            'order_product_id' => 'required|exists:order_products,id',
+            'employee_id' => 'required|array',
+            // 'employees.*' => 'required|exists:employees,id',
             'salary' => 'required|integer',
         ]);
 
-        $product_id = $request->input('product_id');
-        $employees = $request->input('employees');
+        $product_id = $request->input('order_product_id');
+        $employees = $request->input('employee_id');
         $salary = $request->input('salary');
 
         // Temukan produk berdasarkan product_id
         $product = OrderProduct::find($product_id);
 
-        if ($product) {
-            foreach ($employees as $employee_id) {
-                // Cek apakah employee_id sudah ada terhubung dengan produk ini
-                $existingEmployee = $product->order->employee()->where('employee_id', $employee_id)->first();
-
-                if (!$existingEmployee) {
-                    // Tambahkan employee ke produk dengan informasi gaji
-                    $product->order->employee()->attach($employee_id, ['salary' => $salary]);
-                } else {
-                    // Jika employee sudah terhubung dengan produk, update gaji
-                    $product->order->employee()->updateExistingPivot($employee_id, ['salary' => $salary]);
-                }
-            }
-
-            return response()->json(['message' => 'Employees added to product successfully']);
-        } else {
-            return response()->json(['message' => 'Product not found'], 404);
-        }
-
-
-
-
+        // Create a new OrderTeam
+        $orderTeam = OrderTeam::create([
+            'order_product_id' => $product_id,
+            'salary' => $salary,
+        ]);
+        // multiple insert employee to order_team table
+        $orderTeam->employees()->attach($employees);
         // log activity
         Activity::create([
             'log_name' => 'User ' . Auth::user()->name . ' store data Assign Team',
@@ -107,8 +93,8 @@ class OrderTeamController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Assign Team created successfully.',
-            'data' => $product
-        ], 201);
+            'data' => $orderTeam
+        ], 200);
     }
 
     /**

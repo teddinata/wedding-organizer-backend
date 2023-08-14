@@ -96,7 +96,13 @@ class Employee extends Model
     // relasi dengan order
     public function order()
     {
-        return $this->hasMany(Order::class, 'employee_id', 'id');
+        return $this->belongsToMany(Order::class, 'employee_id', 'id');
+    }
+
+    // relasi dengan order team
+    public function order_team()
+    {
+        return $this->belongsToMany(OrderTeam::class, 'employee_id', 'id');
     }
 
     // relasi dengan department id

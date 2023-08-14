@@ -147,7 +147,7 @@ class EmployeeController extends Controller
             'success' => true,
             'message' => 'Employee created successfully.',
             'data' => $employee
-        ], 201);
+        ], 200);
     }
 
     /**
