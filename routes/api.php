@@ -52,6 +52,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // route resource for role
     // Route::resource('role', RoleController::class)->names('role');
     Route::prefix('/v2')->group(function () {
+        Route::post('/edit-profile', [AuthController::class, 'editProfile'])->name('edit-profile');
+
         Route::resource('role', RoleController::class)->names('role');
 
         // user
@@ -132,8 +134,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::prefix('v2')->group(function () {
     // ...
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login-with-otp', [AuthController::class, 'loginWithOtp'])->name('login-with-otp');
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('auth:sanctum');
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/reset-password-with-otp', [AuthController::class, 'resetPasswordWithOtp'])->name('reset-password-with-otp');
+
+
 });

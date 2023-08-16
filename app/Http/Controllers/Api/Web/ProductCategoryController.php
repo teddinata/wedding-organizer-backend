@@ -184,6 +184,9 @@ class ProductCategoryController extends Controller
 
         try {
             $product_category->delete();
+            // deleted by
+            $product_category->deleted_by = Auth::user()->id;
+            $product_category->save();
             // delete data product attribute by product category id
             ProductAttribute::where('product_category_id', $productCategory->id)->delete();
 
