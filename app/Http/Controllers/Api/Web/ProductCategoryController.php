@@ -132,7 +132,7 @@ class ProductCategoryController extends Controller
     {
         // validate incoming request
         $request->validate([
-            'name' => 'required|string' . $productCategory->id,
+            'name' => 'required|string',
         ]);
 
         $product_category = ProductCategory::findOrFail($productCategory->id);
