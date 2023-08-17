@@ -129,7 +129,7 @@ class ProductAttributeController extends Controller
         // validate incoming request
         $request->validate([
             'product_category_id' => 'required|exists:product_categories,id',
-            'name' => 'required|string' . $productAttribute->id,
+            'name' => 'required|string'
         ]);
 
         try {

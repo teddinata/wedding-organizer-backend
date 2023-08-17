@@ -136,7 +136,7 @@ class ProductVariantController extends Controller
         // validate incoming request
 
         $request->validate([
-            'name' => 'required|string' . $productVariant->id,
+            'name' => 'required|string',
             'product_attribute_id' => 'required|exists:product_attributes,id',
         ]);
 
