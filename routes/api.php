@@ -124,7 +124,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('decoration-area', DecorationAreaController::class)->names('decoration-area');
 
         // route sales
-        Route::resource('sales', SalesController::class)->names('sales');
+        //Route::resource('sales', SalesController::class)->names('sales');
+        Route::apiResource('/sales', SalesController::class);
     });
 
     // route for permission
@@ -140,6 +141,4 @@ Route::prefix('v2')->group(function () {
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('auth:sanctum');
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     Route::post('/reset-password-with-otp', [AuthController::class, 'resetPasswordWithOtp'])->name('reset-password-with-otp');
-
-
 });

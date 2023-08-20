@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers\Api\Web;
 
+// model
 use App\Models\Sales;
-use Illuminate\Http\Request;
+
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+// use resource
+use App\Http\Resources\SalesResource;
+// validator
+use Illuminate\Support\Facades\Validator;
 
 
 class SalesController extends Controller
@@ -16,20 +22,10 @@ class SalesController extends Controller
      */
     public function index()
     {
-        // get all product categories with filter and pagination
-        $query = Sales::query();
-
-        // filter by name
-        if (request()->has('name')) {
-            $query->where('name', 'like', '%' . request('name') . '%');
-        }
-
-        // Get pagination settings
-        $perPage = request('per_page', 10);
-        $page = request('page', 1);
-
-        // Get data
-        $sales = $query->paginate($perPage, ['*'], 'page', $page);
+        // get sales data and sort by name ascending
+        $sales = Sales::orderBy('name', 'asc')->paginate(10);
+        //return collection of sales as a resource
+        return new SalesResource(true, 'Sales retrieved successfully', $sales);
 
         // Log Activity
         Activity::create([
@@ -40,25 +36,9 @@ class SalesController extends Controller
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
-
-        // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Sales retrieved successfully.',
-            'data' => $sales
-        ], 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -66,71 +46,100 @@ class SalesController extends Controller
      */
     public function store(Request $request)
     {
-        // validate incoming request
-        $request->validate([
-            'name' => 'required|string',
-        ], [
-            'name.required' => 'Name is required!'
+        //define validation rules
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'created_by' => 'required|numeric'
         ]);
 
-        try {
-            $sales = new Sales;
-            $sales->name = $request->input('name');
-            $sales->created_by = Auth::user()->id;
-            $sales->save();
-
-            // activity log
-            Activity::create([
-                'log_name' => 'User ' . Auth::user()->name . ' create data Sales ' . $sales->name,
-                'description' => 'User ' . Auth::user()->name . ' create data Sales ' . $sales->name,
-                'subject_id' => Auth::user()->id,
-                'subject_type' => 'App\Models\User',
-                'causer_id' => Auth::user()->id,
-                'causer_type' => 'App\Models\User',
-                'properties' => request()->ip(),
-                // 'host' => request()->ip(),
-                'created_at' => now()
-            ]);
-
-            // return json response
-            return response()->json([
-                'success' => true,
-                'message' => 'Sales saved successfully.',
-                'data' => $sales
-            ], 200);
-        } catch (\Exception $e) {
-
-            // return json response
-            return response()->json([
-                'success' => false,
-                'message' => 'Sales failed to save.',
-                'data' => $e->getMessage()
-            ], 409);
+        //check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
         }
+
+        // create sales
+        $sales = Sales::create([
+            'name' => $request->name,
+            'created_by' => Auth::user()->id,
+        ]);
+
+        // activity log
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' create data Sales ' . $sales->name,
+            'description' => 'User ' . Auth::user()->name . ' create data Sales ' . $sales->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            'created_at' => now()
+        ]);
+
+        // return json response
+        return new SalesResource(true, 'Sales created successfully', $sales);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Sales $sales)
+    public function show(string $id)
     {
-        //
-    }
+        $sales = Sales::findOrFail($id);
+        //return single post as a resource
+        return new SalesResource(true, 'Data Sales Found!', $sales);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Sales $sales)
-    {
-        //
+        // activity log
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' view data Sales ' . $sales->name,
+            'description' => 'User ' . Auth::user()->name . ' view data Sales ' . $sales->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Sales $sales)
+    public function update(Request $request, $id)
     {
-        //
+        // validate incoming request
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'updated_by' => 'required|numeric'
+        ]);
+
+        //check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $sales = Sales::findOrFail($id);
+
+        $sales->update([
+            'name' => $request->name,
+            'updated_by' => Auth::user()->id,
+        ]);
+
+        // activity log
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' update data Product Category ' . $sales->name,
+            'description' => 'User ' . Auth::user()->name . ' update data Product Category ' . $sales->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // return json response
+        return new SalesResource(true, 'Sales updated successfully!', $sales);
     }
 
     /**
@@ -138,40 +147,26 @@ class SalesController extends Controller
      */
     public function destroy($id)
     {
-        try {
-            // get sales
-            $sales = Sales::findOrFail($id);
-            $sales->delete();
-            // deleted by
-            $sales->deleted_by = Auth::user()->id;
-            $sales->save();
+        // get sales
+        $sales = Sales::findOrFail($id);
+        $sales->delete();
+        // deleted by
+        $sales->deleted_by = Auth::user()->id;
+        $sales->save();
 
-            // activity log
-            Activity::create([
-                'log_name' => 'User ' . Auth::user()->name . ' delete data Sales ' . $sales->name,
-                'description' => 'User ' . Auth::user()->name . ' delete data Sales ' . $sales->name,
-                'subject_id' => Auth::user()->id,
-                'subject_type' => 'App\Models\User',
-                'causer_id' => Auth::user()->id,
-                'causer_type' => 'App\Models\User',
-                'properties' => request()->ip(),
-                // 'host' => request()->ip(),
-            ]);
+        // activity log
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' delete data Sales ' . $sales->name,
+            'description' => 'User ' . Auth::user()->name . ' delete data Sales ' . $sales->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+        ]);
 
-            // return json response
-            return response()->json([
-                'success' => true,
-                'message' => 'Sales deleted successfully.',
-                'data' => $sales
-            ], 200);
-        } catch (\Exception $e) {
-
-            // return json response
-            return response()->json([
-                'success' => false,
-                'message' => 'Sales failed to delete.',
-                'data' => $e->getMessage()
-            ], 409);
-        }
+        // return json response
+        return new SalesResource(true, 'Sales deleted successfully', null);
     }
 }
