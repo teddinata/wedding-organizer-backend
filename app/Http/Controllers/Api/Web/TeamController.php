@@ -1,12 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Api\Web;
+namespace App\Http\Controllers\API\Web;
 
+use App\Actions\Jetstream\UpdateTeamName;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Team;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+// use resource
+use App\Http\Resources\TeamResource;
+// model
+use App\Models\MasterData\Team;
+// request
+use App\Http\Requests\Team\StoreTeamRequest;
+use App\Http\Requests\Team\UpdateTeamRequest;
 
 class TeamController extends Controller
 {
@@ -15,87 +21,50 @@ class TeamController extends Controller
      */
     public function index()
     {
-        // get all teams with filter and pagination
-        $query = Team::query();
+        // get team data and sort by name ascending
+        $team = Team::orderBy('name', 'asc')->paginate(10);
+        //return collection of sales as a resource
+        return new TeamResource(true, 'Team retrieved successfully', $team);
 
-        // filter by name
-        if (request()->has('name')) {
-            $query->where('name', 'like', '%' . request('name') . '%');
-        }
-
-        // Get pagination settings
-        $perPage = request('per_page', 10);
-        $page = request('page', 1);
-
-        // Get data
-        $teams = $query->paginate($perPage, ['*'], 'page', $page);
-
-        // logs activity
+        // Log Activity
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' show data Team',
-            'description' => 'User ' . Auth::user()->name . ' show data Team',
+            'log_name' => 'Show Data',
+            'description' => 'User ' . Auth::user()->name . ' Show team list',
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
-
-        // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Teams retrieved successfully.',
-            'data' => $teams
-        ], 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTeamRequest $request)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        // create new team
+        //store to database
         $team = Team::create([
             'name' => $request->name,
             'created_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
-        // log activity
+        // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' store data Team',
-            'description' => 'User ' . Auth::user()->name . ' store data Team',
+            'log_name' => 'Sales Creation',
+            'description' => 'User ' . Auth::user()->name . ' create team ' . $team->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
+            'created_at' => now()
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Team created successfully.',
-            'data' => $team
-        ], 200);
+        return new TeamResource(true, $team->name . ' has successfully been created.', $team);
     }
 
     /**
@@ -103,56 +72,37 @@ class TeamController extends Controller
      */
     public function show(string $id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateTeamRequest $request, string $id)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        // get team by id
+        // find the data
         $team = Team::findOrFail($id);
 
-        // update team
-        $team->update([
+        // update to database
+        $team->update(($request->validated() + [
             'name' => $request->name,
             'updated_by' => Auth::user()->id,
-        ]);
+        ]));
 
-        // log activity
+        // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update data Team',
-            'description' => 'User ' . Auth::user()->name . ' update data Team',
+            'log_name' => 'Update Data',
+            'description' => 'User ' . Auth::user()->name . ' update team to ' . $team->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Team updated successfully.',
-            'data' => $team
-        ], 200);
+        return new TeamResource(true, $team->name . ' has successfully been updated.', $team);
     }
 
     /**
@@ -160,36 +110,26 @@ class TeamController extends Controller
      */
     public function destroy(string $id)
     {
-        // get team by id
+        // find data
         $team = Team::findOrFail($id);
-
-        // delete team
         $team->delete();
+        // soft delete to database
+        $team->deleted_by = Auth::user()->id;
+        $team->save();
 
-        // deleted by
-        $team->update([
-            'deleted_by' => Auth::user()->id,
-        ]);
-
-        // log activity
+        // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete data Team',
-            'description' => 'User ' . Auth::user()->name . ' delete data Team',
+            'log_name' => 'Delete Data',
+            'description' => 'User ' . Auth::user()->name . ' delete team ' . $team->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
             // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Team deleted successfully.',
-            'data' => $team
-        ], 200);
+        return new TeamResource(true, $team->name . ' has successfully been deleted.', null);
     }
 }

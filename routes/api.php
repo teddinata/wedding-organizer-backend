@@ -75,9 +75,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // membership benefit
         Route::resource('membership-benefit', MembershipBenefitController::class)->names('membership-benefit');
 
-        // product category
-        Route::resource('product-category', ProductCategoryController::class)->names('product-category');
-
         // product attribute
         Route::resource('product-attribute', ProductAttributeController::class)->names('product-attribute');
 
@@ -103,9 +100,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // attendance
         Route::resource('attendance', AttendanceController::class)->names('attendance');
 
-        // route team
-        Route::resource('team', TeamController::class)->names('team');
-
         // route team loan
         Route::resource('team-loan', TeamLoanController::class)->names('team-loan');
 
@@ -129,6 +123,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // route department
         Route::apiResource('/department', DepartmentController::class);
+
+        // route product category
+        Route::apiResource('/product-category', ProductCategoryController::class);
+
+        // route team
+        Route::apiResource('/team', TeamController::class);
     });
 
     // route for permission

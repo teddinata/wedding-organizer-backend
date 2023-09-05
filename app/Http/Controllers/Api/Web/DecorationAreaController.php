@@ -19,9 +19,9 @@ class DecorationAreaController extends Controller
      */
     public function index()
     {
-        // get sales data and sort by name ascending
+        // get area data and sort by name ascending
         $sales = DecorationArea::orderBy('name', 'asc')->paginate(10);
-        //return collection of sales as a resource
+        //return collection of area as a resource
         return new DecorationAreaResource(true, 'Area retrieved successfully', $sales);
     }
 

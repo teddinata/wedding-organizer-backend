@@ -20,9 +20,9 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        // get sales data and sort by name ascending
+        // get department data and sort by name ascending
         $department = Department::orderBy('name', 'asc')->paginate(10);
-        //return collection of sales as a resource
+        //return collection of department as a resource
         return new DepartmentResource(true, 'Department retrieved successfully', $department);
 
         // Log Activity
