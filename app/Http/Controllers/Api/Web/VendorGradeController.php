@@ -1,131 +1,70 @@
 <?php
 
-namespace App\Http\Controllers\Api\Web;
+namespace App\Http\Controllers\API\Web;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
-use App\Models\VendorGrade;
+// use resource
+use App\Http\Resources\VendorGradeResource;
+// model
+use App\Models\MasterData\VendorGrade;
+// request
+use App\Http\Requests\VendorGrade\StoreVendorGradeRequest;
+use App\Http\Requests\VendorGrade\UpdateVendorGradeRequest;
 
 class VendorGradeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        // get all vendor grade with filter and paginate
-        $query = VendorGrade::query();
+        // get sales data and sort by name ascending
+        $grade = VendorGrade::orderBy('id', 'asc')->paginate(10);
+        //return collection of sales as a resource
+        return new VendorGradeResource(true, 'Grade retrieved successfully', $grade);
 
-        if (request('search')) {
-            $query->where('name', 'like', '%' . request('search') . '%');
-        }
-
-        // request sort asc or desc
-        if (request('sort')) {
-            $query->orderBy('name', request('sort'));
-        }
-
-        // request by id then show detail data, not array
-        if ($request->has('id')) {
-            $id = $request->input('id');
-            $vendor_grade = $query->findOrFail($id);
-
-            Activity::create([
-                'log_name' => 'User ' . Auth::user()->name . ' show data vendor grade detail ' . $vendor_grade->name,
-                'description' => 'User ' . Auth::user()->name . ' show data vendor grade detail ' . $vendor_grade->name,
-                'subject_id' => Auth::user()->id,
-                'subject_type' => 'App\Models\User',
-                'causer_id' => Auth::user()->id,
-                'causer_type' => 'App\Models\User',
-                'properties' => request()->ip(),
-                // 'host' => request()->ip(),
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Detail Data Vendor Grade by id ' . $id,
-                'data' => $vendor_grade
-            ], 200);
-        }
-
-        // Get pagination settings
-        $perPage = $request->input('per_page', 10);
-        $page = $request->input('page', 1);
-
-        // Get data
-        $vendor_grade = $query->paginate($perPage, ['*'], 'page', $page);
-
-        // Log activity
+        // Log Activity
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' show data vendor grade',
-            'description' => 'User ' . Auth::user()->name . ' show data vendor grade',
+            'log_name' => 'Show Data',
+            'description' => 'User ' . Auth::user()->name . ' Show grade list',
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'List Data Vendor Grade',
-            'data' => $vendor_grade
-        ], 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreVendorGradeRequest $request)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required',
-            'description' => 'required',
-        ]);
-
-        // create vendor grade
-        $vendor_grade = VendorGrade::create([
+        //store to database
+        $grade = VendorGrade::create([
             'name' => $request->name,
             'description' => $request->description,
             'created_by' => Auth::user()->id,
-            'updated_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
-        // Log activity
+        // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' create data vendor grade ' . $vendor_grade->name,
-            'description' => 'User ' . Auth::user()->name . ' create data vendor grade ' . $vendor_grade->name,
+            'log_name' => 'Vendor Grade Creation',
+            'description' => 'User ' . Auth::user()->name . ' create grade ' . $grade->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
+            'created_at' => now()
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Vendor Grade data saved successfully.',
-            'data' => $vendor_grade
-        ], 200);
+        // return json response
+        return new VendorGradeResource(true, $grade->name . ' has successfully been created.', $grade);
     }
 
     /**
@@ -137,84 +76,62 @@ class VendorGradeController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateVendorGradeRequest $request, $id)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required' . $id,
-            'description' => 'required',
-        ]);
+        // find the data
+        $grade = VendorGrade::findOrFail($id);
 
-        // find vendor grade by id
-        $vendor_grade = VendorGrade::findOrFail($id);
-
-        // update vendor grade
-        $vendor_grade->update([
+        // update to database
+        $grade->update(($request->validated() + [
             'name' => $request->name,
             'description' => $request->description,
             'updated_by' => Auth::user()->id,
-        ]);
+        ]));
 
-        // Log activity
+        // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update data vendor grade ' . $vendor_grade->name,
-            'description' => 'User ' . Auth::user()->name . ' update data vendor grade ' . $vendor_grade->name,
+            'log_name' => 'Update Data',
+            'description' => 'User ' . Auth::user()->name . ' update grade to ' . $grade->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Vendor Grade data updated successfully.',
-            'data' => $vendor_grade
-        ], 200);
+        // return json response
+        return new VendorGradeResource(true, $grade->name . ' has successfully been updated.', $grade);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        // find vendor grade by id
-        $vendor_grade = VendorGrade::findOrFail($id);
+        // find data
+        $grade = VendorGrade::findOrFail($id);
+        $grade->delete();
+        // soft delete to database
+        $grade->deleted_by = Auth::user()->id;
+        $grade->save();
 
-        // delete vendor grade
-        $vendor_grade->delete();
-
-        // Log activity
+        // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete data vendor grade ' . $vendor_grade->name,
-            'description' => 'User ' . Auth::user()->name . ' delete data vendor grade ' . $vendor_grade->name,
+            'log_name' => 'Delete Data',
+            'description' => 'User ' . Auth::user()->name . ' delete grade ' . $grade->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
             // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Vendor Grade data deleted successfully.',
-            'data' => $vendor_grade
-        ], 200);
+        // return json response
+        return new VendorGradeResource(true, $grade->name . ' has successfully been deleted.', null);
     }
 }
