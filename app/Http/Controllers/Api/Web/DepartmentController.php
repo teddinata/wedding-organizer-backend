@@ -1,12 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\Api\Web;
+namespace App\Http\Controllers\API\Web;
 
-use App\Models\Department;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+// use resource
+use App\Http\Resources\DepartmentResource;
+// model
+use App\Models\MasterData\Department;
+// request
+use App\Http\Requests\Department\StoreDepartmentRequest;
+use App\Http\Requests\Department\UpdateDepartmentRequest;
 
 class DepartmentController extends Controller
 {
@@ -15,139 +20,104 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        // get all departments with filter and pagination
-        $query = Department::query();
+        // get sales data and sort by name ascending
+        $department = Department::orderBy('name', 'asc')->paginate(10);
+        //return collection of sales as a resource
+        return new DepartmentResource(true, 'Department retrieved successfully', $department);
 
-        // filter by name
-        if (request()->has('name')) {
-            $query->where('name', 'like', '%' . request('name') . '%');
-        }
-
-        // Get pagination settings
-        $perPage = request('per_page', 10);
-        $page = request('page', 1);
-
-        // Get data
-        $departments = $query->paginate($perPage, ['*'], 'page', $page);
-
-        // log activity
+        // Log Activity
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' show data Department',
-            'description' => 'User ' . Auth::user()->name . ' show data Department',
+            'log_name' => 'Show Data',
+            'description' => 'User ' . Auth::user()->name . ' Show department list',
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
-
-        // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Departments retrieved successfully.',
-            'data' => $departments
-        ], 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreDepartmentRequest $request)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        // create new department
+        //store to database
         $department = Department::create([
             'name' => $request->name,
-        ]);
+            'created_by' => Auth::user()->id,
+        ] + $request->validated());
 
-        // log activity
+        // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' store data Department',
-            'description' => 'User ' . Auth::user()->name . ' store data Department',
+            'log_name' => 'Department Creation',
+            'description' => 'User ' . Auth::user()->name . ' create department ' . $department->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
+            'created_at' => now()
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Department created successfully.',
-            'data' => $department
-        ], 200);
+        return new DepartmentResource(true, $department->name . ' has successfully been created.', $department);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Department $department)
+    public function show($id)
     {
-        //
-    }
+        $department = Department::findOrFail($id);
+        //return single post as a resource
+        return new DepartmentResource(true, 'Data Department Found!', $department);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Department $department)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Department $department)
-    {
-        // validate request
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        // update department
-        $department->update([
-            'name' => $request->name,
-        ]);
-
-        // log activity
+        // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update data Department ' . $department->name,
-            'description' => 'User ' . Auth::user()->name . ' update data Department ' . $department->name,
+            'log_name' => 'View Data',
+            'description' => 'User ' . Auth::user()->name . ' view department ' . $department->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateDepartmentRequest $request, $id)
+    {
+        // find the data
+        $department = Department::findOrFail($id);
+
+        // update to database
+        $department->update(($request->validated() + [
+            'name' => $request->name,
+            'updated_by' => Auth::user()->id,
+        ]));
+
+        // activity log
+        Activity::create([
+            'log_name' => 'Update Data',
+            'description' => 'User ' . Auth::user()->name . ' update department to ' . $department->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Department updated successfully.',
-            'data' => $department
-        ], 200);
+        return new DepartmentResource(true, $department->name . ' has successfully been updated.', $department);
     }
 
     /**
@@ -155,34 +125,26 @@ class DepartmentController extends Controller
      */
     public function destroy($id)
     {
-        // delete department
+        // find data
         $department = Department::findOrFail($id);
-
         $department->delete();
-
+        // soft delete to database
         $department->deleted_by = Auth::user()->id;
         $department->save();
 
-        // log activity
+        // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete data Department ' . $department->name,
-            'description' => 'User ' . Auth::user()->name . ' delete data Department ' . $department->name,
+            'log_name' => 'Delete Data',
+            'description' => 'User ' . Auth::user()->name . ' delete department ' . $department->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
             // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Department deleted successfully.',
-            'data' => $department
-        ], 200);
-
+        return new DepartmentResource(true, $department->name . ' has successfully been deleted.', null);
     }
 }

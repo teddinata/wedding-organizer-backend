@@ -1,12 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Api\Web;
+namespace App\Http\Controllers\API\Web;
 
-use App\Models\DecorationArea;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DecorationArea\StoreAreaRequest;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Http\Request;
+// use resource
+use App\Http\Resources\DecorationAreaResource;
+// model
+use App\Models\MasterData\DecorationArea;
 
 class DecorationAreaController extends Controller
 {
@@ -15,76 +19,53 @@ class DecorationAreaController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        // get sales data and sort by name ascending
+        $sales = DecorationArea::orderBy('name', 'asc')->paginate(10);
+        //return collection of sales as a resource
+        return new DecorationAreaResource(true, 'Area retrieved successfully', $sales);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAreaRequest $request)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required|string',
-        ]);
-
-        // create decoration area
-        $decorationArea = DecorationArea::create([
+        //store to database
+        $area = DecorationArea::create([
             'name' => $request->name,
-            // 'created_by' => Auth::user()->id,
-        ]);
+            'created_by' => Auth::user()->id,
+        ] + $request->validated());
 
-        // logs
-         // log activity
-         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' store data Decoration Area',
-            'description' => 'User ' . Auth::user()->name . ' store data Decoration Area',
+        // activity log
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' Create data area ' . $area->name,
+            'description' => 'User ' . Auth::user()->name . ' Create data area ' . $area->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
+            'created_at' => now()
         ]);
 
-        // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Decoration area created successfully.',
-            'data' => $decorationArea
-        ], 200);
+        // return json response
+        return new DecorationAreaResource(true, $area->name . ' has been created successfully', $area);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(DecorationArea $decorationArea)
+    public function show(string $id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(DecorationArea $decorationArea)
-    {
-        //
+        $area = DecorationArea::findOrFail($id);
+        //return single post as a resource
+        return new DecorationAreaResource(true, 'Data Area Found!', $area);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, DecorationArea $decorationArea)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -92,7 +73,7 @@ class DecorationAreaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DecorationArea $decorationArea)
+    public function destroy(string $id)
     {
         //
     }

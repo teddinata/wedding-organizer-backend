@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\Web\AllowanceController;
 use App\Http\Controllers\Api\Web\EmployeeController;
 use App\Http\Controllers\Api\Web\LevelController;
 use App\Http\Controllers\Api\Web\AttendanceController;
+use App\Http\Controllers\API\Web\BankAccountController;
 use App\Http\Controllers\Api\Web\TeamController;
 use App\Http\Controllers\Api\Web\TeamLoanController;
 use App\Http\Controllers\Api\Web\OrderController;
@@ -86,9 +87,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // checklist item
         Route::resource('checklist-item', ChecklistItemController::class)->names('checklist-item');
 
-        // route department
-        Route::resource('department', DepartmentController::class)->names('department');
-
         // route position
         Route::resource('position', PositionController::class)->names('position');
 
@@ -120,12 +118,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // route order team
         Route::resource('order-team', OrderTeamController::class)->names('order');
 
-        // route decoration area
-        Route::resource('decoration-area', DecorationAreaController::class)->names('decoration-area');
-
         // route sales
-        //Route::resource('sales', SalesController::class)->names('sales');
         Route::apiResource('/sales', SalesController::class);
+
+        // route bank account
+        Route::apiResource('/bank-account', BankAccountController::class);
+
+        // route bank account
+        Route::apiResource('/decoration-area', DecorationAreaController::class);
+
+        // route department
+        Route::apiResource('/department', DepartmentController::class);
     });
 
     // route for permission
