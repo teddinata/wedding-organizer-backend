@@ -13,7 +13,6 @@ class VendorMembershipsTableSeeder extends Seeder
      */
     public function run(): void
     {
-        //
         DB::table('memberships')->insert([
             [
                 'name' => 'None',

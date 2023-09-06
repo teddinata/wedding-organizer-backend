@@ -13,7 +13,6 @@ class SalesTableSeeder extends Seeder
      */
     public function run(): void
     {
-        //
         DB::table('sales')->insert([
             [
                 'name' => 'Ai Dessire',

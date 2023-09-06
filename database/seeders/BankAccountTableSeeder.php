@@ -13,7 +13,6 @@ class BankAccountTableSeeder extends Seeder
      */
     public function run(): void
     {
-        //
         DB::table('bank_accounts')->insert([
             [
                 'bank' => 'BCA',

@@ -13,7 +13,6 @@ class VendorLimitsTableSeeder extends Seeder
      */
     public function run(): void
     {
-        //
         DB::table('vendor_limits')->insert([
             [
                 'name' => 'Green',

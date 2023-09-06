@@ -6,50 +6,59 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class VendorGradesTableSeeder extends Seeder
+class ConfigLoanInstallmentSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('vendor_grades')->insert([
+        DB::table('config_loan_installments')->insert([
             [
-                'name' => 'Priority',
+                'nominal' => '100000',
                 'created_by' => 1,
                 'created_at' => now(),
             ],
             [
-                'name' => 'Grade A',
+                'nominal' => '150000',
                 'created_by' => 1,
                 'created_at' => now(),
             ],
             [
-                'name' => 'Grade B',
+                'nominal' => '200000',
                 'created_by' => 1,
                 'created_at' => now(),
             ],
             [
-                'name' => 'Grade C',
+                'nominal' => '250000',
                 'created_by' => 1,
                 'created_at' => now(),
             ],
             [
-                'name' => 'No Grade',
+                'nominal' => '300000',
                 'created_by' => 1,
                 'created_at' => now(),
             ],
             [
-                'name' => 'Catering',
+                'nominal' => '350000',
                 'created_by' => 1,
                 'created_at' => now(),
             ],
             [
-                'name' => 'WO & EO',
+                'nominal' => '400000',
+                'created_by' => 1,
+                'created_at' => now(),
+            ],
+            [
+                'nominal' => '450000',
+                'created_by' => 1,
+                'created_at' => now(),
+            ],
+            [
+                'nominal' => '500000',
                 'created_by' => 1,
                 'created_at' => now(),
             ]
-            // Tambahkan data lain sesuai kebutuhan
         ]);
     }
 }

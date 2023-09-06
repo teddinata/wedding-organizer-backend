@@ -13,7 +13,6 @@ class ChecklistCategoriesSeeder extends Seeder
      */
     public function run(): void
     {
-        //
         DB::table('checklist_categories')->insert([
             [
                 'name' => 'Pohon',
@@ -33,6 +32,5 @@ class ChecklistCategoriesSeeder extends Seeder
             ]
             // Tambahkan data lain sesuai kebutuhan
         ]);
-
     }
 }
