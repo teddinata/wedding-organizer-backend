@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\Web\EmployeeController;
 use App\Http\Controllers\Api\Web\LevelController;
 use App\Http\Controllers\Api\Web\AttendanceController;
 use App\Http\Controllers\API\Web\BankAccountController;
+use App\Http\Controllers\API\Web\ConfigLoanInstallmentController;
 use App\Http\Controllers\Api\Web\TeamController;
 use App\Http\Controllers\Api\Web\TeamLoanController;
 use App\Http\Controllers\Api\Web\OrderController;
@@ -133,6 +134,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // route vehicle
         Route::apiResource('/vehicle', VehicleController::class);
+
+        // route config loan installment
+        Route::apiResource('/config-installment', ConfigLoanInstallmentController::class);
     });
 
     // route for permission
