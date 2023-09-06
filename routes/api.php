@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\Web\OrderProductController;
 use App\Http\Controllers\Api\Web\DecorationAreaController;
 use App\Http\Controllers\Api\Web\OrderTeamController;
 use App\Http\Controllers\Api\Web\SalesController;
+use App\Http\Controllers\API\Web\VehicleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,6 +130,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // route team
         Route::apiResource('/team', TeamController::class);
+
+        // route vehicle
+        Route::apiResource('/vehicle', VehicleController::class);
     });
 
     // route for permission
