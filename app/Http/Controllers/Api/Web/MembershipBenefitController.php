@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\MembershipBenefit;
-use App\Models\Membership;
+use App\Models\MasterData\MembershipBenefit;
+use App\Models\MasterData\Membership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;

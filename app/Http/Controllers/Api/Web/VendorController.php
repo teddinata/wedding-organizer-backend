@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
-use App\Models\VendorGrade;
-use App\Models\VendorLimit;
-use App\Models\Vendor;
+use App\Models\MasterData\VendorGrade;
+use App\Models\MasterData\VendorLimit;
+use App\Models\Operational\Vendor;
 use App\Models\User;
 
 class VendorController extends Controller

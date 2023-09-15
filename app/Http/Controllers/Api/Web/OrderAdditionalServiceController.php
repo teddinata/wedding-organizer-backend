@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\OrderAdditionalService;
+use App\Models\Operational\OrderAdditionalService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\MasterData;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +8,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ProductVariant extends Model
+class ChecklistItem extends Model
 {
     use HasFactory;
     use SoftDeletes;
@@ -21,23 +21,23 @@ class ProductVariant extends Model
      */
 
     protected $fillable = [
-        'product_attribute_id',
-        'attribute_id',
+        'checklist_category_id',
+        'name',
         'created_by',
         'updated_by',
         'deleted_by',
     ];
 
-    // relation to product
-    public function product_attributes()
+    // 1 category memiliki banyak item
+    public function checklist_category()
     {
-        return $this->belongsTo(ProductAttribute::class, 'product_attribute_id', 'id');
+        return $this->belongsTo(ChecklistCategory::class, 'checklist_category_id', 'id');
     }
 
     // logs activity
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['product_attribute_id', 'attribute_id', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['checklist_category_id', 'name', 'created_by', 'updated_by', 'deleted_by']);
     }
 }

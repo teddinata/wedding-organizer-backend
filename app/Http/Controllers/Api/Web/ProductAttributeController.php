@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\ProductAttribute;
-use App\Models\ProductCategory;
+use App\Models\MasterData\ProductAttribute;
+use App\Models\MasterData\ProductCategory;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

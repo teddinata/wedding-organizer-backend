@@ -1,26 +1,27 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\MasterData;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Level extends Model
+class MembershipBenefit extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
 
-    protected $table = 'levels';
+    protected $table = 'membership_benefits';
 
     protected $fillable = [
-        'icon',
-        'name',
-        'from',
-        'until',
+        'membership_id',
+        'id',
+        'image',
+        'description',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -30,12 +31,12 @@ class Level extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['icon', 'name', 'from', 'until', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['membership_id', 'id', 'image', 'description', 'created_by', 'updated_by', 'deleted_by']);
     }
 
-    // 1 level memiliki banyak employee
-    public function employee()
+    // banyak membership benefit dimiliki 1 membership
+    public function membership()
     {
-        return $this->hasMany(Employee::class, 'level_id', 'id');
+        return $this->belongsTo(Membership::class, 'membership_id', 'id');
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-use App\Models\Vendor;
+use App\Models\Operational\Vendor;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VendorGrade extends Model

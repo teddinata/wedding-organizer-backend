@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\EmployeeLoan;
+use App\Models\Operational\EmployeeLoan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
