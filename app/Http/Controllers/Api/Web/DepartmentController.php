@@ -20,8 +20,12 @@ class DepartmentController extends Controller
      */
     public function index()
     {
+        // Get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
         // get department data and sort by name ascending
-        $department = Department::orderBy('name', 'asc')->paginate(10);
+        $department = Department::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         //return collection of department as a resource
         return new DepartmentResource(true, 'Department retrieved successfully', $department);
 

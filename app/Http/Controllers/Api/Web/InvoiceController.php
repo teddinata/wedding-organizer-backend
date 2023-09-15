@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+use App\Models\Operational\Order;
+// use resource
+use App\Http\Resources\InvoiceResource;
+use App\Http\Requests\Invoice\StoreInvoiceRequest;
 
 class InvoiceController extends Controller
 {
@@ -30,12 +34,22 @@ class InvoiceController extends Controller
         // get data
         $invoices = $query->paginate($perPage, ['*'], 'page', $page);
 
+        // log activity
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' show data Invoice',
+            'description' => 'User ' . Auth::user()->name . ' show data Invoice',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Invoices retrieved successfully.',
-            'data' => $invoices
-        ], 200);
+        return new InvoiceResource(true, 'Invoice retrieved successfully', $invoices);
     }
 
     /**
@@ -49,20 +63,8 @@ class InvoiceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreInvoiceRequest $request)
     {
-        // validate request
-        $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'bank_account_id' => 'required|exists:bank_accounts,id',
-            'transfer_date' => 'required|date',
-            'transfer_proof' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'transfer_proof_uploaded_by' => 'required|string',
-            'transfer_proof_uploaded_at' => 'required|string',
-            'due_date' => 'required|date',
-            'amount' => 'required|integer',
-        ]);
-
         // store data
         $invoice = Invoice::create([
             'order_id' => request('order_id'),
@@ -75,7 +77,7 @@ class InvoiceController extends Controller
             'transfer_proof_uploaded_at' => request('transfer_proof_uploaded_at'),
             'due_date' => request('due_date'),
             'amount' => request('amount'),
-        ]);
+        ] + $request->validated());
 
         // logs
         // log activity
@@ -93,12 +95,7 @@ class InvoiceController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Invoice created successfully.',
-            'data' => $invoice
-        ], 200);
-
+        return new InvoiceResource(true, 'Invoice created successfully', $invoice);
     }
 
     /**
@@ -120,20 +117,8 @@ class InvoiceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Invoice $invoice)
+    public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
-        // validate request
-        $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'bank_account_id' => 'required|exists:bank_accounts,id',
-            'transfer_date' => 'required|date',
-            'transfer_proof' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'transfer_proof_uploaded_by' => 'required|string',
-            'transfer_proof_uploaded_at' => 'required|string',
-            'due_date' => 'required|date',
-            'amount' => 'required|integer',
-        ]);
-
         // update data
         $invoice->update([
             'order_id' => request('order_id'),
@@ -145,7 +130,7 @@ class InvoiceController extends Controller
             'transfer_proof_uploaded_at' => request('transfer_proof_uploaded_at'),
             'due_date' => request('due_date'),
             'amount' => request('amount'),
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -162,11 +147,7 @@ class InvoiceController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Invoice updated successfully.',
-            'data' => $invoice
-        ], 200);
+        return new InvoiceResource(true, 'Invoice updated successfully', $invoice);
     }
 
     /**
@@ -199,10 +180,6 @@ class InvoiceController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Invoice deleted successfully.',
-            'data' => $invoice
-        ], 200);
+        return new InvoiceResource(true, 'Invoice deleted successfully', $invoice);
     }
 }

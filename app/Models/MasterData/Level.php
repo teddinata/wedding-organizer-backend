@@ -14,7 +14,7 @@ class Level extends Model
     use SoftDeletes;
     use LogsActivity;
 
-    protected $table = 'levels';
+    protected $table = 'employee_levels';
 
     protected $fillable = [
         'icon',

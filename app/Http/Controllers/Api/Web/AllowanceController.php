@@ -7,6 +7,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\AllowanceResource;
+// request
+use App\Http\Requests\Allowance\StoreAllowanceRequest;
+use App\Http\Requests\Allowance\UpdateAllowanceRequest;
 
 class AllowanceController extends Controller
 {
@@ -16,13 +20,12 @@ class AllowanceController extends Controller
     public function index()
     {
         // get all allowances with filter and pagination
-        $query = Allowance::query();
+        $query = Allowance::orderBy('name', 'asc')->with(['department']);
 
         // filter by name and description in one search field
         if (request()->has('search')) {
             $query->where(function ($q) {
-                $q->where('name', 'like', '%' . request('search') . '%')
-                    ->orWhere('description', 'like', '%' . request('search') . '%');
+                $q->where('name', 'like', '%' . request('search') . '%');
             });
         }
 
@@ -48,11 +51,7 @@ class AllowanceController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Allowances retrieved successfully.',
-            'data' => $allowances
-        ], 200);
+        return new AllowanceResource(true, 'Allowance retrieved successfully', $allowances);
     }
 
     /**
@@ -66,19 +65,14 @@ class AllowanceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAllowanceRequest $request)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required|min:3|max:75',
-            'department_id' => 'required|exists:departments,id',
-        ]);
-
         // create new allowance
         $allowance = Allowance::create([
             'name' => $request->name,
             'department_id' => $request->department_id,
-        ]);
+            'created_by' => Auth::user()->id,
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -95,11 +89,7 @@ class AllowanceController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Allowance created successfully.',
-            'data' => $allowance
-        ], 200);
+        return new AllowanceResource(true, 'Allowance created successfully', $allowance);
     }
 
     /**
@@ -121,19 +111,14 @@ class AllowanceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Allowance $allowance)
+    public function update(UpdateAllowanceRequest $request, Allowance $allowance)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required|min:3|max:75',
-            'department_id' => 'required|exists:departments,id',
-        ]);
-
         // update allowance
         $allowance->update([
             'name' => $request->name,
             'department_id' => $request->department_id,
-        ]);
+            'updated_by' => Auth::user()->id,
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -150,11 +135,7 @@ class AllowanceController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Allowance updated successfully.',
-            'data' => $allowance
-        ], 200);
+        return new AllowanceResource(true, 'Allowance updated successfully', $allowance);
     }
 
     /**
@@ -187,10 +168,6 @@ class AllowanceController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Allowance deleted successfully.',
-            'data' => $allowance
-        ], 200);
+        return new AllowanceResource(true, 'Allowance deleted successfully', $allowance);
     }
 }

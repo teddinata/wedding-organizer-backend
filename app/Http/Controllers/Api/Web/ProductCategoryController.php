@@ -20,8 +20,13 @@ class ProductCategoryController extends Controller
      */
     public function index()
     {
-        // get product category data and sort by name ascending
-        $category = ProductCategory::orderBy('name', 'asc')->paginate(10);
+        // Get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
+        // get data with pagination
+        $category = ProductCategory::withCount(['product_attributes'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+
         //return collection of product category as a resource
         return new ProductCategoryResource(true, 'Product Category retrieved successfully', $category);
 

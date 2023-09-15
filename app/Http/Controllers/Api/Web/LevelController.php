@@ -49,7 +49,7 @@ class LevelController extends Controller
         ]);
 
         // return json response
-        return new LevelResource(true, 'Limit retrieved successfully', $levels);
+        return new LevelResource(true, 'Level retrieved successfully', $levels);
     }
 
     /**
