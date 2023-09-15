@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\Attendance;
+use App\Models\Operational\Attendance;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\AttendanceResource;
+// request
+use App\Http\Requests\Attendance\StoreAttendanceRequest;
+use App\Http\Requests\Attendance\UpdateAttendanceRequest;
 
 class AttendanceController extends Controller
 {
@@ -16,7 +20,7 @@ class AttendanceController extends Controller
     public function index()
     {
         // get all attendance with request filter conditional
-        $query = Attendance::query();
+        $query = Attendance::orderBy('date', 'desc')->with(['employee']);
 
         // filter by employee_id
         if (request()->has('employee_id')) {
@@ -60,11 +64,7 @@ class AttendanceController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Attendances retrieved successfully.',
-            'data' => $attendances
-        ], 200);
+        return new AttendanceResource(true, 'Attendance retrieved successfully', $attendances);
     }
 
     /**
@@ -78,16 +78,8 @@ class AttendanceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAttendanceRequest $request)
     {
-        // validate request
-        $request->validate([
-            'employee_id' => 'required|exists:employees,id',
-            'date' => 'nullable|date',
-            'clock_in' => 'nullable',
-            'clock_out' => 'nullable',
-        ]);
-
         // create attendance
         $attendance = Attendance::create([
             'employee_id' => $request->employee_id,
@@ -97,7 +89,7 @@ class AttendanceController extends Controller
             'platform' => 'web',
             'created_by' => Auth::user()->id,
             'updated_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -114,11 +106,7 @@ class AttendanceController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Attendance created successfully.',
-            'data' => $attendance
-        ], 200);
+        return new AttendanceResource(true, 'Attendance created successfully', $attendance);
     }
 
     /**
@@ -146,12 +134,7 @@ class AttendanceController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Attendance retrieved successfully.',
-            'data' => $attendance,
-            'summary' => $summary
-        ], 200);
+        return new AttendanceResource(true, 'Detail Attendance retrieved successfully', $summary);
     }
 
     /**
@@ -165,16 +148,8 @@ class AttendanceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Attendance $attendance)
+    public function update(UpdateAttendanceRequest $request, Attendance $attendance)
     {
-        // validate request
-        $request->validate([
-            'employee_id' => 'required|exists:employees,id',
-            'date' => 'nullable|date',
-            'clock_in' => 'nullable',
-            'clock_out' => 'nullable',
-        ]);
-
         // update attendance
         $attendance->update([
             'employee_id' => $request->employee_id,
@@ -183,7 +158,7 @@ class AttendanceController extends Controller
             'clock_out' => $request->clock_out,
             'platform' => 'web',
             'updated_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -200,11 +175,7 @@ class AttendanceController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Attendance updated successfully.',
-            'data' => $attendance
-        ], 200);
+        return new AttendanceResource(true, 'Attendance updated successfully', $attendance);
     }
 
     /**
@@ -238,10 +209,6 @@ class AttendanceController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Attendance deleted successfully.',
-            'data' => $attendance
-        ], 200);
+        return new AttendanceResource(true, 'Attendance deleted successfully', $attendance);
     }
 }

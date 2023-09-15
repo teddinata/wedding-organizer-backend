@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\VendorLimit;
+namespace App\Http\Requests\Attendance;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class StoreVendorLimitRequest extends FormRequest
+class StoreAttendanceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,10 @@ class StoreVendorLimitRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'amount_limit' => 'required|numeric',
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'nullable|date',
+            'clock_in' => 'nullable',
+            'clock_out' => 'nullable',
         ];
     }
 

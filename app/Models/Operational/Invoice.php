@@ -1,29 +1,32 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Operational;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class OrderProduct extends Model
+class Invoice extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
 
-    protected $table = 'order_products';
+    protected $table = 'invoices';
 
     protected $fillable = [
         'order_id',
-        'product_attribute_id',
-        'area_id',
-        'slug',
-        'quantity',
+        'bank_account_id',
+        'invoice_code',
         'amount',
-        'notes',
+        'transfer_proof',
+        'transfer_date',
+        'transfer_proof_uploaded_at',
+        'transfer_proof_uploaded_by',
+        'status',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -33,7 +36,7 @@ class OrderProduct extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['order_id', 'product_attribute_id', 'area_id', 'slug', 'quantity', 'amount', 'notes', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['order_id', 'bank_account_id', 'invoice_code', 'amount', 'transfer_proof', 'transfer_date', 'transfer_proof_uploaded_at', 'transfer_proof_uploaded_by', 'status', 'created_by', 'updated_by', 'deleted_by']);
     }
 
     // relasi dengan order
@@ -42,15 +45,11 @@ class OrderProduct extends Model
         return $this->belongsTo(Order::class, 'order_id', 'id');
     }
 
-    // relasi dengan product attribute
-    public function product_attribute()
+    // relasi dengan bank account
+    public function bankAccount()
     {
-        return $this->belongsTo(ProductAttribute::class, 'product_attribute_id', 'id');
+        return $this->belongsTo(BankAccount::class, 'bank_account_id', 'id');
     }
 
-    // relasi dengan decoration area
-    public function area()
-    {
-        return $this->belongsTo(DecorationArea::class, 'area_id', 'id');
-    }
+
 }

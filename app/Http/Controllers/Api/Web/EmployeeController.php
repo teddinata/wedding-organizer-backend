@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\Employee;
+use App\Models\MasterData\Employee;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 // use db
 use Illuminate\Support\Facades\DB;
+// use resource
+use App\Http\Resources\EmployeeResource;
+// use request
+use App\Http\Requests\Employee\StoreEmployeeRequest;
+use App\Http\Requests\Employee\UpdateEmployeeRequest;
 
 class EmployeeController extends Controller
 {
@@ -19,7 +24,7 @@ class EmployeeController extends Controller
     public function index()
     {
         // get all employees with filter and pagination
-        $query = Employee::query();
+        $query = Employee::orderBy('created_at', 'desc');
 
         // filter by name or nik or email in one search field
         if (request()->has('search')) {
@@ -83,29 +88,8 @@ class EmployeeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreEmployeeRequest $request)
     {
-        // validate request
-        $request->validate([
-            'department_id' => 'required|exists:departments,id',
-            'position_id' => 'required|exists:positions,id',
-            'level_id' => 'required|exists:levels,id',
-            'fullname' => 'required|string|max:255',
-            'nik' => 'required|string|max:255',
-            'email' => 'required|string|max:255',
-            'password' => 'required|string|max:255',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'dateofbirth' => 'nullable|date',
-            'gender' => 'nullable|in:1,2',
-            'ktp_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'vaccine_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'salary' => 'nullable|numeric',
-            'loan_limit' => 'nullable|numeric',
-            'active_loan_limit' => 'nullable|numeric',
-            'points' => 'nullable|numeric',
-            'is_active' => 'nullable|boolean',
-        ]);
-
         // create employee use eloquent
         $employee = new Employee();
         $employee->department_id = $request->input('department_id');
@@ -143,11 +127,7 @@ class EmployeeController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee created successfully.',
-            'data' => $employee
-        ], 200);
+        return new EmployeeResource(true, 'Employee created successfully.', $employee);
     }
 
     /**
@@ -159,11 +139,7 @@ class EmployeeController extends Controller
         $employee = Employee::with('department', 'position', 'level')->findOrFail($employee->id);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee retrieved successfully.',
-            'data' => $employee
-        ], 200);
+        return new EmployeeResource(true, 'Detail Employee retrieved successfully.', $employee);
     }
 
     /**
@@ -177,34 +153,9 @@ class EmployeeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateEmployeeRequest $request, $id)
     {
-        // validate request
-        $request->validate([
-            'department_id' => 'required|exists:departments,id',
-            'position_id' => 'required|exists:positions,id',
-            'level_id' => 'required|exists:levels,id',
-            'fullname' => 'required|string|max:255',
-            'nik' => 'required|string|max:255',
-            'email' => 'required|string|max:255',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'email_verified_at' => 'nullable|date',
-            'password' => 'nullable|string|confirmed',
-            'otp' => 'nullable|string|max:255',
-            'otp_verified_at' => 'nullable|date',
-            'reset_token' => 'nullable|string|max:255',
-            'notification_token' => 'nullable|string|max:255',
-            'dateofbirth' => 'nullable|date',
-            'gender' => 'nullable|in:1,2',
-            'ktp_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'vaccine_img' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'salary' => 'nullable|numeric',
-            'loan_limit' => 'nullable|numeric',
-            'active_loan_limit' => 'nullable|numeric',
-            'points' => 'nullable|numeric',
-            'is_active' => 'nullable|boolean',
-        ]);
-
+        dd('assa');
         $employee = Employee::findOrFail($id);
 
         $employee->department_id = $request->input('department_id');
@@ -213,30 +164,18 @@ class EmployeeController extends Controller
         $employee->fullname = $request->input('fullname');
         $employee->nik = $request->input('nik');
         $employee->email = $request->input('email');
-        $employee->email_verified_at = $request->input('email_verified_at');
-        $employee->otp = $request->input('otp');
-        $employee->otp_verified_at = $request->input('otp_verified_at');
-        $employee->reset_token = $request->input('reset_token');
-        $employee->notification_token = $request->input('notification_token');
+        $employee->password = bcrypt($request->input('password'));
+        $employee->photo = $request->file('photo') ? $request->file('photo')->store('photos') : null;
         $employee->dateofbirth = $request->input('dateofbirth');
         $employee->gender = $request->input('gender');
+        $employee->ktp_img = $request->file('ktp_img') ? $request->file('ktp_img')->store('ktp_images') : null;
+        $employee->vaccine_img = $request->file('vaccine_img') ? $request->file('vaccine_img')->store('vaccine_images') : null;
         $employee->salary = $request->input('salary');
         $employee->loan_limit = $request->input('loan_limit');
         $employee->active_loan_limit = $request->input('active_loan_limit');
         $employee->points = $request->input('points');
-        $employee->is_active = $request->input('is_active');
-
-        if ($request->hasFile('photo')) {
-            $employee->photo = $request->file('photo')->store('photos');
-        }
-
-        if ($request->hasFile('ktp_img')) {
-            $employee->ktp_img = $request->file('ktp_img')->store('ktp');
-        }
-
-        if ($request->hasFile('vaccine_img')) {
-            $employee->vaccine_img = $request->file('vaccine_img')->store('vaccine');
-        }
+        $employee->is_active = $request->input('is_active', false); // Default value is false if not provided
+        $employee->created_by = Auth::user()->id;
 
         $employee->save();
 
@@ -255,11 +194,7 @@ class EmployeeController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee updated successfully.',
-            'data' => $employee
-        ], 200);
+        return new EmployeeResource(true, 'Employee updated successfully.', $employee);
     }
 
     /**
@@ -269,6 +204,8 @@ class EmployeeController extends Controller
     {
         $employee = Employee::findOrFail($id);
         $employee->delete();
+        $employee->deleted_by = Auth::user()->id;
+        $employee->save();
 
         // Log activity\
         Activity::create([
@@ -285,11 +222,7 @@ class EmployeeController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee deleted successfully.',
-            'data' => $employee
-        ], 200);
+        return new EmployeeResource(true, 'Employee deleted successfully.', $employee);
     }
 
     /**

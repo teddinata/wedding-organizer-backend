@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\ChecklistItem;
+use App\Models\MasterData\ChecklistItem;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\ChecklistItemResource;
+use App\Http\Requests\ChecklistItem\StoreChecklistItemRequest;
+use App\Http\Requests\ChecklistItem\UpdateChecklistItemRequest;
 
 class ChecklistItemController extends Controller
 {
@@ -45,11 +48,7 @@ class ChecklistItemController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Checklist Items retrieved successfully.',
-            'data' => $checklist_items
-        ], 200);
+        return new ChecklistItemResource(true, 'Success get data Checklist Item', $checklist_items);
     }
 
     /**
@@ -63,20 +62,14 @@ class ChecklistItemController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreChecklistItemRequest $request)
     {
-        // validate incoming request
-        $request->validate([
-            'name' => 'required|string',
-            'checklist_category_id' => 'required|exists:checklist_categories,id'
-        ]);
-
         // create data
         $checklist_item = ChecklistItem::create([
             'name' => $request->name,
             'checklist_category_id' => $request->checklist_category_id,
             'created_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // Log Activity
         Activity::create([
@@ -93,11 +86,7 @@ class ChecklistItemController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Checklist Item saved successfully.',
-            'data' => $checklist_item
-        ], 200);
+        return new ChecklistItemResource(true, 'Checklist Item created successfully.', $checklist_item);
     }
 
     /**
@@ -119,14 +108,8 @@ class ChecklistItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ChecklistItem $checklistItem)
+    public function update(UpdateChecklistItemRequest $request, ChecklistItem $checklistItem)
     {
-        // validate incoming request
-        $request->validate([
-            'name' => 'required|string' . $checklistItem->id,
-            'checklist_category_id' => 'required|exists:checklist_categories,id'
-        ]);
-
         // update data
         $checklistItem->update([
             'name' => $request->name,
@@ -149,11 +132,7 @@ class ChecklistItemController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Checklist Item updated successfully.',
-            'data' => $checklistItem
-        ], 200);
+        return new ChecklistItemResource(true, 'Checklist Item updated successfully.', $checklistItem);
     }
 
     /**
@@ -164,6 +143,9 @@ class ChecklistItemController extends Controller
         // find data by id
         $checklistItem = ChecklistItem::findOrFail($checklistItem->id);
         $checklistItem->delete();
+        // deleted by
+        $checklistItem->deleted_by = Auth::user()->id;
+        $checklistItem->save();
 
         // Log Activity
         Activity::create([
@@ -180,10 +162,6 @@ class ChecklistItemController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Checklist Item deleted successfully.',
-            'data' => $checklistItem
-        ], 200);
+        return new ChecklistItemResource(true, 'Checklist Item deleted successfully.', $checklistItem);
     }
 }

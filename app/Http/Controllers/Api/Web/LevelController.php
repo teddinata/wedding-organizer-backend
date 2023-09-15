@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\Level;
+use App\Models\MasterData\Level;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\LevelResource;
+use App\Http\Requests\Level\StoreLevelRequest;
+use App\Http\Requests\Level\UpdateLevelRequest;
+
 
 class LevelController extends Controller
 {
@@ -16,11 +20,11 @@ class LevelController extends Controller
     public function index()
     {
         // get all levels with filter and pagination
-        $query = Level::query();
+        $level = Level::query();
 
         // filter by name
         if (request()->has('name')) {
-            $query->where('name', 'like', '%' . request('name') . '%');
+            $level->where('name', 'like', '%' . request('name') . '%');
         }
 
         // Get pagination settings
@@ -28,7 +32,7 @@ class LevelController extends Controller
         $page = request('page', 1);
 
         // Get data
-        $levels = $query->paginate($perPage, ['*'], 'page', $page);
+        $levels = $level->paginate($perPage, ['*'], 'page', $page);
 
         // logs
         Activity::create([
@@ -45,11 +49,7 @@ class LevelController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Levels retrieved successfully.',
-            'data' => $levels
-        ], 200);
+        return new LevelResource(true, 'Level retrieved successfully', $levels);
     }
 
     /**
@@ -63,23 +63,15 @@ class LevelController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLevelRequest $request)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required',
-            'icon' => 'nullable|string',
-            'from' => 'required|numeric',
-            'until' => 'required|numeric',
-        ]);
-
         // create new level
         $level = Level::create([
             'name' => $request->name,
             'icon' => $request->icon,
             'from' => $request->from,
             'until' => $request->until,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -96,11 +88,7 @@ class LevelController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Level created successfully.',
-            'data' => $level
-        ], 200);
+        return new LevelResource(true, 'Level created successfully', $level);
     }
 
     /**
@@ -122,23 +110,15 @@ class LevelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Level $level)
+    public function update(UpdateLevelRequest $request, Level $level)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required' . $level->id,
-            'icon' => 'nullable|string',
-            'from' => 'required|numeric',
-            'until' => 'required|numeric',
-        ]);
-
         // update level
         $level->update([
             'name' => $request->name,
             'icon' => $request->icon,
             'from' => $request->from,
             'until' => $request->until,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -155,11 +135,7 @@ class LevelController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Level updated successfully.',
-            'data' => $level
-        ], 200);
+        return new LevelResource(true, 'Level updated successfully', $level);
     }
 
     /**
@@ -192,10 +168,6 @@ class LevelController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Level deleted successfully.',
-            'data' => $level
-        ], 200);
+        return new LevelResource(true, 'Level deleted successfully', $level);
     }
 }

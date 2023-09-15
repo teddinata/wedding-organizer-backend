@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\MasterData;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +8,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ChecklistItem extends Model
+class ProductAttribute extends Model
 {
     use HasFactory;
     use SoftDeletes;
@@ -21,23 +21,35 @@ class ChecklistItem extends Model
      */
 
     protected $fillable = [
-        'checklist_category_id',
+        'product_category_id',
         'name',
         'created_by',
         'updated_by',
         'deleted_by',
     ];
 
-    // 1 category memiliki banyak item
-    public function checklist_category()
+    // relation to product category
+    public function product_category()
     {
-        return $this->belongsTo(ChecklistCategory::class, 'checklist_category_id', 'id');
+        return $this->belongsTo(Product::class, 'product_category_id', 'id');
     }
+
+    // 1 product attribute memiliki banyak product variant
+    public function product_variants()
+    {
+        return $this->hasMany(ProductVariant::class, 'product_attribute_id', 'id');
+    }
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
 
     // logs activity
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['checklist_category_id', 'name', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['product_category_id', 'name', 'created_by', 'updated_by', 'deleted_by']);
     }
 }

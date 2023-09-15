@@ -19,8 +19,12 @@ class DecorationAreaController extends Controller
      */
     public function index()
     {
+        // Get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
         // get area data and sort by name ascending
-        $sales = DecorationArea::orderBy('name', 'asc')->paginate(10);
+        $sales = DecorationArea::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         //return collection of area as a resource
         return new DecorationAreaResource(true, 'Area retrieved successfully', $sales);
     }

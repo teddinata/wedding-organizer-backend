@@ -144,9 +144,9 @@ class AuthController extends Controller
         }
 
         // update otp and otp expiry
-        // $user->otp = null;
-        // $user->otp_expiry = null;
-        // $user->save();
+        $user->otp = null;
+        $user->otp_expiry = null;
+        $user->save();
 
         // create token
         Auth::login($user);

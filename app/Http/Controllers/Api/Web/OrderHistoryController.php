@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\OrderHistory;
+use App\Models\Operational\OrderHistory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\ProductAttribute;
-use App\Models\ProductCategory;
+use App\Models\MasterData\ProductAttribute;
+use App\Models\MasterData\ProductCategory;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,12 +17,20 @@ class ProductAttributeController extends Controller
     public function index()
     {
         // get all product attributes with filter and pagination
-        $query = ProductAttribute::query();
+        $query = ProductAttribute::orderBy('name', 'asc');
 
         // filter by name
         if (request()->has('name')) {
             $query->where('name', 'like', '%' . request('name') . '%');
         }
+
+        // filter by product category
+        if (request()->has('product_category_id')) {
+            $query->where('product_category_id', request('product_category_id'));
+        }
+
+        // count product variant in each product attribute
+        $query->withCount(['product_variants']);
 
         // Get pagination settings
         $perPage = request('per_page', 10);

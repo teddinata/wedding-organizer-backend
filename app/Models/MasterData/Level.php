@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\MasterData;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +14,7 @@ class Level extends Model
     use SoftDeletes;
     use LogsActivity;
 
-    protected $table = 'levels';
+    protected $table = 'employee_levels';
 
     protected $fillable = [
         'icon',
