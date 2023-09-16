@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\MembershipBenefitResource;
+use App\Http\Requests\MembershipBenefit\StoreMembershipBenefitRequest;
 
 class MembershipBenefitController extends Controller
 {
@@ -17,11 +19,11 @@ class MembershipBenefitController extends Controller
     public function index()
     {
         // get all membership benefits with filter and pagination
-        $query = MembershipBenefit::query();
+        $query = MembershipBenefit::orderBy('created_at', 'asc');
 
         // filter by name
-        if (request()->has('description')) {
-            $query->where('description', 'like', '%' . request('description') . '%');
+        if (request()->has('search')) {
+            $query->where('description', 'like', '%' . request('search') . '%');
         }
 
         // Get pagination settings
@@ -46,11 +48,7 @@ class MembershipBenefitController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Membership Benefits retrieved successfully.',
-            'data' => $membership_benefits
-        ], 200);
+        return new MembershipBenefitResource(true, 'Membership Benefits retrieved successfully', $membership_benefits);
     }
 
     /**
@@ -64,15 +62,8 @@ class MembershipBenefitController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMembershipBenefitRequest $request)
     {
-        // validate incoming request
-        $request->validate([
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'description' => 'required|string',
-            'membership_id' => 'required|integer',
-        ]);
-
         // create membership benefit
         $membership_benefit = MembershipBenefit::create([
             'image' => $request->image,
@@ -80,7 +71,7 @@ class MembershipBenefitController extends Controller
             'membership_id' => $request->membership_id,
             'created_at' => now(),
             'created_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -97,11 +88,7 @@ class MembershipBenefitController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Membership Benefit saved successfully.',
-            'data' => $membership_benefit
-        ], 200);
+        return new MembershipBenefitResource(true, 'Membership Benefit created successfully', $membership_benefit);
 
     }
 
@@ -124,22 +111,15 @@ class MembershipBenefitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MembershipBenefit $membershipBenefit)
+    public function update(StoreMembershipBenefitRequest $request, MembershipBenefit $membershipBenefit)
     {
-        // validate incoming request
-        $request->validate([
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'description' => 'required|string',
-            'membership_id' => 'required|integer',
-        ]);
-
         // update membership benefit
         $membership_benefit = $membershipBenefit->update([
             'image' => $request->image,
             'description' => $request->description,
             'membership_id' => $request->membership_id,
             'updated_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -156,11 +136,7 @@ class MembershipBenefitController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Membership Benefit updated successfully.',
-            'data' => $membership_benefit
-        ], 200);
+        return new MembershipBenefitResource(true, 'Membership Benefit updated successfully', $membership_benefit);
     }
 
     /**
@@ -193,10 +169,6 @@ class MembershipBenefitController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Membership Benefit deleted successfully.',
-            'data' => $membership_benefit
-        ], 200);
+        return new MembershipBenefitResource(true, 'Membership Benefit deleted successfully', null);
     }
 }
