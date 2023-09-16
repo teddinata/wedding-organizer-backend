@@ -7,6 +7,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProductVariantResource;
+use App\Http\Requests\ProductVariant\StoreProductVariantRequest;
+use App\Http\Requests\ProductVariant\UpdateProductVariantRequest;
 
 class ProductVariantController extends Controller
 {
@@ -16,11 +19,16 @@ class ProductVariantController extends Controller
     public function index()
     {
         // get all product variants with filter and pagination
-        $query = ProductVariant::query();
+        $query = ProductVariant::orderBy('name', 'asc');
 
         // filter by name
-        if (request()->has('name')) {
+        if (request()->has('search')) {
             $query->where('name', 'like', '%' . request('name') . '%');
+        }
+
+        // sort by name asc or desc
+        if (request()->has('sort')) {
+            $query->orderBy('name', request('sort'));
         }
 
         // Get pagination settings
@@ -45,11 +53,7 @@ class ProductVariantController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Product Variants retrieved successfully.',
-            'data' => $product_variants
-        ], 200);
+        return new ProductVariantResource(true, 'Product Variant retrieved successfully', $product_variants);
     }
 
     /**
@@ -63,53 +67,30 @@ class ProductVariantController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProductVariantRequest $request)
     {
-        // validate incoming request
-        $request->validate([
-            'name' => 'required|string',
-            'product_attribute_id' => 'required|exists:product_attributes,id',
+        $product_variant = ProductVariant::create([
+            'name' => $request->name,
+            'product_attribute_id' => $request->product_attribute_id,
+            'created_by' => Auth::user()->id
+        ] + $request->validated());
+
+        // Log Activity
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' create data Product Variant ' . $product_variant->name,
+            'description' => 'User ' . Auth::user()->name . ' create data Product Variant ' . $product_variant->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
 
-        try {
-            // create product variant
-            $product_variant = new ProductVariant;
-            $product_variant->name = $request->input('name');
-            $product_variant->product_attribute_id = $request->input('product_attribute_id');
-            $product_variant->created_by = Auth::user()->id;
-            $product_variant->save();
-
-            // Log Activity
-            Activity::create([
-                'log_name' => 'User ' . Auth::user()->name . ' store data Product Variant',
-                'description' => 'User ' . Auth::user()->name . ' store data Product Variant',
-                'subject_id' => Auth::user()->id,
-                'subject_type' => 'App\Models\User',
-                'causer_id' => Auth::user()->id,
-                'causer_type' => 'App\Models\User',
-                'properties' => request()->ip(),
-                // 'host' => request()->ip(),
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            // return json response
-            return response()->json([
-                'success' => true,
-                'message' => 'Product Variant created successfully.',
-                'data' => $product_variant
-            ], 200);
-        } catch (\Exception $e) {
-            // return json response
-            return response()->json([
-                'success' => false,
-                'message' => 'Product Variant failed to save.',
-                'data' => $e->getMessage()
-            ], 500);
-        }
-
-
-
+        // return json response
+        return new ProductVariantResource(true, 'Product Variant created successfully', $product_variant);
     }
 
     /**
@@ -131,51 +112,31 @@ class ProductVariantController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ProductVariant $productVariant)
+    public function update(UpdateProductVariantRequest $request, ProductVariant $productVariant)
     {
-        // validate incoming request
+        $product_variant = ProductVariant::findOrFail($productVariant->id);
+        $product_variant->update([
+            'name' => $request->name,
+            'product_attribute_id' => $request->product_attribute_id,
+            'updated_by' => Auth::user()->id
+        ] + $request->validated());
 
-        $request->validate([
-            'name' => 'required|string',
-            'product_attribute_id' => 'required|exists:product_attributes,id',
+        // Log Activity
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' update data Product Variant ' . $product_variant->name,
+            'description' => 'User ' . Auth::user()->name . ' update data Product Variant ' . $product_variant->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
 
-        try {
-            // update product variant
-            $productVariant->update([
-                'name' => $request->name,
-                'product_attribute_id' => $request->product_attribute_id,
-                'updated_by' => Auth::user()->id
-            ]);
-
-            // Log Activity
-            Activity::create([
-                'log_name' => 'User ' . Auth::user()->name . ' update data Product Variant',
-                'description' => 'User ' . Auth::user()->name . ' update data Product Variant',
-                'subject_id' => Auth::user()->id,
-                'subject_type' => 'App\Models\User',
-                'causer_id' => Auth::user()->id,
-                'causer_type' => 'App\Models\User',
-                'properties' => request()->ip(),
-                // 'host' => request()->ip(),
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            // return json response
-            return response()->json([
-                'success' => true,
-                'message' => 'Product Variant updated successfully.',
-                'data' => $productVariant
-            ], 200);
-        } catch (\Exception $e) {
-            // return json response
-            return response()->json([
-                'success' => false,
-                'message' => 'Product Variant failed to update.',
-                'data' => $e->getMessage()
-            ], 500);
-        }
+        // return json response
+        return new ProductVariantResource(true, 'Product Variant updated successfully', $product_variant);
     }
 
     /**
@@ -186,6 +147,10 @@ class ProductVariantController extends Controller
         // delete product variant by id
         $product_variant = ProductVariant::findOrFail($productVariant->id);
         $product_variant->delete();
+
+        // deleted by
+        $product_variant->deleted_by = Auth::user()->id;
+        $product_variant->save();
 
         // Log Activity
         Activity::create([
@@ -202,11 +167,6 @@ class ProductVariantController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Product Variant deleted successfully.',
-            'data' => $product_variant
-        ], 200);
-
+        return new ProductVariantResource(true, 'Product Variant deleted successfully', $product_variant);
     }
 }

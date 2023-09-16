@@ -21,8 +21,8 @@ class ProductVariant extends Model
      */
 
     protected $fillable = [
+        'name',
         'product_attribute_id',
-        'attribute_id',
         'created_by',
         'updated_by',
         'deleted_by',
