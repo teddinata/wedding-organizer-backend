@@ -16,10 +16,13 @@ class RoleController extends Controller
      */
     public function index()
     {
+        // Get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
         // show data for role with request filter conditional
         $roles = Role::when(request('search'), function($roles) {
             $roles = $roles->where('name', 'like', '%' . request('search') . '%');
-        })->paginate(10);
+        })->paginate($perPage, ['*'], 'page', $page);
 
         // activity()
         // ->causedBy(Auth::user())

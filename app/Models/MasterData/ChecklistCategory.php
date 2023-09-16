@@ -15,6 +15,10 @@ class ChecklistCategory extends Model
      * @var array<int, string>
      */
 
+     protected $fillable = [
+        'name',
+    ];
+
     //  relation to checklist item
     public function checklist_items()
     {

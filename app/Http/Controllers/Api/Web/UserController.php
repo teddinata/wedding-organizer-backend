@@ -9,6 +9,9 @@ use Spatie\Permission\Models\Role;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Http\Resources\UserResource;
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
 
 class UserController extends Controller
 {
@@ -17,17 +20,18 @@ class UserController extends Controller
      */
     public function index()
     {
+        // Get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
         // get all user with request filter conditional
         $users = User::when(request('search'), function($users) {
-            $users = $users->where('name', 'like', '%' . request('search') . '%');
-        })->paginate(10);
+            $users = $users->where('name', 'like', '%' . request('search') . '%')
+                            ->orWhere('email', 'like', '%' . request('search') . '%');
+        })->paginate($perPage, ['*'], 'page', $page);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'List Data User',
-            'data' => $users
-        ], 200);
+        return new UserResource(true, 'Users retrieved successfully', $users);
     }
 
     /**
@@ -41,23 +45,15 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        // set validation
-        $request->validate([
-            'name' => 'required|max:50',
-            'email' => 'required|unique:users,email',
-            'password' => 'required|min:6|confirmed',
-            'roles' => 'required'
-        ]);
-
         //  store data to database
         $user = User::create([
             'name' => $request->input('name'),
             'email' => strtolower($request->input('email')),
             'password' => bcrypt($request->input('password')),
             'created_by' => Auth::user()->id
-        ]);
+        ] + $request->validated());
 
         // assign role to user
         $user->assignRole($request->input('roles'));
@@ -72,16 +68,9 @@ class UserController extends Controller
 
         // return response
         if ($user) {
-            return response()->json([
-                'success' => true,
-                'message' => 'User data saved successfully.',
-                'data' => $user
-            ], 200);
+            return new UserResource(true, 'User data saved successfully', $user);
         } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'User data failed to save.',
-            ], 400);
+            return new UserResource(false, 'User data failed to save', null);
         }
     }
 
@@ -104,16 +93,8 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, string $id)
     {
-        // set validation
-        $request->validate([
-            'name' => 'required|max:50',
-            'email' => 'required|unique:users,email,' . $id,
-            'password' => 'nullable|min:6|confirmed',
-            'roles' => 'required'
-        ]);
-
         // get data user by id
         $user = User::findOrFail($id);
 
@@ -132,9 +113,8 @@ class UserController extends Controller
         $user->assignRole($request->input('roles'));
 
         // update updated_by on table users
-        $user->update([
-            'updated_by' => Auth::user()->id
-        ]);
+        $user->updated_by = Auth::user()->id;
+        $user->save();
 
         // acticity
         Activity::create([
@@ -144,19 +124,11 @@ class UserController extends Controller
             'subject_type' => 'App\Models\User'
         ]);
 
-
         // return response
         if ($user) {
-            return response()->json([
-                'success' => true,
-                'message' => 'User data updated successfully.',
-                'data' => $user
-            ], 200);
+            return new UserResource(true, 'User data updated successfully', $user);
         } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'User data failed to update.',
-            ], 500);
+            return new UserResource(false, 'User data failed to update', null);
         }
     }
 
@@ -173,9 +145,8 @@ class UserController extends Controller
         $user->roles()->detach();
 
         // update deleted_by on table users
-        $user->update([
-            'deleted_by' => Auth::user()->id
-        ]);
+        $user->deleted_by = Auth::user()->id;
+        $user->save();
 
         // acticity
         Activity::create([
@@ -187,15 +158,9 @@ class UserController extends Controller
 
         // return response
         if ($user) {
-            return response()->json([
-                'success' => true,
-                'message' => 'User data deleted successfully.',
-            ], 200);
+            return new UserResource(true, 'User data deleted successfully', $user);
         } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'User data failed to delete.',
-            ], 500);
+            return new UserResource(false, 'User data failed to delete', null);
         }
     }
 }
