@@ -20,8 +20,12 @@ class SalesController extends Controller
      */
     public function index()
     {
+        // Get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
         // get sales data and sort by name ascending
-        $sales = Sales::orderBy('name', 'asc')->paginate(10);
+        $sales = Sales::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         //return collection of sales as a resource
         return new SalesResource(true, 'Sales retrieved successfully', $sales);
 

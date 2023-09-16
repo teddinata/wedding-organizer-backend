@@ -21,8 +21,11 @@ class TeamController extends Controller
      */
     public function index()
     {
+        // Get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
         // get team data and sort by name ascending
-        $team = Team::orderBy('name', 'asc')->paginate(10);
+        $team = Team::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         //return collection of sales as a resource
         return new TeamResource(true, 'Team retrieved successfully', $team);
 

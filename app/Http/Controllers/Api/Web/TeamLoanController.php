@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\TeamResource;
+use App\Http\Requests\TeamLoan\StoreTeamLoanRequest;
+use App\Http\Requests\TeamLoan\UpdateTeamLoanRequest;
+
 
 class TeamLoanController extends Controller
 {
@@ -16,11 +20,11 @@ class TeamLoanController extends Controller
     public function index()
     {
         // get all team loan with request filter conditional
-        $query = TeamLoan::query();
+        $query = TeamLoan::orderBy('created_at', 'desc');
 
         // filter by team id
-        if (request()->has('team_id')) {
-            $query->where('team_id', request('team_id'));
+        if (request()->has('search')) {
+            $query->where('team_id', request('search'));
         }
 
         // get pagination settings
@@ -31,11 +35,7 @@ class TeamLoanController extends Controller
         $teamLoans = $query->paginate($perPage, ['*'], 'page', $page);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Team Loans retrieved successfully.',
-            'data' => $teamLoans
-        ], 200);
+        return new TeamResource(true, 'Team Resources retrieved successfully', $teamLoans);
     }
 
     /**
@@ -49,17 +49,8 @@ class TeamLoanController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTeamLoanRequest $request)
     {
-        // validate request
-        $request->validate([
-            'team_id' => 'required|exists:teams,id',
-            'loan_number' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'amount' => 'required|numeric',
-            'status' => 'required|in:waiting approval, on going, paid, rejected',
-        ]);
-
         // create new team loan
         $teamLoan = TeamLoan::create([
             'team_id' => $request->team_id,
@@ -68,7 +59,7 @@ class TeamLoanController extends Controller
             'amount' => $request->amount,
             'status' => $request->status,
             'created_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -85,11 +76,7 @@ class TeamLoanController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Team Loan created successfully.',
-            'data' => $teamLoan
-        ], 200);
+        return new TeamResource(true, 'Team Loan created successfully', $teamLoan);
     }
 
     /**
@@ -115,11 +102,7 @@ class TeamLoanController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Team Loan retrieved successfully.',
-            'data' => $loan
-        ], 200);
+        return new TeamResource(true, 'Team Loan retrieved successfully', $loan);
     }
 
     /**
@@ -133,18 +116,9 @@ class TeamLoanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TeamLoan $teamLoan)
+    public function update(UpdateTeamLoanRequest $request, TeamLoan $teamLoan)
     {
-        // validate request
-        $request->validate([
-            'team_id' => 'required|exists:teams,id',
-            'loan_number' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'amount' => 'required|numeric',
-            'status' => 'required|in:waiting approval, on going, paid, rejected',
-        ]);
-
-        // update team loan
+       // update team loan
         $teamLoan->update([
             'team_id' => $request->team_id,
             'loan_number' => $request->loan_number,
@@ -152,7 +126,7 @@ class TeamLoanController extends Controller
             'amount' => $request->amount,
             'status' => $request->status,
             'updated_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -169,11 +143,7 @@ class TeamLoanController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Team Loan updated successfully.',
-            'data' => $teamLoan
-        ], 200);
+        return new TeamResource(true, 'Team Loan updated successfully', $teamLoan);
     }
 
     /**
@@ -206,10 +176,6 @@ class TeamLoanController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Team Loan deleted successfully.',
-            'data' => $teamLoan
-        ], 200);
+        return new TeamResource(true, 'Team Loan deleted successfully', null);
     }
 }

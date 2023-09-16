@@ -22,8 +22,8 @@ class ChecklistItemController extends Controller
         $query = ChecklistItem::query();
 
         // filter by name
-        if (request()->has('name')) {
-            $query->where('name', 'like', '%' . request('name') . '%');
+        if (request()->has('search')) {
+            $query->where('name', 'like', '%' . request('search') . '%');
         }
 
         // Get pagination settings
@@ -48,7 +48,7 @@ class ChecklistItemController extends Controller
         ]);
 
         // return json response
-        return new ChecklistItemResource(true, 'Success get data Checklist Item', $checklist_items);
+        return new ChecklistItemResource(true, 'Checklist Items retrieved successfully', $checklist_items);
     }
 
     /**

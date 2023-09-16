@@ -32,6 +32,7 @@ use App\Http\Controllers\Api\Web\DecorationAreaController;
 use App\Http\Controllers\Api\Web\OrderTeamController;
 use App\Http\Controllers\Api\Web\SalesController;
 use App\Http\Controllers\API\Web\VehicleController;
+use App\Http\Controllers\Api\Web\ChecklistCategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,6 +83,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // product variant
         Route::resource('product-variant', ProductVariantController::class)->names('product-variant');
+
+        // checklist category
+        Route::resource('checklist-category', ChecklistCategoryController::class)->names('checklist-category');
 
         // checklist item
         Route::resource('checklist-item', ChecklistItemController::class)->names('checklist-item');
