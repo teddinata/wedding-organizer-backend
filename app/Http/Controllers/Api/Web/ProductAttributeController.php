@@ -8,6 +8,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\ProductAttributeResource;
+use App\Http\Requests\ProductAttribute\StoreProductAttributeRequest;
+use App\Http\Requests\ProductAttribute\UpdateProductAttributeRequest;
 
 class ProductAttributeController extends Controller
 {
@@ -20,13 +23,18 @@ class ProductAttributeController extends Controller
         $query = ProductAttribute::orderBy('name', 'asc');
 
         // filter by name
-        if (request()->has('name')) {
-            $query->where('name', 'like', '%' . request('name') . '%');
+        if (request()->has('search')) {
+            $query->where('name', 'like', '%' . request('search') . '%');
         }
 
         // filter by product category
         if (request()->has('product_category_id')) {
             $query->where('product_category_id', request('product_category_id'));
+        }
+
+        // request sort by name asc or desc
+        if (request()->has('sort')) {
+            $query->orderBy('name', request('sort'));
         }
 
         // count product variant in each product attribute
@@ -54,11 +62,7 @@ class ProductAttributeController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Product Attributes retrieved successfully.',
-            'data' => $product_attributes
-        ], 200);
+        return new ProductAttributeResource(true, 'Product Attributes retrieved successfully', $product_attributes);
     }
 
     /**
@@ -72,19 +76,13 @@ class ProductAttributeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProductAttributeRequest $request)
     {
-        // validate incoming request
-        $request->validate([
-            'product_category_id' => 'required|exists:product_categories,id',
-            'name' => 'required|string',
-        ]);
-
         $product_attribute = ProductAttribute::create([
             'name' => $request->input('name'),
             'product_category_id' => $request->input('product_category_id'),
             'created_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
 
          // activity log
@@ -105,11 +103,7 @@ class ProductAttributeController extends Controller
 
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Product Attribute created successfully.',
-            'data' => $product_attribute
-        ], 200);
+        return new ProductAttributeResource(true, 'Product Attribute created successfully', $product_attribute);
 
     }
 
@@ -132,47 +126,34 @@ class ProductAttributeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ProductAttribute $productAttribute)
+    public function update(UpdateProductAttributeRequest $request, ProductAttribute $productAttribute)
     {
-        // validate incoming request
-        $request->validate([
-            'product_category_id' => 'required|exists:product_categories,id',
-            'name' => 'required|string'
+        // find data by id
+        $productAttribute = ProductAttribute::findOrFail($productAttribute->id);
+
+        // update data
+        $productAttribute->update([
+            'name' => $request->input('name'),
+            'product_category_id' => $request->input('product_category_id'),
+            'updated_by' => Auth::user()->id,
+        ] + $request->validated());
+
+        // activity log
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' update data Product Attribute ' . $productAttribute->name,
+            'description' => 'User ' . Auth::user()->name . ' update data Product Attribute ' . $productAttribute->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
 
-        try {
-            $productAttribute->name = $request->input('name');
-            $productAttribute->product_category_id = $request->input('product_category_id');
-            $productAttribute->updated_by = Auth::user()->id;
-            $productAttribute->save();
-            // activity log
-            Activity::create([
-                'log_name' => 'User ' . Auth::user()->name . ' update data Product Attribute ' . $productAttribute->name,
-                'description' => 'User ' . Auth::user()->name . ' update data Product Attribute ' . $productAttribute->name,
-                'subject_id' => Auth::user()->id,
-                'subject_type' => 'App\Models\User',
-                'causer_id' => Auth::user()->id,
-                'causer_type' => 'App\Models\User',
-                'properties' => request()->ip(),
-                // 'host' => request()->ip(),
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            // return data after store
-            return response()->json([
-                'success' => true,
-                'message' => 'Product Attribute updated successfully.',
-                'data' => $productAttribute
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product Attribute failed to update.',
-            ], 409);
-        }
-
-
+        // return json response
+        return new ProductAttributeResource(true, 'Product Attribute updated successfully', $productAttribute);
     }
 
     /**
@@ -186,6 +167,10 @@ class ProductAttributeController extends Controller
 
         // delete data
         $productAttribute->delete();
+
+        // deleted by
+        $productAttribute->deleted_by = Auth::user()->id;
+        $productAttribute->save();
 
         // activity log
         Activity::create([
@@ -202,9 +187,6 @@ class ProductAttributeController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Product Attribute deleted successfully.',
-        ], 200);
+        return new ProductAttributeResource(true, 'Product Attribute deleted successfully', $productAttribute);
     }
 }

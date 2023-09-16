@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\ChecklistItem;
+namespace App\Http\Requests\ProductVariant;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class StoreChecklistItemRequest extends FormRequest
+class UpdateProductVariantRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,7 +25,7 @@ class StoreChecklistItemRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:3', 'max:255'],
-            'checklist_category_id' =>  ['required'],
+            'product_attribute_id' => ['required', 'exists:product_attributes,id'],
         ];
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Allowance;
+namespace App\Http\Requests\ChecklistItem;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -24,10 +24,8 @@ class UpdateChecklistItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => 'required|exists:employees,id',
-            'date' => 'nullable|date',
-            'clock_in' => 'nullable',
-            'clock_out' => 'nullable',
+            'name' => ['required', 'string', 'min:3', 'max:255'],
+            'checklist_category_id' =>  ['required'],
         ];
     }
 
