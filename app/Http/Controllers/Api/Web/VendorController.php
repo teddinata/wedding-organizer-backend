@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
-use App\Models\MasterData\VendorGrade;
-use App\Models\MasterData\VendorLimit;
 use App\Models\Operational\Vendor;
 use App\Models\User;
+use App\Http\Resources\VendorResource;
+use App\Http\Requests\Vendor\StoreVendorRequest;
 
 class VendorController extends Controller
 {
@@ -19,7 +19,7 @@ class VendorController extends Controller
     public function index()
     {
         // get all vendor with filter and paginate
-        $query = Vendor::query();
+        $query = Vendor::orderBy('name', 'asc');
 
         if (request('search')) {
             $query->where('name', 'like', '%' . request('search') . '%');
@@ -76,11 +76,7 @@ class VendorController extends Controller
             'updated_at' => now()
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'List Data Vendor',
-            'data' => $vendors
-        ], 200);
+        return new VendorResource(true, 'Vendors retrieved successfully', $vendors);
     }
 
     /**
@@ -94,27 +90,8 @@ class VendorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreVendorRequest $request)
     {
-        // dd($request->all());
-        // validate request
-        $request->validate([
-            'name' => 'required',
-            'vendor_grade_id' => 'required',
-            'vendor_limit_id' => 'required',
-            'membership_id' => 'required',
-            'code' => 'required',
-            'name' => 'required',
-            'email' => 'required',
-            'point' => 'nullable|integer',
-            'contact_number' => 'required',
-            'contact_person' => 'required',
-            'website' => 'required',
-            'instagram' => 'required',
-            'address' => 'required',
-            'city' => 'required',
-        ]);
-
         // create data vendor
         $vendor = Vendor::create([
             'vendor_grade_id' => $request->vendor_grade_id,
@@ -131,9 +108,7 @@ class VendorController extends Controller
             'address' => $request->address,
             'city' => $request->city,
             'created_by' => Auth::user()->id,
-            'updated_by' => Auth::user()->id,
-        ]);
-
+        ] + $request->validated());
 
         // Log Activity
         Activity::create([
@@ -149,11 +124,7 @@ class VendorController extends Controller
             'updated_at' => now()
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Vendor data saved successfully.',
-            'data' => $vendor
-        ], 200);
+        return new VendorResource(true, 'Vendor created successfully', $vendor);
     }
 
     /**
@@ -175,34 +146,15 @@ class VendorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(StoreVendorRequest $request, string $id)
     {
-        // dd($request->all());
-        // validate request
-        $request->validate([
-            'name' => 'required',
-            'vendor_grade_id' => 'required',
-            'vendor_limit_id' => 'required',
-            'code' => 'required',
-            'name' => 'required',
-            // 'point' => 'required|numeric',
-            // point integer
-            'point' => 'required|integer',
-            'contact_number' => 'required',
-            'contact_person' => 'required',
-            'website' => 'required',
-            'instagram' => 'required',
-            'address' => 'required',
-            'city' => 'required',
-        ]);
-
-        // dd($request->all());
-
         // dd($vendorGrade);
         // update data vendor
         $vendor = Vendor::findOrFail($id)->update([
             'vendor_grade_id' => $request->vendor_grade_id,
             'vendor_limit_id' => $request->vendor_limit_id,
+            'membership_id' => $request->membership_id,
+            'email' => $request->email,
             'code' => $request->code,
             'name' => $request->name,
             'point' => $request->point,
@@ -213,7 +165,7 @@ class VendorController extends Controller
             'address' => $request->address,
             'city' => $request->city,
             'updated_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         $vendor = Vendor::findOrFail($id);
 
@@ -231,11 +183,7 @@ class VendorController extends Controller
             'updated_at' => now()
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Vendor data updated successfully.',
-            'data' => $vendor
-        ], 200);
+        return new VendorResource(true, 'Vendor updated successfully', $vendor);
     }
 
     /**
@@ -248,6 +196,10 @@ class VendorController extends Controller
 
         // delete data vendor
         $vendor->delete();
+
+        // deleted by
+        $vendor->deleted_by = Auth::user()->id;
+        $vendor->save();
 
         // Log Activity
         Activity::create([
@@ -263,10 +215,6 @@ class VendorController extends Controller
             'updated_at' => now()
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Vendor data deleted successfully.',
-            'data' => $vendor
-        ], 200);
+        return new VendorResource(true, 'Vendor deleted successfully', $vendor);
     }
 }

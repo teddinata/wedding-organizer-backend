@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\MasterData\VendorLimit;
+use App\Models\MasterData\VendorGrade;
+use App\Models\MasterData\Membership;
 
 class Vendor extends Model
 {

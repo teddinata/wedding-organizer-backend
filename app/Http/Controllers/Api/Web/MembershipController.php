@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\MembershipResource;
+use App\Http\Requests\Membership\StoreMembershipRequest;
 
 class MembershipController extends Controller
 {
@@ -16,11 +18,16 @@ class MembershipController extends Controller
     public function index()
     {
         // get all memberships with filter and pagination
-        $query = Membership::query();
+        $query = Membership::orderBy('name', 'asc');
 
         // filter by name
-        if (request()->has('name')) {
-            $query->where('name', 'like', '%' . request('name') . '%');
+        if (request()->has('search')) {
+            $query->where('name', 'like', '%' . request('search') . '%');
+        }
+
+        // sort asc or desc
+        if (request()->has('sort')) {
+            $query->orderBy('name', request('sort'));
         }
 
         // Get pagination settings
@@ -45,11 +52,7 @@ class MembershipController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Memberships retrieved successfully.',
-            'data' => $memberships
-        ], 200);
+        return new MembershipResource(true, 'Memberships retrieved successfully', $memberships);
     }
 
     /**
@@ -63,18 +66,8 @@ class MembershipController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMembershipRequest $request)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required|string',
-            'image' => 'nullable|string',
-            'from' => 'required|integer',
-            'until' => 'required|integer',
-            'point' => 'required|integer',
-        ]);
-        // dd($request->all());
-
         // create new membership
         $membership = Membership::create([
             'name' => $request->name,
@@ -83,7 +76,7 @@ class MembershipController extends Controller
             'until' => $request->until,
             'point' => $request->point,
             'created_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -99,14 +92,8 @@ class MembershipController extends Controller
             'updated_at' => now()
         ]);
 
-
-
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Membership created successfully.',
-            'data' => $membership
-        ], 200);
+        return new MembershipResource(true, 'Membership created successfully', $membership);
     }
 
     /**
@@ -128,17 +115,8 @@ class MembershipController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Membership $membership)
+    public function update(StoreMembershipRequest $request, Membership $membership)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required|string',
-            'image' => 'nullable|string',
-            'from' => 'required|integer',
-            'until' => 'required|integer',
-            'point' => 'required|integer',
-        ]);
-
         // update membership
         $membership->update([
             'name' => $request->name,
@@ -147,7 +125,7 @@ class MembershipController extends Controller
             'until' => $request->until,
             'point' => $request->point,
             'updated_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -164,11 +142,7 @@ class MembershipController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Membership updated successfully.',
-            'data' => $membership
-        ], 200);
+        return new MembershipResource(true, 'Membership updated successfully', $membership);
     }
 
     /**
@@ -202,10 +176,6 @@ class MembershipController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Membership deleted successfully.',
-            'data' => $membership
-        ], 200);
+        return new MembershipResource(true, 'Membership deleted successfully', null);
     }
 }
