@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\OrderResource;
+use App\Http\Requests\OrderProduct\StoreOrderProductRequest;
 
 class OrderProductController extends Controller
 {
@@ -19,13 +21,8 @@ class OrderProductController extends Controller
         $query = OrderProduct::query();
 
         // filter by order_id
-        if (request()->has('order_id')) {
-            $query->where('order_id', request('order_id'));
-        }
-
-        // filter by product_id
-        if (request()->has('product_id')) {
-            $query->where('product_id', request('product_id'));
+        if (request()->has('search')) {
+            $query->where('order_id', request('search'));
         }
 
         // get pagination settings
@@ -35,12 +32,22 @@ class OrderProductController extends Controller
         // get data
         $orderProducts = $query->paginate($perPage, ['*'], 'page', $page);
 
+         // log activity
+         Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' get data Order Products',
+            'description' => 'User ' . Auth::user()->name . ' get data Order Products',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Order products retrieved successfully.',
-            'data' => $orderProducts
-        ], 200);
+        return new OrderResource(true, 'Order products retrieved successfully', $orderProducts);
     }
 
     /**
@@ -54,18 +61,8 @@ class OrderProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreOrderProductRequest $request)
     {
-        // validate request
-        $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'product_attribute_id' => 'required|exists:product_attributes,id',
-            'area_id' => 'required|exists:decoration_areas,id',
-            'quantity' => 'required|integer',
-            'amount' => 'required|integer',
-            'notes' => 'required|string',
-        ]);
-
         // create order product
         $orderProduct = OrderProduct::create([
             'order_id' => $request->order_id,
@@ -75,7 +72,7 @@ class OrderProductController extends Controller
             'amount' => $request->amount,
             'notes' => $request->notes,
             'created_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // logs activity
         Activity::create([
@@ -89,11 +86,7 @@ class OrderProductController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Order product created successfully.',
-            'data' => $orderProduct
-        ], 200);
+        return new OrderResource(true, 'Order product created successfully', $orderProduct);
     }
 
     /**
@@ -115,7 +108,7 @@ class OrderProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, OrderProduct $orderProduct)
+    public function update(StoreOrderProductRequest $request, OrderProduct $orderProduct)
     {
         // validate request
         $request->validate([
@@ -125,7 +118,7 @@ class OrderProductController extends Controller
             'quantity' => 'required|integer',
             'amount' => 'required|integer',
             'notes' => 'required|string',
-        ]);
+        ] + $request->validated());
 
         // update order product
         $orderProduct->update([
@@ -150,11 +143,7 @@ class OrderProductController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Order product updated successfully.',
-            'data' => $orderProduct
-        ], 200);
+        return new OrderResource(true, 'Order product updated successfully', $orderProduct);
     }
 
     /**
@@ -168,6 +157,10 @@ class OrderProductController extends Controller
         // delete order product
         $orderProduct->delete();
 
+        // deleted by
+        $orderProduct->deleted_by = Auth::user()->id;
+        $orderProduct->save();
+
         // logs activity
         Activity::create([
             'log_name' => 'User ' . Auth::user()->name . ' delete data Order ',
@@ -180,10 +173,6 @@ class OrderProductController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Order product deleted successfully.',
-            'data' => $orderProduct
-        ], 200);
+        return new OrderResource(true, 'Order product deleted successfully', $orderProduct);
     }
 }

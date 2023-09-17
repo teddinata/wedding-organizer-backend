@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\OrderResource;
 
 class OrderTeamController extends Controller
 {
@@ -33,11 +34,7 @@ class OrderTeamController extends Controller
         $orderTeams = $query->paginate($perPage, ['*'], 'page', $page);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Order teams retrieved successfully.',
-            'data' => $orderTeams
-        ], 200);
+        return new OrderResource(true, 'Order teams retrieved successfully', $orderTeams);
     }
 
     /**
@@ -90,11 +87,7 @@ class OrderTeamController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Assign Team created successfully.',
-            'data' => $orderTeam
-        ], 200);
+        return new OrderResource(true, 'Order team created successfully', $orderTeam);
     }
 
     /**

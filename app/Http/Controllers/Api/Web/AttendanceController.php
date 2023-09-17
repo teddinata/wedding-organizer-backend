@@ -22,24 +22,13 @@ class AttendanceController extends Controller
         // get all attendance with request filter conditional
         $query = Attendance::orderBy('date', 'desc')->with(['employee']);
 
-        // filter by employee_id
-        if (request()->has('employee_id')) {
-            $query->where('employee_id', request('employee_id'));
-        }
-
-        // filter by date
-        if (request()->has('date')) {
-            $query->where('date', request('date'));
-        }
-
-        // filter by status ontime or late
-        if (request()->has('status')) {
-            $query->where('status', request('status'));
-        }
-
-        // filter by platform
-        if (request()->has('platform')) {
-            $query->where('platform', request('platform'));
+        // filter search by every column
+        if (request()->has('search')) {
+            $query->where('employee_id', request('search'))
+                ->orWhere('date', 'like', '%' . request('search') . '%')
+                ->orWhere('clock_in', 'like', '%' . request('search') . '%')
+                ->orWhere('clock_out', 'like', '%' . request('search') . '%')
+                ->orWhere('platform', 'like', '%' . request('search') . '%');
         }
 
         // Get pagination settings

@@ -27,7 +27,6 @@ class DepartmentController extends Controller
         // get department data and sort by name ascending
         $department = Department::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         //return collection of department as a resource
-        return new DepartmentResource(true, 'Department retrieved successfully', $department);
 
         // Log Activity
         Activity::create([
@@ -41,6 +40,8 @@ class DepartmentController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
+
+        return new DepartmentResource(true, 'Department retrieved successfully', $department);
     }
 
     /**

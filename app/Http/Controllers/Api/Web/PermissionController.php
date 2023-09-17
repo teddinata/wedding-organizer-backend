@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\Resource;
 
 class PermissionController extends Controller
 {
@@ -71,10 +72,6 @@ class PermissionController extends Controller
             'updated_at' => now()
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'List Data Permission',
-            'data' => $permissions
-        ]);
+        return new Resource(true, 'Permissions retrieved successfully', $permissions);
     }
 }
