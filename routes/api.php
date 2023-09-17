@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\Web\OrderTeamController;
 use App\Http\Controllers\Api\Web\SalesController;
 use App\Http\Controllers\API\Web\VehicleController;
 use App\Http\Controllers\Api\Web\ChecklistCategoryController;
+use App\Http\Controllers\Api\Web\ActivityLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +63,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // user
         Route::resource('user', UserController::class)->names('user');
+
+        // activity log
+        Route::resource('activity-log', ActivityLogController::class)->names('activity-log');
 
         // vendor limit
         Route::resource('vendor-limit', VendorLimitController::class)->names('vendor-limit');

@@ -8,6 +8,8 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\UserResource;
+
 
 class RoleController extends Controller
 {
@@ -41,11 +43,7 @@ class RoleController extends Controller
             'updated_at' => now()
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'List Data Role',
-            'data' => $roles
-        ]);
+        return new UserResource(true, 'Roles retrieved successfully', $roles);
     }
 
     /**
@@ -90,11 +88,7 @@ class RoleController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Role saved successfully.',
-            'data' => $role
-        ]);
+        return new UserResource(true, 'Role created successfully', $role);
     }
 
     /**
@@ -150,11 +144,7 @@ class RoleController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Role updated successfully.',
-            'data' => $role
-        ]);
+        return new UserResource(true, 'Role updated successfully', $role);
     }
 
     /**
@@ -167,6 +157,10 @@ class RoleController extends Controller
 
         // delete role
         $role->delete();
+
+        // deleted by
+        $role->deleted_by = Auth::user()->id;
+        $role->save();
 
         Activity::create([
             'log_name' => 'User ' . Auth::user()->name . ' delete data role',
@@ -182,10 +176,6 @@ class RoleController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Role deleted successfully.',
-            'data' => $role
-        ]);
+        return new UserResource(true, 'Role deleted successfully', $role);
     }
 }

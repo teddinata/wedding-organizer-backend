@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\OrderResource;
+use App\Http\Requests\Order\StoreOrderRequest;
 
 class OrderController extends Controller
 {
@@ -19,13 +21,8 @@ class OrderController extends Controller
         $query = Order::query();
 
         // filter by vendor_id
-        if (request()->has('vendor_id')) {
-            $query->where('vendor_id', request('vendor_id'));
-        }
-
-        // filter by event date
-        if (request()->has('event_date')) {
-            $query->where('event_date', request('event_date'));
+        if (request()->has('search')) {
+            $query->where('vendor_id', request('search'));
         }
 
         // get pagination settings
@@ -35,12 +32,22 @@ class OrderController extends Controller
         // get data
         $orders = $query->paginate($perPage, ['*'], 'page', $page);
 
+        // log activity
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' get data Order',
+            'description' => 'User ' . Auth::user()->name . ' get data Order',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Orders retrieved successfully.',
-            'data' => $orders
-        ], 200);
+        return new OrderResource(true, 'Orders retrieved successfully', $orders);
     }
 
     /**
@@ -54,35 +61,8 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
-        // validate request
-        $request->validate([
-            'vendor_id' => 'required|exists:vendors,id',
-            'sales_id' => 'required|exists:sales,id',
-            'employee_id' => 'required|exists:employees,id',
-            'date' => 'required|date',
-            'loading_date' => 'required|date',
-            'loading_time' => 'required',
-            'event_date' => 'required|date',
-            'event_time' => 'required',
-            'venue' => 'required',
-            'room' => 'nullable',
-            'coordinator_schedule' => 'nullable',
-            // subtotal
-            'subtotal' => 'required|integer',
-            'discount' => 'required|integer',
-            'total' => 'required|integer',
-            'order_notes' => 'nullable',
-            'is_checklist_tree' => 'nullable',
-            'is_checklist_melamin' => 'nullable',
-            'is_checklist_lighting' => 'nullable',
-            'is_checklist_gazebo' => 'nullable',
-            'points' => 'nullable',
-            'extra_points' => 'nullable',
-            'notes' => 'nullable',
-        ]);
-
         // create new order
         $order = Order::create([
             'vendor_id' => $request->vendor_id,
@@ -111,7 +91,7 @@ class OrderController extends Controller
             'extra_points' => $request->extra_points,
             'notes' => $request->notes,
             'created_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
         // order seq auto increment dan setelah melewati jam 12 malam, maka akan direset gunakan format 004
         $order->order_seq = str_pad(Order::whereDate('created_at', now())->count(), 3, '0', STR_PAD_LEFT);
         $order->save();
@@ -128,11 +108,7 @@ class OrderController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Order created successfully.',
-            'data' => $order
-        ], 200);
+        return new OrderResource(true, 'Order created successfully', $order);
     }
 
     /**
@@ -154,35 +130,8 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Order $order)
+    public function update(StoreOrderRequest $request, Order $order)
     {
-        // validate request
-        $request->validate([
-            'vendor_id' => 'required|exists:vendors,id',
-            'sales_id' => 'required|exists:sales,id',
-            'employee_id' => 'required|exists:employees,id',
-            'date' => 'required|date',
-            'loading_date' => 'required|date',
-            'loading_time' => 'required',
-            'event_date' => 'required|date',
-            'event_time' => 'required',
-            'venue' => 'required',
-            'room' => 'nullable',
-            'coordinator_schedule' => 'nullable',
-            // subtotal
-            'subtotal' => 'required|integer',
-            'discount' => 'required|integer',
-            'total' => 'required|integer',
-            'order_notes' => 'nullable',
-            'is_checklist_tree' => 'nullable',
-            'is_checklist_melamin' => 'nullable',
-            'is_checklist_lighting' => 'nullable',
-            'is_checklist_gazebo' => 'nullable',
-            'points' => 'nullable',
-            'extra_points' => 'nullable',
-            'notes' => 'nullable',
-        ]);
-
         // update order
         $order->update([
             'vendor_id' => $request->vendor_id,
@@ -211,7 +160,7 @@ class OrderController extends Controller
             'extra_points' => $request->extra_points,
             'notes' => $request->notes,
             'updated_by' => Auth::user()->id,
-        ]);
+        ] + $request->validated());
 
         // logs activity
         // log activity
@@ -229,11 +178,7 @@ class OrderController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Order updated successfully.',
-            'data' => $order
-        ], 200);
+        return new OrderResource(true, 'Order updated successfully', $order);
     }
 
     /**
@@ -248,9 +193,8 @@ class OrderController extends Controller
         $order->delete();
 
         // deleted by
-        $order->update([
-            'deleted_by' => Auth::user()->id,
-        ]);
+        $order->deleted_by = Auth::user()->id;
+        $order->save();
 
         // logs activity
         Activity::create([
@@ -264,10 +208,6 @@ class OrderController extends Controller
         ]);
 
         // return response
-        return response()->json([
-            'success' => true,
-            'message' => 'Order deleted successfully.',
-            'data' => $order
-        ], 200);
+        return new OrderResource(true, 'Order deleted successfully', $order);
     }
 }

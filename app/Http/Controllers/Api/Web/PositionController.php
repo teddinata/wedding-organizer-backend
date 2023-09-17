@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Resource;
 
 class PositionController extends Controller
 {
@@ -45,11 +46,7 @@ class PositionController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Positions retrieved successfully.',
-            'data' => $positions
-        ], 200);
+        return new Resource(true, 'Positions retrieved successfully', $positions);
     }
 
     /**
@@ -92,11 +89,7 @@ class PositionController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Position created successfully.',
-            'data' => $position
-        ], 200);
+        return new Resource(true, 'Position created successfully', $position);
     }
 
     /**
@@ -147,11 +140,7 @@ class PositionController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Position updated successfully.',
-            'data' => $position
-        ], 200);
+        return new Resource(true, 'Position updated successfully', $position);
     }
 
     /**
@@ -182,10 +171,6 @@ class PositionController extends Controller
         ]);
 
         // return json response
-        return response()->json([
-            'success' => true,
-            'message' => 'Position deleted successfully.',
-            'data' => $position
-        ], 200);
+        return new Resource(true, 'Position deleted successfully', $position);
     }
 }
