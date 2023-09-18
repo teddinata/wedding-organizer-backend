@@ -39,6 +39,8 @@ class AuthController extends Controller
             // Jika credential benar, maka buat token
             $user = User::where('email', $request->email)->first();
             $token = $user->createToken('token')->plainTextToken;
+            $user->last_login = now();
+            $user->save();
 
             // activity log
             activity()

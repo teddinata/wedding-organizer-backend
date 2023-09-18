@@ -12,6 +12,9 @@ use App\Models\User;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Mail\SendPassword;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -24,11 +27,20 @@ class UserController extends Controller
         $perPage = request('per_page', 10);
         $page = request('page', 1);
 
+
         // get all user with request filter conditional
         $users = User::when(request('search'), function($users) {
             $users = $users->where('name', 'like', '%' . request('search') . '%')
-                            ->orWhere('email', 'like', '%' . request('search') . '%');
+            ->orWhere('email', 'like', '%' . request('search') . '%');
         })->paginate($perPage, ['*'], 'page', $page);
+        // if user last_login is null then set status to pending else set status to active pass to users json
+        foreach ($users as $user) {
+            if ($user->last_login == null) {
+                $user->status = 'pending';
+            } else {
+                $user->status = 'active';
+            }
+        }
 
         // return response
         return new UserResource(true, 'Users retrieved successfully', $users);
@@ -47,16 +59,31 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
+        // allowed characters for generate password
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        // generate password
+        $password = substr(str_shuffle($characters), 0, 8);
+
+        // set password to request
+        $request->merge(['password' => $password]);
+
         //  store data to database
         $user = User::create([
             'name' => $request->input('name'),
             'email' => strtolower($request->input('email')),
-            'password' => bcrypt($request->input('password')),
+            // generate password
+            'password' => Hash::make($password),
             'created_by' => Auth::user()->id
         ] + $request->validated());
 
         // assign role to user
         $user->assignRole($request->input('roles'));
+
+        // password readable
+        $user->password = $password;
+        // send password to email
+        Mail::to($user->email)->send(new SendPassword($user, $password));
 
         // acticity
         Activity::create([
