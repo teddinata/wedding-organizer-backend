@@ -27,7 +27,6 @@ class StoreBankAccountRequest extends FormRequest
             'bank' => ['required', 'string', 'min:3', 'max:255'],
             'account_holder' => ['required', 'string', 'min:3', 'max:255'],
             'account_number' => ['required', 'digits_between:7,16'],
-            'created_by' => ['required', 'numeric'],
         ];
     }
 

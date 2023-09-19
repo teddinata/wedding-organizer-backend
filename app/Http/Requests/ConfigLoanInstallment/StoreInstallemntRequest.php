@@ -25,7 +25,6 @@ class StoreInstallemntRequest extends FormRequest
     {
         return [
             'nominal' => ['required', 'numeric'],
-            'created_by' => ['required', 'numeric'],
         ];
     }
 
