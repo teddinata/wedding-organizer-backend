@@ -19,7 +19,7 @@ class ChecklistItemController extends Controller
     public function index()
     {
         // get all checklist items with filter and pagination
-        $query = ChecklistItem::query();
+        $query = ChecklistItem::with(['checklist_category']);
 
         // filter by name
         if (request()->has('search')) {
