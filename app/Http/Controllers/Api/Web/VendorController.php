@@ -61,6 +61,10 @@ class VendorController extends Controller
 
         // Get data vendor with paginate and relationship with vendor grade and vendor limit
         $vendors = $query->with(['vendor_grade', 'vendor_limit'])->paginate($perPage, ['*'], 'page', $page);
+        // count total vendor without paginate
+        $totalData = $query->count();
+        // count data vendors->is_first_login === 0
+        $totalUserApp = $query->where('is_first_login', 0)->count();
 
         // Log Activity
         Activity::create([
@@ -76,7 +80,13 @@ class VendorController extends Controller
             'updated_at' => now()
         ]);
 
-        return new VendorResource(true, 'Vendors retrieved successfully', $vendors);
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendors retrieved successfully',
+            'total_data' => $totalData,
+            'total_user_use_app' => $totalUserApp,
+            'data' => $vendors
+        ], 200);
     }
 
     /**
