@@ -24,8 +24,7 @@ class UpdateSalesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'min:3', 'max:255'],
-            'created_by' => ['required', 'numeric'],
+            'name' => ['required', 'min:3', 'max:255']
         ];
     }
 

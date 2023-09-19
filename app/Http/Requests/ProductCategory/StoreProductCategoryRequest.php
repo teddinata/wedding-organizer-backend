@@ -25,7 +25,6 @@ class StoreProductCategoryRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:3', 'max:255'],
-            'created_by' => ['required', 'numeric'],
         ];
     }
 

@@ -25,7 +25,6 @@ class UpdateInstallmentRequest extends FormRequest
     {
         return [
             'nominal' => ['required', 'numeric'],
-            'updated_by' => ['required', 'numeric'],
         ];
     }
 

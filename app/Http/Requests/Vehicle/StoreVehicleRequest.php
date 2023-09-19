@@ -25,8 +25,7 @@ class StoreVehicleRequest extends FormRequest
     {
         return [
             'model_name' => ['required', 'string', 'min:3', 'max:255'],
-            'plate_number' => ['required', 'string', 'min:3', 'max:11'],
-            'created_by' => ['required', 'numeric'],
+            'plate_number' => ['required', 'string', 'min:3', 'max:11']
         ];
     }
 

@@ -25,8 +25,7 @@ class StoreVendorGradeRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:3', 'max:255'],
-            'description' => ['string', 'min:5', 'max:255'],
-            'created_by' => ['required', 'numeric'],
+            'description' => ['string', 'min:5', 'max:255']
         ];
     }
 

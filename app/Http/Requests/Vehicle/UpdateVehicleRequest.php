@@ -25,8 +25,7 @@ class UpdateVehicleRequest extends FormRequest
     {
         return [
             'model_name' => ['required', 'string', 'min:3', 'max:255'],
-            'plate_number' => ['required', 'string', 'min:3', 'max:11'],
-            'updated_by' => ['required', 'numeric'],
+            'plate_number' => ['required', 'string', 'min:3', 'max:11']
         ];
     }
 
