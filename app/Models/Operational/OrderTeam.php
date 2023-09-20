@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\MasterData\Employee;
 
 class OrderTeam extends Model
 {
@@ -19,11 +20,11 @@ class OrderTeam extends Model
     protected $fillable = [
         'employee_id',
         'order_product_id',
-        'team_id',
+        // 'team_id',
         'salary',
-        'created_by',
-        'updated_by',
-        'deleted_by',
+        // 'created_by',
+        // 'updated_by',
+        // 'deleted_by',
     ];
 
     // logs

@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\Web\SalesController;
 use App\Http\Controllers\API\Web\VehicleController;
 use App\Http\Controllers\Api\Web\ChecklistCategoryController;
 use App\Http\Controllers\Api\Web\ActivityLogController;
+use App\Http\Controllers\Api\Web\OrderAdditionalServiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,6 +122,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // route order team
         Route::resource('order-team', OrderTeamController::class)->names('order');
+
+        // order additional service
+        Route::resource('order-add-on', OrderAdditionalServiceController::class)->names('order-additional-service');
 
         // route sales
         Route::apiResource('/sales', SalesController::class);
