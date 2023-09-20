@@ -53,4 +53,10 @@ class OrderProduct extends Model
     {
         return $this->belongsTo(DecorationArea::class, 'area_id', 'id');
     }
+
+    // relasi dengan order team
+    public function order_team()
+    {
+        return $this->hasMany(OrderTeam::class, 'order_product_id', 'id');
+    }
 }

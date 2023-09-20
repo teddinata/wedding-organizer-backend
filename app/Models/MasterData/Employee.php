@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\User;
+use App\Models\Operational\Order;
+use App\Models\Operational\OrderTeam;
+use App\Models\MasterData\Department;
+use App\Models\MasterData\Position;
+use App\Models\MasterData\Level;
+
 
 class Employee extends Model
 {
@@ -90,7 +97,7 @@ class Employee extends Model
     // relasi dengan employee allowance
     public function employee_allowance()
     {
-        return $this->hasMany(EmployeeAllowance::class, 'employee_id', 'id');
+        return $this->hasMany(Allowance::class, 'employee_id', 'id');
     }
 
     // relasi dengan order
