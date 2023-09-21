@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Resource;
+use App\Http\Requests\Position\StorePositionRequest;
 
 class PositionController extends Controller
 {
@@ -16,8 +17,10 @@ class PositionController extends Controller
      */
     public function index()
     {
+        // dd('test');
         // get all positions with filter and pagination
         $query = Position::query();
+
 
         // filter by name
         if (request()->has('name')) {
@@ -60,19 +63,13 @@ class PositionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePositionRequest $request)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required',
-            'department_id' => 'required|exists:departments,id',
-        ]);
-
         // create new position
         $position = Position::create([
             'name' => $request->name,
             'department_id' => $request->department_id,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
@@ -111,19 +108,13 @@ class PositionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Position $position)
+    public function update(StorePositionRequest $request, Position $position)
     {
-        // validate request
-        $request->validate([
-            'name' => 'required' . $position->id,
-            'department_id' => 'required|exists:departments,id',
-        ]);
-
         // update position
         $position->update([
             'name' => $request->name,
             'department_id' => $request->department_id,
-        ]);
+        ] + $request->validated());
 
         // log activity
         Activity::create([
