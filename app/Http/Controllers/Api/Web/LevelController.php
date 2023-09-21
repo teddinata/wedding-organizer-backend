@@ -71,6 +71,7 @@ class LevelController extends Controller
             'icon' => $request->icon,
             'from' => $request->from,
             'until' => $request->until,
+            'created_by' => Auth::user()->id,
         ] + $request->validated());
 
         // log activity
@@ -118,6 +119,7 @@ class LevelController extends Controller
             'icon' => $request->icon,
             'from' => $request->from,
             'until' => $request->until,
+            'updated_by' => Auth::user()->id,
         ] + $request->validated());
 
         // log activity
