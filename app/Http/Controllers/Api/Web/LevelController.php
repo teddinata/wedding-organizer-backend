@@ -34,6 +34,11 @@ class LevelController extends Controller
         // Get data
         $levels = $level->paginate($perPage, ['*'], 'page', $page);
 
+        // foreach icon
+        foreach ($levels as $level) {
+            $level->icon = asset('storage/uploads/level/' . $level->icon);
+        }
+
         // logs
         Activity::create([
             'log_name' => 'User ' . Auth::user()->name . ' show data Level',
@@ -66,13 +71,27 @@ class LevelController extends Controller
     public function store(StoreLevelRequest $request)
     {
         // create new level
-        $level = Level::create([
+        $level = [
             'name' => $request->name,
-            'icon' => $request->icon,
             'from' => $request->from,
             'until' => $request->until,
             'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        ];
+
+        // check if request has icon
+        if ($request->hasFile('icon')) {
+            $icon = $request->file('icon');
+            $filename = 'level' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $icon->getClientOriginalName());
+
+            $path = $icon->storeAs('uploads/level', $filename, 'public');
+
+            if ($path) {
+                $level['icon'] = $filename;
+            }
+        }
+
+        // create level
+        $level = Level::create($level);
 
         // log activity
         Activity::create([
@@ -113,14 +132,28 @@ class LevelController extends Controller
      */
     public function update(UpdateLevelRequest $request, Level $level)
     {
-        // update level
-        $level->update([
+        // update level like store() method above
+        $level_update = [
             'name' => $request->name,
-            'icon' => $request->icon,
             'from' => $request->from,
             'until' => $request->until,
             'updated_by' => Auth::user()->id,
-        ] + $request->validated());
+        ];
+
+        // check if request has icon
+        if ($request->hasFile('icon')) {
+            $icon = $request->file('icon');
+            $filename = 'level' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $icon->getClientOriginalName());
+
+            $path = $icon->storeAs('uploads/level', $filename, 'public');
+
+            if ($path) {
+                $level['icon'] = $filename;
+            }
+        }
+
+        // update level
+        $level->update($level_update);
 
         // log activity
         Activity::create([

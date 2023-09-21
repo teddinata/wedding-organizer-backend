@@ -25,7 +25,7 @@ class UpdateLevelRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'icon' => 'nullable|string',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'from' => 'required|numeric',
             'until' => 'required|numeric',
         ];
