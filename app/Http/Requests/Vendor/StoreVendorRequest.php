@@ -39,6 +39,7 @@ class StoreVendorRequest extends FormRequest
             'instagram' => ['required'],
             'address' => ['required'],
             'city' => ['required'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
         ];
     }
 
