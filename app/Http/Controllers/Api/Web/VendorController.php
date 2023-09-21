@@ -10,6 +10,7 @@ use App\Models\Operational\Vendor;
 use App\Models\User;
 use App\Http\Resources\VendorResource;
 use App\Http\Requests\Vendor\StoreVendorRequest;
+use App\Http\Requests\Vendor\UpdateVendorRequest;
 
 class VendorController extends Controller
 {
@@ -156,7 +157,7 @@ class VendorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreVendorRequest $request, string $id)
+    public function update(UpdateVendorRequest $request, string $id)
     {
         // dd($vendorGrade);
         // update data vendor

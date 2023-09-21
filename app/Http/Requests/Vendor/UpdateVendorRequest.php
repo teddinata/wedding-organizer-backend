@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class StoreVendorRequest extends FormRequest
+class UpdateVendorRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,7 +31,7 @@ class StoreVendorRequest extends FormRequest
             'code' => ['required'],
             'name' => ['required'],
             // email harus unique di table vendor tetapi exclude deleted_at
-            'email' => ['required', 'email', 'unique:vendors,email,' . $this->id . ',id,deleted_at,NULL'],
+            'email' => ['required', 'email'],
             'point' => 'nullable|integer',
             'contact_number' => ['required'],
             'contact_person' => ['required'],
