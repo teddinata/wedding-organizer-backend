@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Resources\MembershipResource;
 use App\Http\Requests\Membership\StoreMembershipRequest;
+use App\Http\Requests\Membership\UpdateMembershipRequest;
 
 class MembershipController extends Controller
 {
@@ -18,7 +19,7 @@ class MembershipController extends Controller
     public function index()
     {
         // get all memberships with filter and pagination
-        $query = Membership::orderBy('name', 'asc');
+        $query = Membership::orderBy('id', 'asc');
 
         // filter by name
         if (request()->has('search')) {
@@ -36,6 +37,10 @@ class MembershipController extends Controller
 
         // Get data
         $memberships = $query->paginate($perPage, ['*'], 'page', $page);
+
+        foreach ($memberships as $membership) {
+            $membership->image = asset('storage/uploads/membership/' . $membership->image);
+        }
 
         // log activity
         Activity::create([
@@ -68,15 +73,27 @@ class MembershipController extends Controller
      */
     public function store(StoreMembershipRequest $request)
     {
-        // create new membership
-        $membership = Membership::create([
-            'name' => $request->name,
-            'image' => $request->image,
-            'from' => $request->from,
-            'until' => $request->until,
-            'point' => $request->point,
+         // Jika validasi berhasil, Anda dapat melanjutkan dengan menyimpan data Membership ke database.
+        $membershipData = [
+            'name' => $request->input('name'),
+            'from' => $request->input('from'),
+            'until' => $request->input('until'),
+            'point' => $request->input('point'),
             'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        ];
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = 'membership' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $image->getClientOriginalName());
+
+            $path = $image->storeAs('uploads/membership', $filename, 'public');
+
+            if ($path) {
+                $membershipData['image'] = $filename;
+            }
+        }
+
+        $membership = Membership::create($membershipData + $request->validated());
 
         // log activity
         Activity::create([
@@ -115,17 +132,29 @@ class MembershipController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreMembershipRequest $request, Membership $membership)
+    public function update(UpdateMembershipRequest $request, Membership $membership)
     {
-        // update membership
-        $membership->update([
-            'name' => $request->name,
-            'image' => $request->image,
-            'from' => $request->from,
-            'until' => $request->until,
-            'point' => $request->point,
+        // update membership like store() method above
+        $membershipData = [
+            'name' => $request->input('name'),
+            'from' => $request->input('from'),
+            'until' => $request->input('until'),
+            'point' => $request->input('point'),
             'updated_by' => Auth::user()->id,
-        ] + $request->validated());
+        ];
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = 'membership' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $image->getClientOriginalName());
+
+            $path = $image->storeAs('uploads/membership', $filename, 'public');
+
+            if ($path) {
+                $membershipData['image'] = $filename;
+            }
+        }
+
+        $membership->update($membershipData + $request->validated());
 
         // log activity
         Activity::create([
