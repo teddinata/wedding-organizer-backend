@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Resources\MembershipBenefitResource;
 use App\Http\Requests\MembershipBenefit\StoreMembershipBenefitRequest;
+use App\Http\Requests\MembershipBenefit\UpdateMembershipBenefitRequest;
 
 class MembershipBenefitController extends Controller
 {
@@ -65,13 +66,26 @@ class MembershipBenefitController extends Controller
     public function store(StoreMembershipBenefitRequest $request)
     {
         // create membership benefit
-        $membership_benefit = MembershipBenefit::create([
-            'image' => $request->image,
-            'description' => $request->description,
-            'membership_id' => $request->membership_id,
-            'created_at' => now(),
+        $membership_benefit = [
+            'description' => $request->input('description'),
+            'membership_id' => $request->input('membership_id'),
             'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        ];
+
+        // check if request has image
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = 'membership_benefit' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $image->getClientOriginalName());
+
+            $path = $image->storeAs('uploads/membership_benefit', $filename, 'public');
+
+            if ($path) {
+                $membership_benefit['image'] = $filename;
+            }
+        }
+
+        // create membership benefit
+        $membershipBenefit = MembershipBenefit::create($membership_benefit + $request->validated());
 
         // log activity
         Activity::create([
@@ -88,7 +102,7 @@ class MembershipBenefitController extends Controller
         ]);
 
         // return json response
-        return new MembershipBenefitResource(true, 'Membership Benefit created successfully', $membership_benefit);
+        return new MembershipBenefitResource(true, 'Membership Benefit created successfully', $membershipBenefit);
 
     }
 
@@ -111,15 +125,31 @@ class MembershipBenefitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreMembershipBenefitRequest $request, MembershipBenefit $membershipBenefit)
+    public function update(UpdateMembershipBenefitRequest $request, MembershipBenefit $membershipBenefit)
     {
-        // update membership benefit
-        $membership_benefit = $membershipBenefit->update([
-            'image' => $request->image,
-            'description' => $request->description,
-            'membership_id' => $request->membership_id,
+        // update membership benefit like store() method above
+        $membershipData = [
+            'description' => $request->input('description'),
+            'membership_id' => $request->input('membership_id'),
             'updated_by' => Auth::user()->id,
-        ] + $request->validated());
+        ];
+
+
+        // check if request has image
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = 'membership_benefit' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $image->getClientOriginalName());
+
+            $path = $image->storeAs('uploads/membership_benefit', $filename, 'public');
+
+            if ($path) {
+                $membershipData['image'] = $filename;
+            }
+        }
+        // dd($request->image);
+
+        // update membership benefit
+        $membershipBenefit->update($membershipData + $request->validated());
 
         // log activity
         Activity::create([
@@ -136,7 +166,7 @@ class MembershipBenefitController extends Controller
         ]);
 
         // return json response
-        return new MembershipBenefitResource(true, 'Membership Benefit updated successfully', $membership_benefit);
+        return new MembershipBenefitResource(true, 'Membership Benefit updated successfully', $membershipBenefit);
     }
 
     /**

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Membership;
+namespace App\Http\Requests\MembershipBenefit;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class StoreMembershipRequest extends FormRequest
+class UpdateMembershipBenefitRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +24,9 @@ class StoreMembershipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'from' => 'required|integer',
-            'until' => 'required|integer',
-            'point' => 'required|integer',
+            'description' => 'required|string',
+            'membership_id' => 'required|integer',
         ];
     }
 
