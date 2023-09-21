@@ -36,6 +36,9 @@ class VendorController extends Controller
             $id = request('id');
             $vendor = $query->findOrFail($id);
 
+            // logo
+            $vendor->logo = asset('storage/uploads/vendor/' . $vendor->logo);
+
             Activity::create([
                 'log_name' => 'User ' . Auth::user()->name . ' show data vendor detail ' . $vendor->name,
                 'description' => 'User ' . Auth::user()->name . ' show data vendor detail ' . $vendor->name,
@@ -66,6 +69,11 @@ class VendorController extends Controller
         $totalData = $query->count();
         // count data vendors->is_first_login === 0
         $totalUserApp = $query->where('is_first_login', 0)->count();
+
+        // foreach logo
+        foreach ($vendors as $vendor) {
+            $vendor->logo = asset('storage/uploads/vendor/' . $vendor->logo);
+        }
 
         // Log Activity
         Activity::create([
@@ -104,7 +112,7 @@ class VendorController extends Controller
     public function store(StoreVendorRequest $request)
     {
         // create data vendor
-        $vendor = Vendor::create([
+        $vendor = [
             'vendor_grade_id' => $request->vendor_grade_id,
             'vendor_limit_id' => $request->vendor_limit_id,
             'membership_id' => $request->membership_id,
@@ -119,7 +127,21 @@ class VendorController extends Controller
             'address' => $request->address,
             'city' => $request->city,
             'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        ];
+
+        // upload logo
+        if ($request->hasFile('logo')) {
+            $logo = $request->file('logo');
+            $filename = 'vendor' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $logo->getClientOriginalName());
+
+            $path = $logo->storeAs('uploads/vendor', $filename, 'public');
+
+            if ($path) {
+                $vendor['logo'] = $filename;
+            }
+        }
+
+        $vendor = Vendor::create($vendor + $request->validated());
 
         // Log Activity
         Activity::create([
@@ -160,8 +182,10 @@ class VendorController extends Controller
     public function update(UpdateVendorRequest $request, string $id)
     {
         // dd($vendorGrade);
+        // get data vendor by id
+        $vendor = Vendor::findOrFail($id);
         // update data vendor
-        $vendor = Vendor::findOrFail($id)->update([
+        $vendor_id = [
             'vendor_grade_id' => $request->vendor_grade_id,
             'vendor_limit_id' => $request->vendor_limit_id,
             'membership_id' => $request->membership_id,
@@ -176,9 +200,23 @@ class VendorController extends Controller
             'address' => $request->address,
             'city' => $request->city,
             'updated_by' => Auth::user()->id,
-        ] + $request->validated());
+        ];
 
-        $vendor = Vendor::findOrFail($id);
+        // upload logo
+        if ($request->hasFile('logo')) {
+            $logo = $request->file('logo');
+            $filename = 'vendor' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $logo->getClientOriginalName());
+
+            $path = $logo->storeAs('uploads/vendor', $filename, 'public');
+
+            if ($path) {
+                $vendor_id['logo'] = $filename;
+            }
+        }
+
+        // update data vendor
+        $vendor->update($vendor_id + $request->validated());
+
 
         // Log Activity
         Activity::create([
