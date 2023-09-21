@@ -69,6 +69,7 @@ class PositionController extends Controller
         $position = Position::create([
             'name' => $request->name,
             'department_id' => $request->department_id,
+            'created_by' => Auth::user()->id,
         ] + $request->validated());
 
         // log activity
@@ -114,6 +115,7 @@ class PositionController extends Controller
         $position->update([
             'name' => $request->name,
             'department_id' => $request->department_id,
+            'updated_by' => Auth::user()->id,
         ] + $request->validated());
 
         // log activity
