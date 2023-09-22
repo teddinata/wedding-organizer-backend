@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Team;
+namespace App\Http\Requests\TeamMember;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class StoreTeamRequest extends FormRequest
+class UpdateTeamMemberRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,8 @@ class StoreTeamRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'min:3', 'max:255'],
-            'lead' => ['required'],
+            'team_id' => 'required|exists:teams,id',
+            'employee_id' => 'required',
         ];
     }
 

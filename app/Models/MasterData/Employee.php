@@ -30,6 +30,7 @@ class Employee extends Model
         'photo',
         'fullname',
         'nik',
+        'phone_number',
         'email',
         'email_verified_at',
         'password',
@@ -61,6 +62,7 @@ class Employee extends Model
                     'photo',
                     'fullname',
                     'nik',
+                    'phone_number',
                     'email',
                     'email_verified_at',
                     // 'password',
@@ -87,11 +89,6 @@ class Employee extends Model
     public function user()
     {
         return $this->belongsToMany(User::class, 'user_employees', 'employee_id', 'user_id');
-    }
-
-    public function team_member()
-    {
-        return $this->belongsToMany(Team::class, 'team_members', 'employee_id', 'team_id')->withTimestamps();
     }
 
     // relasi dengan employee allowance
@@ -128,5 +125,15 @@ class Employee extends Model
     public function level()
     {
         return $this->belongsTo(Level::class, 'level_id', 'id');
+    }
+
+    public function lead()
+    {
+        return $this->belongsToMany(Team::class, 'team_leads', 'employee_id', 'team_id')->withTimestamps();
+    }
+
+    public function member()
+    {
+        return $this->hasMany(TeamMember::class, 'team_members', 'employee_id', 'team_id');
     }
 }

@@ -24,13 +24,14 @@ class UpdateEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'department_id' => 'required|exists:departments,id',
-            'position_id' => 'required|exists:positions,id',
-            'level_id' => 'required|exists:employee_levels,id',
-            'fullname' => 'required|string|max:255',
-            'nik' => 'required|string|max:255',
-            'email' => 'required|string|max:255',
-            'password' => 'required|string|max:255',
+            'department_id' => 'nullable|exists:departments,id',
+            'position_id' => 'nullable|exists:positions,id',
+            'level_id' => 'nullable|exists:employee_levels,id',
+            'fullname' => 'nullable|string|max:255',
+            'nik' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|min:10|max:13',
+            'email' => 'nullable|email',
+            'password' => 'nullable|string|max:255',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'dateofbirth' => 'nullable|date',
             'gender' => 'nullable|in:1,2',

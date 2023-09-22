@@ -35,6 +35,7 @@ use App\Http\Controllers\API\Web\VehicleController;
 use App\Http\Controllers\Api\Web\ChecklistCategoryController;
 use App\Http\Controllers\Api\Web\ActivityLogController;
 use App\Http\Controllers\Api\Web\OrderAdditionalServiceController;
+use App\Http\Controllers\Api\Web\TeamMemberController;
 
 /*
 |--------------------------------------------------------------------------
@@ -107,6 +108,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // employee
         Route::resource('employee', EmployeeController::class)->names('employee');
         Route::post('/employee/{id}/generate-user-account', [EmployeeController::class, 'generateUserAccount'])->name('employee.generate-user-account');
+        // generate password for employee
+        Route::post('/employee/{id}/generate-password', [EmployeeController::class, 'generatePasswordEmployee'])->name('employee.generate-password');
 
         // attendance
         Route::resource('attendance', AttendanceController::class)->names('attendance');
@@ -143,6 +146,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // route team
         Route::apiResource('/team', TeamController::class);
+
+        // team member
+        Route::resource('team-member', TeamMemberController::class)->names('team-member');
 
         // route vehicle
         Route::apiResource('/vehicle', VehicleController::class);

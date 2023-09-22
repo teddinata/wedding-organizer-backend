@@ -10,11 +10,18 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 // use db
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 // use resource
 use App\Http\Resources\EmployeeResource;
 // use request
 use App\Http\Requests\Employee\StoreEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
+use App\Mail\SendPasswordEmployee;
+use Illuminate\Support\Facades\Mail;
+// use storage
+use Illuminate\Support\Facades\Storage;
+// user
+use App\Models\User;
 
 class EmployeeController extends Controller
 {
@@ -97,19 +104,55 @@ class EmployeeController extends Controller
         $employee->level_id = $request->input('level_id');
         $employee->fullname = $request->input('fullname');
         $employee->nik = $request->input('nik');
+        $employee->phone_number = $request->input('phone_number');
         $employee->email = $request->input('email');
-        $employee->password = bcrypt($request->input('password'));
-        $employee->photo = $request->file('photo') ? $request->file('photo')->store('photos') : null;
+        $employee->password = Hash::make($request->input('password'));
+
         $employee->dateofbirth = $request->input('dateofbirth');
         $employee->gender = $request->input('gender');
-        $employee->ktp_img = $request->file('ktp_img') ? $request->file('ktp_img')->store('ktp_images') : null;
-        $employee->vaccine_img = $request->file('vaccine_img') ? $request->file('vaccine_img')->store('vaccine_images') : null;
         $employee->salary = $request->input('salary');
         $employee->loan_limit = $request->input('loan_limit');
         $employee->active_loan_limit = $request->input('active_loan_limit');
         $employee->points = $request->input('points');
         $employee->is_active = $request->input('is_active', false); // Default value is false if not provided
         $employee->created_by = Auth::user()->id;
+
+        // upload photo
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $filename = 'employee_photo' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $photo->getClientOriginalName());
+
+            $path = $photo->storeAs('uploads/employee', $filename, 'public');
+
+            if ($path) {
+                $employee['photo'] = $filename;
+            }
+        }
+
+        // upload ktp image
+        if ($request->hasFile('ktp_img')) {
+            $ktp_img = $request->file('ktp_img');
+            $filename = 'employee_ktp_img' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $ktp_img->getClientOriginalName());
+
+            $path = $ktp_img->storeAs('uploads/employee', $filename, 'public');
+
+            if ($path) {
+                $employee['ktp_img'] = $filename;
+            }
+        }
+
+        // upload vaccine image
+        if ($request->hasFile('vaccine_img')) {
+            $vaccine_img = $request->file('vaccine_img');
+            $filename = 'employee_vaccine_img' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $vaccine_img->getClientOriginalName());
+
+            $path = $vaccine_img->storeAs('uploads/employee', $filename, 'public');
+
+            if ($path) {
+                $employee['vaccine_img'] = $filename;
+            }
+        }
+
         $employee->save();
 
         // logs
@@ -155,7 +198,7 @@ class EmployeeController extends Controller
      */
     public function update(UpdateEmployeeRequest $request, $id)
     {
-        dd('assa');
+        // dd('assa');
         $employee = Employee::findOrFail($id);
 
         $employee->department_id = $request->input('department_id');
@@ -163,19 +206,53 @@ class EmployeeController extends Controller
         $employee->level_id = $request->input('level_id');
         $employee->fullname = $request->input('fullname');
         $employee->nik = $request->input('nik');
+        $employee->phone_number = $request->input('phone_number');
         $employee->email = $request->input('email');
         $employee->password = bcrypt($request->input('password'));
-        $employee->photo = $request->file('photo') ? $request->file('photo')->store('photos') : null;
         $employee->dateofbirth = $request->input('dateofbirth');
         $employee->gender = $request->input('gender');
-        $employee->ktp_img = $request->file('ktp_img') ? $request->file('ktp_img')->store('ktp_images') : null;
-        $employee->vaccine_img = $request->file('vaccine_img') ? $request->file('vaccine_img')->store('vaccine_images') : null;
         $employee->salary = $request->input('salary');
         $employee->loan_limit = $request->input('loan_limit');
         $employee->active_loan_limit = $request->input('active_loan_limit');
         $employee->points = $request->input('points');
         $employee->is_active = $request->input('is_active', false); // Default value is false if not provided
         $employee->created_by = Auth::user()->id;
+
+        // upload photo
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $filename = 'employee_photo' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $photo->getClientOriginalName());
+
+            $path = $photo->storeAs('uploads/employee', $filename, 'public');
+
+            if ($path) {
+                $employee['photo'] = $filename;
+            }
+        }
+
+        // upload ktp image
+        if ($request->hasFile('ktp_img')) {
+            $ktp_img = $request->file('ktp_img');
+            $filename = 'employee_ktp_img' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $ktp_img->getClientOriginalName());
+
+            $path = $ktp_img->storeAs('uploads/employee', $filename, 'public');
+
+            if ($path) {
+                $employee['ktp_img'] = $filename;
+            }
+        }
+
+        // upload vaccine image
+        if ($request->hasFile('vaccine_img')) {
+            $vaccine_img = $request->file('vaccine_img');
+            $filename = 'employee_vaccine_img' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $vaccine_img->getClientOriginalName());
+
+            $path = $vaccine_img->storeAs('uploads/employee', $filename, 'public');
+
+            if ($path) {
+                $employee['vaccine_img'] = $filename;
+            }
+        }
 
         $employee->save();
 
@@ -225,6 +302,52 @@ class EmployeeController extends Controller
         return new EmployeeResource(true, 'Employee deleted successfully.', $employee);
     }
 
+    // generate password for employee
+    public function generatePasswordEmployee(Request $request, $id)
+    {
+        // Find the employee by ID
+        $employee = Employee::findOrFail($id);
+
+        // allowed characters for generate password
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        // generate password
+        $password = substr(str_shuffle($characters), 0, 8);
+
+        // password readable
+        $employee->password = $password;
+        // send password to email
+        Mail::to($employee->email)->send(new SendPasswordEmployee($employee, $password));
+
+        // insert password to employee
+        $employee->password = Hash::make($password);
+        $employee->save();
+
+
+
+        // Create JSON data with the generated password
+        $jsonData = [
+            'employee_id' => $employee->id,
+            'email' => $employee->email,
+            'password' => $password,
+            'created_by' => Auth::user()->id,
+            'generated_at' => now()->toDateTimeString(),
+        ];
+
+        // Convert the data to JSON format
+        $jsonData = json_encode($jsonData);
+
+        // Save the JSON data to a file (you can change the file name as needed)
+        $fileName = "generated_passwords/employee_{$employee->id}.json";
+        Storage::put($fileName, $jsonData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User account has been created for the employee.',
+            'user' => $employee,
+        ]);
+    }
+
     /**
      * Generate a random password.
      *
@@ -263,6 +386,7 @@ class EmployeeController extends Controller
             'name' => $employee->fullname,
             'email' => $employee->email,
             'password' => Hash::make($password),
+            'created_by' => Auth::user()->id,
         ]);
 
         // Save the user account
@@ -273,6 +397,7 @@ class EmployeeController extends Controller
             'employee_id' => $employee->id,
             'email' => $employee->email,
             'password' => $password,
+            'created_by' => Auth::user()->id,
             'generated_at' => now()->toDateTimeString(),
         ];
 

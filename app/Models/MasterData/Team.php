@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
 class Team extends Model
 {
     use HasFactory;
@@ -48,13 +47,19 @@ class Team extends Model
     // one pic can be assigned to multiple team
     public function lead()
     {
-        return $this->belongsToMany(User::class, 'team_lead', 'team_id', 'user_id')->withTimestamps();
+        return $this->belongsToMany(Employee::class, 'team_leads', 'team_id', 'employee_id')->withTimestamps();
     }
 
     // one team has many member
     public function member()
     {
-        return $this->belongsToMany(Employee::class, 'team_members', 'team_id', 'employee_id')->withTimestamps();
+        return $this->belongsTo(Employee::class, 'team_members', 'team_id', 'employee_id');
+    }
+
+    // relation team member
+    public function team_member()
+    {
+        return $this->hasMany(TeamMember::class, 'team_id');
     }
 
     // one team can have more than 1 loan
