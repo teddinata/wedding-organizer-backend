@@ -35,6 +35,7 @@ use App\Http\Controllers\API\Web\VehicleController;
 use App\Http\Controllers\Api\Web\ChecklistCategoryController;
 use App\Http\Controllers\Api\Web\ActivityLogController;
 use App\Http\Controllers\Api\Web\OrderAdditionalServiceController;
+use App\Http\Controllers\Api\Web\TeamMemberController;
 
 /*
 |--------------------------------------------------------------------------
@@ -145,6 +146,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // route team
         Route::apiResource('/team', TeamController::class);
+
+        // team member
+        Route::resource('team-member', TeamMemberController::class)->names('team-member');
 
         // route vehicle
         Route::apiResource('/vehicle', VehicleController::class);
