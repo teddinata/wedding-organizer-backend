@@ -107,6 +107,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // employee
         Route::resource('employee', EmployeeController::class)->names('employee');
         Route::post('/employee/{id}/generate-user-account', [EmployeeController::class, 'generateUserAccount'])->name('employee.generate-user-account');
+        // generate password for employee
+        Route::post('/employee/{id}/generate-password', [EmployeeController::class, 'generatePasswordEmployee'])->name('employee.generate-password');
 
         // attendance
         Route::resource('attendance', AttendanceController::class)->names('attendance');
