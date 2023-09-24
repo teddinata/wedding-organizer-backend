@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Models\Operational\Attendance;
+use App\Models\MasterData\Employee;
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +40,15 @@ class AttendanceController extends Controller
         // Get data
         $attendances = $query->paginate($perPage, ['*'], 'page', $page);
 
+        foreach ($attendances as $attendance) {
+            // status 1 = on time (tepat waktu) dan status 2 = late (terlambat)
+            if ($attendance->status == 1){
+                $attendance->on_time = "YES! YOU ARE ON TIME! KEEP UP THE GOOD WORK!";
+            } else {
+                $attendance->on_time = "NO!!! YOU ARE LATE! YOU NEED TO BE MORE DISCIPLINE!";
+            }
+        }
+
         // log activity
         Activity::create([
             'log_name' => 'User ' . Auth::user()->name . ' show data Attendance',
@@ -69,6 +80,35 @@ class AttendanceController extends Controller
      */
     public function store(StoreAttendanceRequest $request)
     {
+        // Mengambil data employee
+        $employee = Employee::where('id', $request->employee_id)->first();
+
+        // pengecekan apakah dalam satu hari ada lebih dari satu jam masuk
+        $checkClockIn = Attendance::where('employee_id', $request->employee_id)
+            ->where('date', $request->date)
+            ->where('clock_in', '!=', null)
+            ->first();
+
+        if ($checkClockIn) {
+            return new AttendanceResource(false, 'You have already clocked in this day!', null);
+        }
+
+        // Mengambil jam masuk yang ditetapkan oleh departemen karyawan
+        $departmentClockIn = $employee->department->clock_in; // Anda perlu mengganti ini dengan atribut yang sesuai
+        // dd($departmentClockIn);
+
+        // Mengambil jam masuk dari request
+        // $clockIn = Carbon::parse($request->clock_in); // Pastikan Anda menggunakan library Carbon atau sejenisnya
+        $clockIn = $request->clock_in; // Pastikan Anda menggunakan library Carbon atau sejenisnya
+        // dd($clockIn < $departmentClockIn);
+
+        // Membandingkan jam masuk dengan jam masuk departemen
+        if ($clockIn > $departmentClockIn) {
+            $status = 2;
+        } else {
+            $status = 1;
+        }
+
         // create attendance
         $attendance = Attendance::create([
             'employee_id' => $request->employee_id,
@@ -76,9 +116,16 @@ class AttendanceController extends Controller
             'clock_in' => $request->clock_in,
             'clock_out' => $request->clock_out,
             'platform' => 'web',
+            'status' => $status,
             'created_by' => Auth::user()->id,
-            'updated_by' => Auth::user()->id,
         ] + $request->validated());
+
+        // status 1 = on time (tepat waktu) dan status 2 = late (terlambat)
+        if ($status == 1){
+            $attendance->on_time = "YES! YOU ARE ON TIME! KEEP UP THE GOOD WORK!";
+        } else {
+            $attendance->on_time = "NO!!! YOU ARE LATE!";
+        }
 
         // log activity
         Activity::create([
@@ -139,6 +186,35 @@ class AttendanceController extends Controller
      */
     public function update(UpdateAttendanceRequest $request, Attendance $attendance)
     {
+        // Mengambil data employee
+        $employee = Employee::where('id', $request->employee_id)->first();
+
+        // pengecekan apakah dalam satu hari ada lebih dari satu jam masuk
+        $checkClockIn = Attendance::where('employee_id', $request->employee_id)
+            ->where('date', $request->date)
+            ->where('clock_in', '!=', null)
+            ->first();
+
+        if ($checkClockIn) {
+            return new AttendanceResource(false, 'You have already clocked in this day!', null);
+        }
+
+        // Mengambil jam masuk yang ditetapkan oleh departemen karyawan
+        $departmentClockIn = $employee->department->clock_in; // Anda perlu mengganti ini dengan atribut yang sesuai
+        // dd($departmentClockIn);
+
+        // Mengambil jam masuk dari request
+        // $clockIn = Carbon::parse($request->clock_in); // Pastikan Anda menggunakan library Carbon atau sejenisnya
+        $clockIn = $request->clock_in; // Pastikan Anda menggunakan library Carbon atau sejenisnya
+        // dd($clockIn);
+
+        // Membandingkan jam masuk dengan jam masuk departemen
+        if ($clockIn > $departmentClockIn) {
+            $status = 2;
+        } else {
+            $status = 1;
+        }
+
         // update attendance
         $attendance->update([
             'employee_id' => $request->employee_id,
@@ -146,8 +222,16 @@ class AttendanceController extends Controller
             'clock_in' => $request->clock_in,
             'clock_out' => $request->clock_out,
             'platform' => 'web',
+            'status' => $status,
             'updated_by' => Auth::user()->id,
         ] + $request->validated());
+
+        // status 1 = on time (tepat waktu) dan status 2 = late (terlambat)
+        if ($status == 1){
+            $attendance->on_time = "YES! YOU ARE ON TIME! KEEP UP THE GOOD WORK!";
+        } else {
+            $attendance->on_time = "NO!!! YOU ARE LATE!";
+        }
 
         // log activity
         Activity::create([
@@ -179,9 +263,8 @@ class AttendanceController extends Controller
         $attendance->delete();
 
         // deleted by
-        $attendance->update([
-            'deleted_by' => Auth::user()->id,
-        ]);
+        $attendance->deleted_by = Auth::user()->id;
+        $attendance->save();
 
         // log activity
         Activity::create([

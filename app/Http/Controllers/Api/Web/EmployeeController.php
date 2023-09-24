@@ -31,7 +31,7 @@ class EmployeeController extends Controller
     public function index()
     {
         // get all employees with filter and pagination
-        $query = Employee::orderBy('created_at', 'desc');
+        $query = Employee::orderBy('created_at', 'desc')->with(['department', 'position', 'level']);
 
         // filter by name or nik or email in one search field
         if (request()->has('search')) {

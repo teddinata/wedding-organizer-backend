@@ -25,6 +25,10 @@ class UpdateDepartmentRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:3', 'max:255'],
+            'payroll_type' => ['required', 'integer', 'in:1,2'],
+            'is_has_schedule' => ['required', 'boolean'],
+            'clock_in' => ['required_if:is_has_schedule,true', 'date_format:H:i'],
+            'clock_out' => ['required_if:is_has_schedule,true', 'date_format:H:i', 'after:clock_in'],
         ];
     }
 

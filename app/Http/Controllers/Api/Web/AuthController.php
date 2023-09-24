@@ -63,6 +63,19 @@ class AuthController extends Controller
         }
     }
 
+    // auth profile user
+    public function profile()
+    {
+        // get user login
+        $user = Auth::user();
+
+        // return response
+        return response()->json([
+            'message' => 'Profile retrieved successfully',
+            'user' => $user->load('roles')
+        ], 200);
+    }
+
     // edit profile
     public function editProfile(Request $request)
     {

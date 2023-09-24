@@ -52,6 +52,10 @@ class DepartmentController extends Controller
         //store to database
         $department = Department::create([
             'name' => $request->name,
+            'payroll_type' => $request->payroll_type,
+            'is_has_schedule' => $request->is_has_schedule,
+            'clock_in' => $request->clock_in,
+            'clock_out' => $request->clock_out,
             'created_by' => Auth::user()->id,
         ] + $request->validated());
 
@@ -105,6 +109,10 @@ class DepartmentController extends Controller
         // update to database
         $department->update(($request->validated() + [
             'name' => $request->name,
+            'payroll_type' => $request->payroll_type,
+            'is_has_schedule' => $request->is_has_schedule,
+            'clock_in' => $request->clock_in,
+            'clock_out' => $request->clock_out,
             'updated_by' => Auth::user()->id,
         ]));
 
