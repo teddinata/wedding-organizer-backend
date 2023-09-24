@@ -8,6 +8,9 @@ use App\Models\MasterData\TeamMember;
 use App\Http\Requests\TeamMember\StoreTeamMemberRequest;
 use App\Http\Requests\TeamMember\UpdateTeamMemberRequest;
 use App\Http\Resources\TeamResource;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\Models\Activity;
+
 
 class TeamMemberController extends Controller
 {
@@ -49,6 +52,15 @@ class TeamMemberController extends Controller
             }
         }
 
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' create data Assign Team ',
+            'description' => 'User ' . Auth::user()->name . ' create data Assign Team ',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => $teamMember->toJson(),
+        ]);
         $teamMember = TeamMember::where('id', $teamMember->id)->with('employee')->first();
 
         // return response
@@ -93,6 +105,17 @@ class TeamMemberController extends Controller
                 ]);
             }
         }
+
+        // log
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' update data Assign Team ',
+            'description' => 'User ' . Auth::user()->name . ' update data Assign Team ',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => $teamMember->toJson(),
+        ]);
 
         // get team member updated
         $teamMember = TeamMember::where('id', $teamMember->id)->with('employee')->find($id);
