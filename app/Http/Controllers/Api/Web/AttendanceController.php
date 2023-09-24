@@ -40,6 +40,15 @@ class AttendanceController extends Controller
         // Get data
         $attendances = $query->paginate($perPage, ['*'], 'page', $page);
 
+        foreach ($attendances as $attendance) {
+            // status 1 = on time (tepat waktu) dan status 2 = late (terlambat)
+            if ($attendance->status == 1){
+                $attendance->on_time = "YES! YOU ARE ON TIME! KEEP UP THE GOOD WORK!";
+            } else {
+                $attendance->on_time = "NO!!! YOU ARE LATE! YOU NEED TO BE MORE DISCIPLINE!";
+            }
+        }
+
         // log activity
         Activity::create([
             'log_name' => 'User ' . Auth::user()->name . ' show data Attendance',

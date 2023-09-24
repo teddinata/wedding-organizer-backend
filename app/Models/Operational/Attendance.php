@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\MasterData\Employee;
 
 class Attendance extends Model
 {
