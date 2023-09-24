@@ -28,6 +28,10 @@ class Department extends Model
     // declare fillable fields
     protected $fillable = [
         'name',
+        'payroll_type',
+        'is_has_schedule',
+        'clock_in',
+        'clock_out',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -37,7 +41,7 @@ class Department extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['name', 'payroll_type', 'is_has_schedule', 'clock_in', 'clock_out', 'created_by', 'updated_by', 'deleted_by']);
     }
 
     // 1 department memiliki banyak employee
