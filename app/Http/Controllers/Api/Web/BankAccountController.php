@@ -21,12 +21,19 @@ class BankAccountController extends Controller
      */
     public function index()
     {
-        // get bank account data and sort by account holder ascending
-        $sales = BankAccount::orderBy('account_holder', 'asc')->paginate(10);
-        //return collection of bank account as a resource
-        return new BankAccountResource(true, 'Bank account retrieved successfully', $sales);
+        // Get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
 
-        // Log Activity
+        // get bank account data and sort by account holder ascending
+        $bank = BankAccount::orderBy('account_holder', 'asc')->paginate($perPage, ['*'], 'page', $page);
+
+        // filter by name
+        if (request()->has('search')) {
+            $bank->where('name', 'like', '%' . request('search') . '%');
+        }
+
+        // Log Activit
         Activity::create([
             'log_name' => 'Show Data',
             'description' => 'User ' . Auth::user()->name . ' Show bank account list',
@@ -38,6 +45,9 @@ class BankAccountController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
+
+        //return collection of bank account as a resource
+        return new BankAccountResource(true, 'Bank account retrieved successfully', $bank);
     }
 
     /**
@@ -72,7 +82,7 @@ class BankAccountController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
         $account = BankAccount::findOrFail($id);
         //return single post as a resource
