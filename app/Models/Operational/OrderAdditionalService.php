@@ -8,7 +8,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Operational\Order;
-use App\Models\Operational\AdditionalService;
+use App\Models\MasterData\AdditionalService;
 use App\Models\MasterData\Employee;
 
 class OrderAdditionalService extends Model
@@ -21,7 +21,7 @@ class OrderAdditionalService extends Model
 
     protected $fillable = [
         'order_id',
-        // 'additional_service_id',
+        'additional_service_id',
         'name',
         'employee_id',
         'salary',
@@ -31,7 +31,7 @@ class OrderAdditionalService extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['order_id', 'name', 'employee_id', 'salary']);
+            ->logOnly(['order_id', 'name', 'employee_id', 'salary', 'additional_service_id']);
     }
 
     // relasi dengan order
@@ -41,10 +41,10 @@ class OrderAdditionalService extends Model
     }
 
     // relasi dengan additional service
-    // public function additional_service()
-    // {
-    //     return $this->belongsTo(AdditionalService::class, 'additional_service_id', 'id');
-    // }
+    public function additional_service()
+    {
+        return $this->belongsTo(AdditionalService::class, 'additional_service_id', 'id');
+    }
 
     // relasi dengan employee
     public function employee()

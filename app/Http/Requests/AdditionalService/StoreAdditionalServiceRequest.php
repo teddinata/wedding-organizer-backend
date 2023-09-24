@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\OrderAddOn;
+namespace App\Http\Requests\AdditionalService;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class StoreOrderAddOnRequest extends FormRequest
+class StoreAdditionalServiceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +24,18 @@ class StoreOrderAddOnRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'order_id' => 'required|exists:orders,id',
-            'additional_service_id' => 'nullable|exists:additional_services,id',
-            // 'name' => 'required',
-            'employee_id' => 'required|exists:employees,id',
-            'salary' => 'required|integer',
+            'name' => 'required|unique:additional_services,name',
+        ];
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Additional Service name is required',
+            'name.unique' => 'Additional Service name already exists',
         ];
     }
 
