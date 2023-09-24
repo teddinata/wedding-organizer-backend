@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Mail\OtpEmail;
+use App\Mail\EmailVerification;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
@@ -59,6 +60,155 @@ class AuthController extends Controller
             return response()->json([
                 'message'   => 'Invalid login credentials!'
             ], 401);
+        }
+    }
+
+    // edit profile
+    public function editProfile(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'phone_number' => 'required|numeric',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+        ]);
+
+        // get user login
+        $user = Auth::user();
+
+        // update user
+        $user->update($request->except('photo'));
+
+        // update photo
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $filename = 'profile' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $photo->getClientOriginalName());
+
+            $path = $photo->storeAs('uploads/profile', $filename, 'public');
+
+            if ($path) {
+                $user->profile_photo_path = $filename;
+                $user->save();
+            }
+        }
+
+        $user->profile_photo_path = $user->profile_photo_path ? asset('storage/uploads/profile/' . $user->profile_photo_path) : null;
+
+        // return response
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => $user
+        ], 200);
+    }
+
+    // verif email
+    public function verifEmail(Request $request)
+    {
+        // first send otp to email existing from auth user
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // generate otp 5 digit alphabet and number
+        $otp = strtoupper(Str::random(5));
+
+        // save otp to database
+        $user->otp = $otp;
+        $user->otp_expiry = now()->addDays(3);
+        $user->save();
+        // jika hari ini sudah melebihi 3 hari, maka hapus otp dan otp expiry
+        if ($user->otp_expiry < now()) {
+            $user->otp = null;
+            $user->otp_expiry = null;
+        }
+
+        // send otp to user
+        Mail::to($user->email)->send(new EmailVerification($user, $otp));
+
+        if ($user->save()) {
+            return response()->json(['message' => 'OTP successfully sent to your email!'], 200);
+        } else {
+            return response()->json(['message' => 'Unable to send OTP'], 400);
+        }
+    }
+
+    // confirm verif email
+    public function confirmVerifEmail(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required',
+        ]);
+
+        $user = Auth::user();
+
+        if (!$user || $user->otp !== $request->otp) {
+            return response()->json(['message' => 'Your Verification Code is invalid. Please try again'], 400);
+        }
+
+        if ($user->otp_expiry <= now()) {
+            return response()->json(['message' => 'Your Verification Code is expired, please resend Verification Code'], 400);
+        }
+
+        // update otp and otp expiry
+        $user->otp = null;
+        $user->otp_expiry = null;
+        $user->email_verified_at = now();
+        $user->save();
+
+        // return response
+        return response()->json([
+            'message' => 'Email verified successfully',
+            'user' => $user->load('roles')
+        ], 200);
+    }
+
+    // change email
+    public function changeEmail(Request $request)
+    {
+        // dd($request->all());
+        // validate old email and new email
+        // $request->validate([
+        //     'new_email' => 'required|email',
+        // ]);
+
+        $user = Auth::user();
+
+        // check if auth user email is same with new email
+        if ($user->email == $request->new_email) {
+            return response()->json(['message' => 'New email cannot be the same as old email'], 400);
+        }
+
+        // check if new email is already exist in database
+        $checkEmail = User::where('email', $request->new_email)->first();
+        if ($checkEmail) {
+            return response()->json(['message' => 'New email already exist in our system'], 400);
+        }
+
+        // generate otp 5 digit alphabet and number
+        $otp = strtoupper(Str::random(5));
+
+        // save otp to database
+        $user->otp = $otp;
+        $user->otp_expiry = now()->addDays(3);
+        $user->save();
+        // jika hari ini sudah melebihi 3 hari, maka hapus otp dan otp expiry
+        if ($user->otp_expiry < now()) {
+            $user->otp = null;
+            $user->otp_expiry = null;
+        }
+
+        // update new email
+        $user->email = $request->new_email;
+        $user->email_verified_at = null;
+
+        // send otp to user
+        Mail::to($user->email)->send(new EmailVerification($user, $otp));
+
+        if ($user->save()) {
+            return response()->json(['message' => 'New email have been saved, please check your email to verify your new email!'], 200);
+        } else {
+            return response()->json(['message' => 'Unable to save new email and send OTP'], 400);
         }
     }
 
@@ -219,7 +369,7 @@ class AuthController extends Controller
     }
 
     // edit profile for edit password
-    public function editProfile(Request $request)
+    public function editPassword(Request $request)
     {
         $request->validate([
             'current_password' => 'required',

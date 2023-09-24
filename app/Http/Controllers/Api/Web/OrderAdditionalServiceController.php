@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Http\Requests\OrderAddOn\StoreOrderAddOnRequest;
+use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\Auth;
 
 class OrderAdditionalServiceController extends Controller
 {

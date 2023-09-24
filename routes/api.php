@@ -60,7 +60,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // route resource for role
     // Route::resource('role', RoleController::class)->names('role');
     Route::prefix('/v2')->group(function () {
+        Route::post('/change-email', [AuthController::class, 'changeEmail'])->name('change-email');
+        Route::post('/verif-email', [AuthController::class, 'verifEmail'])->name('verif-email');
+        Route::post('/confirm-verif-email', [AuthController::class, 'confirmVerifEmail'])->name('confirm-verif-email');
+
         Route::post('/edit-profile', [AuthController::class, 'editProfile'])->name('edit-profile');
+        Route::post('/edit-password', [AuthController::class, 'editPassword'])->name('edit-password');
 
         Route::resource('role', RoleController::class)->names('role');
 
