@@ -23,16 +23,33 @@ class UserController extends Controller
      */
     public function index()
     {
+        // user with role
+        $query = User::with('roles')->orderBy('name', 'asc');
+
+        if (request('search')) {
+            $query->where('name', 'like', '%' . request('search') . '%')
+                ->orWhere('email', 'like', '%' . request('search') . '%');
+        }
+
+        // request sort by name asc or desc
+        if (request('sort')) {
+            $query->orderBy('name', request('sort'));
+        }
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
 
+        // get all user with filter and paginate
+        $users = $query->paginate($perPage, ['*'], 'page', $page);
 
         // get all user with request filter conditional
-        $users = User::when(request('search'), function($users) {
-            $users = $users->where('name', 'like', '%' . request('search') . '%')
-            ->orWhere('email', 'like', '%' . request('search') . '%');
-        })->paginate($perPage, ['*'], 'page', $page);
+        // $users = User::when(request('search'), function($users) {
+        //     $users = $users->where('name', 'like', '%' . request('search') . '%')
+        //     ->orWhere('email', 'like', '%' . request('search') . '%');
+        // })->paginate($perPage, ['*'], 'page', $page);
+
+        // if request search
+
         // if user last_login is null then set status to pending else set status to active pass to users json
         foreach ($users as $user) {
             if ($user->last_login == null) {

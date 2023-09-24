@@ -43,13 +43,47 @@ class OrderAdditionalServiceController extends Controller
     public function store(StoreOrderAddOnRequest $request)
     {
         // create order additional service
-        $orderAdditionalService = OrderAdditionalService::create([
-            'order_id' => $request->order_id,
-            // 'additional_service_id' => $request->additional_service_id,
-            'name' => $request->name,
-            'employee_id' => $request->employee_id,
-            'salary' => $request->salary,
-        ] + $request->validated());
+        // $orderAdditionalService = OrderAdditionalService::create([
+        //     'order_id' => $request->order_id,
+        //     'additional_service_id' => $request->additional_service_id,
+        //     // 'name' => $request->name,
+        //     // 'employee_id' => $request->employee_id,
+        //     'salary' => $request->salary,
+        // ] + $request->validated());
+
+        // // insert multiple for employee id
+        // foreach ($request->employee_id as $employee_id) {
+        //     $orderAdditionalService->employee()->attach($employee_id);
+        // }
+        // $orderAdditionalService->save();
+
+        $employee_id = $request->employee_id;
+
+        // check if employee_id already exist in order
+        foreach ($employee_id as $employee) {
+            $orderAdditionalService = OrderAdditionalService::where('order_id', $request->order_id)->where('employee_id', $employee)->first();
+
+                $orderAdditionalService = OrderAdditionalService::create([
+                    'order_id' => $request->order_id,
+                    'additional_service_id' => $request->additional_service_id,
+                    // 'name' => $request->name,
+                    'employee_id' => $employee,
+                    'salary' => $request->salary,
+                ]);
+        }
+
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' create data Order Additional Service',
+            'description' => 'User ' . Auth::user()->name . ' create data Order Additional Service',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => $orderAdditionalService->toJson(),
+        ]);
+
+        $orderAdditionalService = OrderAdditionalService::where('id', $orderAdditionalService->id)->with('employee')->first();
+
 
         // return response
         return new OrderResource(true, 'Order additional service created successfully', $orderAdditionalService);
@@ -82,12 +116,37 @@ class OrderAdditionalServiceController extends Controller
         // $orderAdditionalService = OrderAdditionalService::findOrFail($orderAdditionalService->id);
         // dd($orderAdditionalService);
         // update order additional service
-        $orderAdditionalService->update([
-            'order_id' => $request->order_id ?? $orderAdditionalService->order_id,
-            // 'additional_service_id' => $request->additional_service_id,
-            'name' => $request->name ?? $orderAdditionalService->name,
-            'employee_id' => $request->employee_id ?? $orderAdditionalService->employee_id,
-            'salary' => $request->salary ?? $orderAdditionalService->salary,
+        // $orderAdditionalService->update([
+        //     'order_id' => $request->order_id ?? $orderAdditionalService->order_id,
+        //     // 'additional_service_id' => $request->additional_service_id,
+        //     'name' => $request->name ?? $orderAdditionalService->name,
+        //     'employee_id' => $request->employee_id ?? $orderAdditionalService->employee_id,
+        //     'salary' => $request->salary ?? $orderAdditionalService->salary,
+        // ]);
+
+        $employee_id = $request->employee_id;
+        foreach ($employee_id as $employee) {
+            $orderAdditionalService = OrderAdditionalService::where('order_id', $request->order_id)->where('employee_id', $employee)->first();
+
+                $orderAdditionalService = OrderAdditionalService::create([
+                    'order_id' => $request->order_id,
+                    'additional_service_id' => $request->additional_service_id,
+                    // 'name' => $request->name,
+                    'employee_id' => $employee,
+                    'salary' => $request->salary,
+                ]);
+        }
+
+        $orderAdditionalService = OrderAdditionalService::where('id', $orderAdditionalService->id)->with('employee')->first();
+
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' updated data Order Additional Service',
+            'description' => 'User ' . Auth::user()->name . ' updated data Order Additional Service',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => $orderAdditionalService->toJson(),
         ]);
 
         // return response

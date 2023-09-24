@@ -36,6 +36,7 @@ use App\Http\Controllers\Api\Web\ChecklistCategoryController;
 use App\Http\Controllers\Api\Web\ActivityLogController;
 use App\Http\Controllers\Api\Web\OrderAdditionalServiceController;
 use App\Http\Controllers\Api\Web\TeamMemberController;
+use App\Http\Controllers\Api\Web\AdditionalServiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,6 +99,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // route position
         Route::resource('position', PositionController::class)->names('position');
+
+        // route additional service
+        Route::resource('additional-service', AdditionalServiceController::class)->names('additional-service');
 
         // allowance
         Route::resource('allowance', AllowanceController::class)->names('allowance');
