@@ -111,6 +111,7 @@ class VendorController extends Controller
      */
     public function store(StoreVendorRequest $request)
     {
+        // dd($request->all());
         // create data vendor
         $vendor = [
             'vendor_grade_id' => $request->vendor_grade_id,
@@ -122,6 +123,7 @@ class VendorController extends Controller
             'email' => $request->email,
             'contact_number' => $request->contact_number,
             'contact_person' => $request->contact_person,
+            'person_level' => $request->person_level, // 'owner', 'manager', 'supervisor', 'staff
             'website' => $request->website,
             'instagram' => $request->instagram,
             'address' => $request->address,
@@ -138,6 +140,18 @@ class VendorController extends Controller
 
             if ($path) {
                 $vendor['logo'] = $filename;
+            }
+        }
+
+        // upload cover photo
+        if ($request->hasFile('cover_photo')) {
+            $cover_photo = $request->file('cover_photo');
+            $filename = 'vendor' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $cover_photo->getClientOriginalName());
+
+            $path = $cover_photo->storeAs('uploads/vendor', $filename, 'public');
+
+            if ($path) {
+                $vendor['cover_photo'] = $filename;
             }
         }
 
@@ -195,6 +209,7 @@ class VendorController extends Controller
             'point' => $request->point,
             'contact_number' => $request->contact_number,
             'contact_person' => $request->contact_person,
+            'person_level' => $request->person_level, // 'owner', 'manager', 'supervisor', 'staff
             'website' => $request->website,
             'instagram' => $request->instagram,
             'address' => $request->address,
@@ -211,6 +226,18 @@ class VendorController extends Controller
 
             if ($path) {
                 $vendor_id['logo'] = $filename;
+            }
+        }
+
+        // upload cover photo
+        if ($request->hasFile('cover_photo')) {
+            $cover_photo = $request->file('cover_photo');
+            $filename = 'vendor' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $cover_photo->getClientOriginalName());
+
+            $path = $cover_photo->storeAs('uploads/vendor', $filename, 'public');
+
+            if ($path) {
+                $vendor_id['cover_photo'] = $filename;
             }
         }
 

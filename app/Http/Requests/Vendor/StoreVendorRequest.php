@@ -35,11 +35,13 @@ class StoreVendorRequest extends FormRequest
             'point' => 'nullable|integer',
             'contact_number' => ['required'],
             'contact_person' => ['required'],
+            'person_level' => ['nullable'], // 'owner', 'manager', 'supervisor', 'staff
             'website' => ['required'],
             'instagram' => ['required'],
             'address' => ['required'],
             'city' => ['required'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'cover_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
         ];
     }
 

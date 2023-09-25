@@ -24,9 +24,11 @@ class Vendor extends Model
      */
     protected $fillable = [
         'logo',
+        'cover_photo',
         'code',
         'name',
         'contact_person',
+        'person_level',
         'contact_number',
         'website',
         'instagram',
@@ -51,7 +53,7 @@ class Vendor extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'code', 'contact_person', 'contact_number', 'website', 'instagram', 'address', 'city', 'point','vendor_limit_id', 'vendor_grade_id', 'membership_id', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['name', 'code', 'logo', 'cover_photo', 'person_level', 'contact_person', 'contact_number', 'website', 'instagram', 'address', 'city', 'point','vendor_limit_id', 'vendor_grade_id', 'membership_id', 'created_by', 'updated_by', 'deleted_by']);
     }
 
     // 1 vendor memiliki limit
