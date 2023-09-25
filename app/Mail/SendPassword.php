@@ -25,7 +25,7 @@ class SendPassword extends Mailable
     {
         // return password and user
         return $this->markdown('emails.send-password')
-            ->subject('Your Password for ' . config('app.name') . ' Account')
+            ->subject('Your admin account has been successfully created')
             ->with([
                 'password' => $this->password,
                 'user' => $this->user
