@@ -140,13 +140,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('order-add-on', OrderAdditionalServiceController::class)->names('order-additional-service');
 
         // route sales
-        Route::resource('/sales', SalesController::class)->names('sales');
+        Route::resource('sales', SalesController::class)->names('sales');
 
         // route bank account
-        Route::resource('/bank-account', BankAccountController::class)->names('bank-account');
+        Route::resource('bank-account', BankAccountController::class)->names('bank-account');
 
         // route bank account
-        Route::resource('/decoration-area', DecorationAreaController::class)->names('decoration-area');
+        Route::resource('decoration-area', DecorationAreaController::class)->names('decoration-area');
 
         // route department
         Route::apiResource('/department', DepartmentController::class);
@@ -161,10 +161,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('team-member', TeamMemberController::class)->names('team-member');
 
         // route vehicle
-        Route::resource('/vehicle', VehicleController::class)->names('vehicle');
+        Route::resource('vehicle', VehicleController::class)->names('vehicle');
 
         // route config loan installment
-        Route::resource('/config-installment', ConfigLoanInstallmentController::class)->names('config-installment');
+        Route::resource('config-installment', ConfigLoanInstallmentController::class)->names('config-installment');
     });
 
     // route for permission
