@@ -161,7 +161,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('team-member', TeamMemberController::class)->names('team-member');
 
         // route vehicle
-        Route::resource('vehicle', VehicleController::class)->names('vehicle');
+        Route::resource('vehicle', App\Http\Controllers\Api\Web\VehicleController::class)->names('vehicle');
 
         // route config loan installment
         Route::resource('config-installment', ConfigLoanInstallmentController::class)->names('config-installment');
