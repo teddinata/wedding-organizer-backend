@@ -140,10 +140,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('order-add-on', OrderAdditionalServiceController::class)->names('order-additional-service');
 
         // route sales
-        Route::resource('sales', SalesController::class)->names('sales');
+        Route::apiResource('sales', SalesController::class);
 
         // route bank account
-        Route::resource('bank-account', BankAccountController::class)->names('bank-account');
+        Route::apiResource('bank-account', BankAccountController::class);
 
         // route bank account
         Route::resource('decoration-area', DecorationAreaController::class)->names('decoration-area');

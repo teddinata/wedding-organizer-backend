@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\API\Web;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
-use Illuminate\Http\Request;
 // use resource
 use App\Http\Resources\BankAccountResource;
 // model
@@ -19,21 +19,26 @@ class BankAccountController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
 
-        // get bank account data and sort by account holder ascending
-        $bank = BankAccount::orderBy('account_holder', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        //set variable for search
+        $search = $request->query('search');
 
-        // filter by name
-        if (request()->has('search')) {
-            $bank->where('name', 'like', '%' . request('search') . '%');
+        //set condition if search not empty then find by account_holder or account_number else then show all data
+        if(!empty($search)){
+            $query = BankAccount::where('account_holder', 'like', '%' . $search . '%')
+                ->orWhere('account_number', 'like', '%' . $search . '%')
+                ->paginate($perPage, ['*'], 'page', $page);
+        } else{
+            // get bank account data and sort by name ascending
+            $query = BankAccount::orderBy('account_holder', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        // Log Activit
+        // Log Activity
         Activity::create([
             'log_name' => 'Show Data',
             'description' => 'User ' . Auth::user()->name . ' Show bank account list',
@@ -47,7 +52,7 @@ class BankAccountController extends Controller
         ]);
 
         //return collection of bank account as a resource
-        return new BankAccountResource(true, 'Bank account retrieved successfully', $bank);
+        return new BankAccountResource(true, 'Bank account retrieved successfully', $query);
     }
 
     /**
@@ -56,7 +61,7 @@ class BankAccountController extends Controller
     public function store(StoreBankAccountRequest $request)
     {
         //store to database
-        $account = BankAccount::create([
+        $query = BankAccount::create([
             'bank' => $request->bank,
             'account_holder' => $request->account_holder,
             'account_number' => $request->account_number,
@@ -66,7 +71,7 @@ class BankAccountController extends Controller
         // activity log
         Activity::create([
             'log_name' => 'Bank Account Creation',
-            'description' => 'User ' . Auth::user()->name . ' create bank account ' . $account->account_holder,
+            'description' => 'User ' . Auth::user()->name . ' create bank account ' . $query->account_holder,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -76,7 +81,7 @@ class BankAccountController extends Controller
         ]);
 
         // return json response
-        return new BankAccountResource(true, $account->account_holder . ' has successfully been created.', $account);
+        return new BankAccountResource(true, $query->account_holder . ' has successfully been created.', $query);
     }
 
     /**
@@ -84,14 +89,14 @@ class BankAccountController extends Controller
      */
     public function show($id)
     {
-        $account = BankAccount::findOrFail($id);
+        $query = BankAccount::findOrFail($id);
         //return single post as a resource
-        return new BankAccountResource(true, 'Data Bank Account Found!', $account);
+        return new BankAccountResource(true, 'Data Bank Account Found!', $query);
 
         // activity log
         Activity::create([
             'log_name' => 'View Data',
-            'description' => 'User ' . Auth::user()->name . ' view bank account ' . $account->account_holder,
+            'description' => 'User ' . Auth::user()->name . ' view bank account ' . $query->account_holder,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -108,10 +113,10 @@ class BankAccountController extends Controller
     public function update(UpdateBankAccountRequest $request, $id)
     {
         // find the data
-        $account = BankAccount::findOrFail($id);
+        $query = BankAccount::findOrFail($id);
 
         // update to database
-        $account->update(($request->validated() + [
+        $query->update(($request->validated() + [
             'bank' => $request->bank,
             'account_holder' => $request->account_holder,
             'account_number' => $request->account_number,
@@ -121,7 +126,7 @@ class BankAccountController extends Controller
         // activity log
         Activity::create([
             'log_name' => 'Update Data',
-            'description' => 'User ' . Auth::user()->name . ' update bank account ' . $account->account_holder,
+            'description' => 'User ' . Auth::user()->name . ' update bank account ' . $query->account_holder,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -132,7 +137,7 @@ class BankAccountController extends Controller
         ]);
 
         // return json response
-        return new BankAccountResource(true, $account->account_holder . ' has successfully been updated.', $account);
+        return new BankAccountResource(true, $query->account_holder . ' has successfully been updated.', $query);
     }
 
     /**
@@ -141,16 +146,16 @@ class BankAccountController extends Controller
     public function destroy($id)
     {
         // find data
-        $account = BankAccount::findOrFail($id);
-        $account->delete();
+        $query = BankAccount::findOrFail($id);
+        $query->delete();
         // soft delete to database
-        $account->deleted_by = Auth::user()->id;
-        $account->save();
+        $query->deleted_by = Auth::user()->id;
+        $query->save();
 
         // activity log
         Activity::create([
             'log_name' => 'Delete Data',
-            'description' => 'User ' . Auth::user()->name . ' delete bank account ' . $account->account_holder,
+            'description' => 'User ' . Auth::user()->name . ' delete bank account ' . $query->account_holder,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -160,6 +165,6 @@ class BankAccountController extends Controller
         ]);
 
         // return json response
-        return new BankAccountResource(true, $account->account_holder . ' has successfully been deleted.', null);
+        return new BankAccountResource(true, $query->account_holder . ' has successfully been deleted.', null);
     }
 }

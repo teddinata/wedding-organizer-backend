@@ -13,7 +13,6 @@ use App\Models\MasterData\Vehicle;
 use App\Http\Requests\Vehicle\StoreVehicleRequest;
 use App\Http\Requests\Vehicle\UpdateVehicleRequest;
 
-
 class VehicleController extends Controller
 {
     /**
@@ -24,10 +23,14 @@ class VehicleController extends Controller
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
+
         // get sales data and sort by name ascending
         $vehicle = Vehicle::orderBy('model_name', 'asc')->paginate($perPage, ['*'], 'page', $page);
-        //return collection of sales as a resource
-        return new VehicleResource(true, 'Vehicle retrieved successfully', $vehicle);
+
+        // filter by name
+        if (request()->has('search')) {
+            $bank->where('model_name', 'like', '%' . request('search') . '%');
+        }
 
         // Log Activity
         Activity::create([
@@ -41,6 +44,9 @@ class VehicleController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
+
+        //return collection of vehicle as a resource
+        return new VehicleResource(true, 'Vehicle retrieved successfully', $vehicle);
     }
 
     /**

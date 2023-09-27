@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 // use resource
@@ -18,17 +19,26 @@ class SalesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
+        
+        //set variable for search
+        $search = $request->query('search');
 
-        // get sales data and sort by name ascending
-        $sales = Sales::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        //set condition if search not empty then find by name else then show all data
+        if(!empty($search)){
+            $query = Sales::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
+        } else{
+            // get sales data and sort by name ascending
+            $query = Sales::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        }
+
         //return collection of sales as a resource
-        return new SalesResource(true, 'Sales retrieved successfully', $sales);
-
+        return new SalesResource(true, 'Sales retrieved successfully', $query);
+                
         // Log Activity
         Activity::create([
             'log_name' => 'Show Data',
@@ -49,7 +59,7 @@ class SalesController extends Controller
     public function store(StoreSalesRequest $request)
     {
         //store to database
-        $sales = Sales::create([
+        $query = Sales::create([
             'name' => $request->name,
             'created_by' => Auth::user()->id,
         ] + $request->validated());
@@ -57,7 +67,7 @@ class SalesController extends Controller
         // activity log
         Activity::create([
             'log_name' => 'Sales Creation',
-            'description' => 'User ' . Auth::user()->name . ' create sales ' . $sales->name,
+            'description' => 'User ' . Auth::user()->name . ' create sales ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -67,7 +77,7 @@ class SalesController extends Controller
         ]);
 
         // return json response
-        return new SalesResource(true, $sales->name . ' has successfully been created.', $sales);
+        return new SalesResource(true, $query->name . ' has successfully been created.', $query);
     }
 
     /**
@@ -75,14 +85,14 @@ class SalesController extends Controller
      */
     public function show(string $id)
     {
-        $sales = Sales::findOrFail($id);
+        $query = Sales::findOrFail($id);
         //return single post as a resource
-        return new SalesResource(true, 'Data Sales Found!', $sales);
+        return new SalesResource(true, 'Data Sales Found!', $query);
 
         // activity log
         Activity::create([
             'log_name' => 'View Data',
-            'description' => 'User ' . Auth::user()->name . ' view sales ' . $sales->name,
+            'description' => 'User ' . Auth::user()->name . ' view sales ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -99,10 +109,10 @@ class SalesController extends Controller
     public function update(UpdateSalesRequest $request, $id)
     {
         // find the data
-        $sales = Sales::findOrFail($id);
+        $query = Sales::findOrFail($id);
 
         // update to database
-        $sales->update(($request->validated() + [
+        $query->update(($request->validated() + [
             'name' => $request->name,
             'updated_by' => Auth::user()->id,
         ]));
@@ -110,7 +120,7 @@ class SalesController extends Controller
         // activity log
         Activity::create([
             'log_name' => 'Update Data',
-            'description' => 'User ' . Auth::user()->name . ' update sales to ' . $sales->name,
+            'description' => 'User ' . Auth::user()->name . ' update sales to ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -121,7 +131,7 @@ class SalesController extends Controller
         ]);
 
         // return json response
-        return new SalesResource(true, $sales->name . ' has successfully been updated.', $sales);
+        return new SalesResource(true, $query->name . ' has successfully been updated.', $query);
     }
 
     /**
@@ -130,16 +140,16 @@ class SalesController extends Controller
     public function destroy($id)
     {
         // find data
-        $sales = Sales::findOrFail($id);
-        $sales->delete();
+        $query = Sales::findOrFail($id);
+        $query->delete();
         // soft delete to database
-        $sales->deleted_by = Auth::user()->id;
-        $sales->save();
+        $query->deleted_by = Auth::user()->id;
+        $query->save();
 
         // activity log
         Activity::create([
             'log_name' => 'Delete Data',
-            'description' => 'User ' . Auth::user()->name . ' delete sales ' . $sales->name,
+            'description' => 'User ' . Auth::user()->name . ' delete sales ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -149,6 +159,6 @@ class SalesController extends Controller
         ]);
 
         // return json response
-        return new SalesResource(true, $sales->name . ' has successfully been deleted.', null);
+        return new SalesResource(true, $query->name . ' has successfully been deleted.', null);
     }
 }
