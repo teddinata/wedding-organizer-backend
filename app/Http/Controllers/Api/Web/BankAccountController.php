@@ -38,6 +38,9 @@ class BankAccountController extends Controller
             $query = BankAccount::orderBy('account_holder', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
+        //return collection of bank account as a resource
+        return new BankAccountResource(true, 'Bank account retrieved successfully', $query);
+
         // Log Activity
         Activity::create([
             'log_name' => 'Show Data',
@@ -50,9 +53,6 @@ class BankAccountController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
-
-        //return collection of bank account as a resource
-        return new BankAccountResource(true, 'Bank account retrieved successfully', $query);
     }
 
     /**
