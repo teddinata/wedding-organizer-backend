@@ -16,11 +16,17 @@ class DepartmentTableSeeder extends Seeder
         DB::table('departments')->insert([
             [
                 'name' => 'Office',
+                'payroll_type' => 2,
+                'is_has_schedule' => 0,
                 'created_by' => 1,
                 'created_at' => now(),
             ],
             [
                 'name' => 'Operational',
+                'payroll_type' => 1,
+                'is_has_schedule' => 1,
+                'clock_in' => '13:00',
+                'clock_out' => '19:00',
                 'created_by' => 1,
                 'created_at' => now(),
             ]
