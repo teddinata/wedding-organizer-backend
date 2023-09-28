@@ -63,7 +63,7 @@ class DecorationAreaController extends Controller
     {
         $area = DecorationArea::findOrFail($id);
         //return single post as a resource
-        return new DecorationAreaResource(true, 'Data Area Found!', $area);
+        return new DecorationAreaResource(true, 'Area decoration found!', $area);
     }
 
     /**

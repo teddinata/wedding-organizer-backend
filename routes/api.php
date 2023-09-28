@@ -181,3 +181,5 @@ Route::prefix('v2')->group(function () {
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     Route::post('/reset-password-with-otp', [AuthController::class, 'resetPasswordWithOtp'])->name('reset-password-with-otp');
 });
+
+Route::resource('sample', App\Http\Controllers\Api\Web\SampleSalesController::class);

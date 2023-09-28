@@ -24,21 +24,24 @@ class SalesController extends Controller
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
-        
+
         //set variable for search
         $search = $request->query('search');
 
         //set condition if search not empty then find by name else then show all data
-        if(!empty($search)){
+        if (!empty($search)) {
             $query = Sales::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
-        } else{
+
+            //check result
+            $recordsTotal = $query->count();
+            if (empty($recordsTotal)) {
+                return response(['Message' => 'Data not found!'], 404);
+            }
+        } else {
             // get sales data and sort by name ascending
             $query = Sales::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        //return collection of sales as a resource
-        return new SalesResource(true, 'Sales retrieved successfully', $query);
-                
         // Log Activity
         Activity::create([
             'log_name' => 'Show Data',
@@ -51,6 +54,9 @@ class SalesController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
+
+        //return collection of sales as a resource
+        return new SalesResource(true, 'Sales retrieved successfully', $query);
     }
 
     /**
@@ -86,8 +92,6 @@ class SalesController extends Controller
     public function show(string $id)
     {
         $query = Sales::findOrFail($id);
-        //return single post as a resource
-        return new SalesResource(true, 'Data Sales Found!', $query);
 
         // activity log
         Activity::create([
@@ -101,6 +105,9 @@ class SalesController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
+
+        //return single post as a resource
+        return new SalesResource(true, 'Sales data found!', $query);
     }
 
     /**

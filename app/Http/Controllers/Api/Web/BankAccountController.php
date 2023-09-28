@@ -28,18 +28,30 @@ class BankAccountController extends Controller
         //set variable for search
         $search = $request->query('search');
 
-        //set condition if search not empty then find by account_holder or account_number else then show all data
-        if(!empty($search)){
-            $query = BankAccount::where('account_holder', 'like', '%' . $search . '%')
-                ->orWhere('account_number', 'like', '%' . $search . '%')
-                ->paginate($perPage, ['*'], 'page', $page);
-        } else{
-            // get bank account data and sort by name ascending
-            $query = BankAccount::orderBy('account_holder', 'asc')->paginate($perPage, ['*'], 'page', $page);
-        }
+        //set condition if search not empty then search by account_holder or account_number else then show all data
+        if (!empty($search)) {
+            $query = BankAccount::where('nominal', 'like', '%' . $search . '%')
+                ->orWhere(
+                    'account_number',
+                    'like',
+                    '%' . $search . '%'
+                )
+                ->paginate(
+                    $perPage,
+                    ['*'],
+                    'page',
+                    $page
+                );
 
-        //return collection of bank account as a resource
-        return new BankAccountResource(true, 'Bank account retrieved successfully', $query);
+            //check result
+            $recordsTotal = $query->count();
+            if (empty($recordsTotal)) {
+                return response(['Message' => 'Data not found!'], 404);
+            }
+        } else {
+            // get config installment data and sort by nominal ascending
+            $query = BankAccount::orderBy('nominal', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        }
 
         // Log Activity
         Activity::create([
@@ -53,6 +65,9 @@ class BankAccountController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
+
+        //return collection of bank account as a resource
+        return new BankAccountResource(true, 'Bank account retrieved successfully', $query);
     }
 
     /**
@@ -90,8 +105,6 @@ class BankAccountController extends Controller
     public function show($id)
     {
         $query = BankAccount::findOrFail($id);
-        //return single post as a resource
-        return new BankAccountResource(true, 'Data Bank Account Found!', $query);
 
         // activity log
         Activity::create([
@@ -105,6 +118,9 @@ class BankAccountController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
+
+        //return single post as a resource
+        return new BankAccountResource(true, 'Bank account found!', $query);
     }
 
     /**
