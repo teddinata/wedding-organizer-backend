@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\Web;
+namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -72,7 +72,7 @@ class BankAccountController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Bank Account Creation',
+            'log_name' => 'User ' . Auth::user()->name . ' add bank account',
             'description' => 'User ' . Auth::user()->name . ' create bank account ' . $query->account_holder,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
@@ -116,7 +116,7 @@ class BankAccountController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Update Data',
+            'log_name' => 'User ' . Auth::user()->name . ' update bank account',
             'description' => 'User ' . Auth::user()->name . ' update bank account ' . $query->account_holder,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
@@ -145,14 +145,13 @@ class BankAccountController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Delete Data',
+            'log_name' => 'User ' . Auth::user()->name . ' delete bank account',
             'description' => 'User ' . Auth::user()->name . ' delete bank account ' . $query->account_holder,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
         ]);
 
         // return json response

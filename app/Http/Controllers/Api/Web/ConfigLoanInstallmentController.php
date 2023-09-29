@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\Web;
+namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -48,19 +48,6 @@ class ConfigLoanInstallmentController extends Controller
             $query = ConfigLoanInstallment::orderBy('nominal', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        // Log Activity
-        Activity::create([
-            'log_name' => 'Show Data',
-            'description' => 'User ' . Auth::user()->name . ' Show config installment list',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
         //return collection of config installment as a resource
         return new ConfigLoanInstallmentResource(true, 'Config Installment retrieved successfully', $query);
     }
@@ -78,8 +65,8 @@ class ConfigLoanInstallmentController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Config Loan Installment Creation',
-            'description' => 'User ' . Auth::user()->name . ' create config installment ' . $query->nominal,
+            'log_name' => 'User ' . Auth::user()->name . ' add installment configuration',
+            'description' => 'User ' . Auth::user()->name . ' create installment configuration ' . $query->nominal,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -97,20 +84,8 @@ class ConfigLoanInstallmentController extends Controller
      */
     public function show(string $id)
     {
+        // find the data by ID
         $query = ConfigLoanInstallment::findOrFail($id);
-
-        // activity log
-        Activity::create([
-            'log_name' => 'View Data',
-            'description' => 'User ' . Auth::user()->name . ' view installment ' . $query->nominal,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
 
         //return single post as a resource
         return new ConfigLoanInstallmentResource(true, 'Config installment found!', $query);
@@ -132,7 +107,7 @@ class ConfigLoanInstallmentController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Update Data',
+            'log_name' => 'User ' . Auth::user()->name . ' update installment configuration',
             'description' => 'User ' . Auth::user()->name . ' update config installment to ' . $query->nominal,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
@@ -161,7 +136,7 @@ class ConfigLoanInstallmentController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Delete Data',
+            'log_name' => 'User ' . Auth::user()->name . ' delete installment configuration',
             'description' => 'User ' . Auth::user()->name . ' delete config installment ' . $query->nominal,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
