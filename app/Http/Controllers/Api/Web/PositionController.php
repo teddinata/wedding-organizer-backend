@@ -19,11 +19,11 @@ class PositionController extends Controller
     {
         // dd('test');
         // get all positions with filter and pagination
-        $query = Position::query();
+        $query = Position::with(['department']);
 
 
         // filter by name
-        if (request()->has('name')) {
+        if (request()->has('search')) {
             $query->where('name', 'like', '%' . request('name') . '%');
         }
 

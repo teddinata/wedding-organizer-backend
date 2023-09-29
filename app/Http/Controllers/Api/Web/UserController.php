@@ -123,7 +123,15 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // get data user by id
+        $user = User::findOrFail($id);
+
+        // return response
+        if ($user) {
+            return new UserResource(true, 'User detail retrieved successfully', $user);
+        } else {
+            return new UserResource(false, 'User detail failed to retrieve', null);
+        }
     }
 
     /**

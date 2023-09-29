@@ -70,11 +70,27 @@ class AllowanceController extends Controller
     public function store(StoreAllowanceRequest $request)
     {
         // create new allowance
-        $allowance = Allowance::create([
-            'name' => $request->name,
-            'department_id' => $request->department_id,
-            'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        // $allowance = Allowance::create([
+        //     'name' => $request->name,
+        //     'department_id' => $request->department_id,
+        //     'created_by' => Auth::user()->id,
+        // ] + $request->validated());
+
+        $department_id = $request->department_id;
+
+        // pengecekan apakah department_id sudah ada di allowance
+        foreach ($department_id as $department_id) {
+            // $allowance = Allowance::where('department_id', $request->department_id)->where('name', $request->name)->first();
+            // if ($allowance) {
+                // return response()->json(['message' => 'Allowance have already in this department'], 422);
+            // } else {
+                $allowance = Allowance::create([
+                    'name' => $request->name,
+                    'department_id' => $department_id,
+                    'created_by' => Auth::user()->id,
+                ] + $request->validated());
+            // }
+        }
 
         // log activity
         Activity::create([
@@ -113,14 +129,58 @@ class AllowanceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAllowanceRequest $request, Allowance $allowance)
+    public function update(UpdateAllowanceRequest $request, string $id)
     {
         // update allowance
-        $allowance->update([
-            'name' => $request->name,
-            'department_id' => $request->department_id,
-            'updated_by' => Auth::user()->id,
-        ] + $request->validated());
+        // $allowance->update([
+        //     'name' => $request->name,
+        //     'department_id' => $request->department_id,
+        //     'updated_by' => Auth::user()->id,
+        // ] + $request->validated());
+
+        // function update like store function above
+        // $allowance = Allowance::find($id);
+        // $department_id = $request->department_id;
+        // foreach ($department_id as $department_id) {
+        //     // pengecekan data department_id sudah ada di allowance berdasarkan id
+        //     $allowance = Allowance::find($id);
+
+        //     // if ($allowance) {
+        //     //     return response()->json(['message' => 'Allowance have already in this department'], 422);
+        //     // } else {
+        //         // update allowance
+        //         $allowance->update([
+        //             'name' => $request->name,
+        //             'department_id' => $department_id,
+        //             'updated_by' => Auth::user()->id,
+        //         ] + $request->validated());
+        //     // }
+        // }
+
+        $allowance = Allowance::find($id);
+        $department_id = $request->input('department_id'); // Pastikan Anda memiliki input 'department_ids' yang sesuai dengan nama input Anda.
+
+        if (!$allowance) {
+            return response()->json(['message' => 'Allowance not found'], 404);
+        }
+
+        // Hapus loop foreach yang tidak perlu.
+
+        $updatedDepartments = [];
+
+        foreach ($department_id as $department_id) {
+            // Lakukan pengecekan apakah department_id sudah ada di daftar $updatedDepartments.
+            if (!in_array($department_id, $updatedDepartments)) {
+                $allowance->update([
+                    'name' => $request->name,
+                    'department_id' => $department_id,
+                    'updated_by' => Auth::user()->id,
+                ] + $request->validated());
+
+                // Tambahkan department_id ke daftar $updatedDepartments agar tidak ada duplikasi.
+                $updatedDepartments[] = $department_id;
+            }
+        }
 
         // log activity
         Activity::create([
