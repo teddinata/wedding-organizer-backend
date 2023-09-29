@@ -33,30 +33,8 @@ class ChecklistItemController extends Controller
         // Get data
         $checklist_items = $query->paginate($perPage, ['*'], 'page', $page);
 
-         // Log Activity
-         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' show data Checklist Item',
-            'description' => 'User ' . Auth::user()->name . ' show data Checklist Item',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
         // return json response
         return new ChecklistItemResource(true, 'Checklist Items retrieved successfully', $checklist_items);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -73,8 +51,8 @@ class ChecklistItemController extends Controller
 
         // Log Activity
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' store data Checklist Item',
-            'description' => 'User ' . Auth::user()->name . ' store data Checklist Item',
+            'log_name' => 'User ' . Auth::user()->name . ' add checklist item',
+            'description' => 'User ' . Auth::user()->name . ' create checklist item',
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -86,21 +64,13 @@ class ChecklistItemController extends Controller
         ]);
 
         // return json response
-        return new ChecklistItemResource(true, 'Checklist Item created successfully.', $checklist_item);
+        return new ChecklistItemResource(true, $checklist_item->name .  'has successfully been created.', $checklist_item);
     }
 
     /**
      * Display the specified resource.
      */
     public function show(ChecklistItem $checklistItem)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ChecklistItem $checklistItem)
     {
         //
     }
@@ -119,20 +89,19 @@ class ChecklistItemController extends Controller
 
         // Log Activity
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update data Checklist Item',
-            'description' => 'User ' . Auth::user()->name . ' update data Checklist Item',
+            'log_name' => 'User ' . Auth::user()->name . ' update checklist item',
+            'description' => 'User ' . Auth::user()->name . ' update checklist item' . $checklistItem->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
 
         // return json response
-        return new ChecklistItemResource(true, 'Checklist Item updated successfully.', $checklistItem);
+        return new ChecklistItemResource(true, $checklistItem->name . ' has successfully been updated.', $checklistItem);
     }
 
     /**
@@ -149,19 +118,18 @@ class ChecklistItemController extends Controller
 
         // Log Activity
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete data Checklist Item',
-            'description' => 'User ' . Auth::user()->name . ' delete data Checklist Item',
+            'log_name' => 'User ' . Auth::user()->name . ' delete checklist item',
+            'description' => 'User ' . Auth::user()->name . ' delete checklist item' . $checklistItem->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
             'properties' => request()->ip(),
-            // 'host' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()
         ]);
 
         // return json response
-        return new ChecklistItemResource(true, 'Checklist Item deleted successfully.', $checklistItem);
+        return new ChecklistItemResource(true, $checklistItem->name . ' has successfully been deleted.', $checklistItem);
     }
 }

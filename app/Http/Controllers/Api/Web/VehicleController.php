@@ -71,8 +71,8 @@ class VehicleController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Vehicle Creation',
-            'description' => 'User ' . Auth::user()->name . ' create vehicle ' . $vehicle->model_name,
+            'log_name' => 'User ' . Auth::user()->name . ' add new vechile',
+            'description' => 'User ' . Auth::user()->name . ' create new vehicle ' . $vehicle->model_name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -114,8 +114,8 @@ class VehicleController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Update Data',
-            'description' => 'User ' . Auth::user()->name . ' update vehicle to ' . $vehicle->model_name,
+            'log_name' => 'User ' . Auth::user()->name . ' update vechile information',
+            'description' => 'User ' . Auth::user()->name . ' update vehicle information ' . $vehicle->model_name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -143,7 +143,7 @@ class VehicleController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Delete Data',
+            'log_name' => 'User ' . Auth::user()->name . ' delete vehicle',
             'description' => 'User ' . Auth::user()->name . ' delete vehicle ' . $vehicle->model_name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',

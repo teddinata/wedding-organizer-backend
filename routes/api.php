@@ -81,7 +81,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('vendor-limit', VendorLimitController::class)->names('vendor-limit');
 
         // vendor grade
-        Route::resource('vendor-grade', VendorGradeController::class)->names('vendor-grade');
+        Route::apiResource('vendor-grade', VendorGradeController::class);
 
         // vendor
         Route::resource('vendor', VendorController::class)->names('vendor');
@@ -99,10 +99,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('product-variant', ProductVariantController::class)->names('product-variant');
 
         // checklist category
-        Route::resource('checklist-category', ChecklistCategoryController::class)->names('checklist-category');
+        Route::apiResource('checklist-category', ChecklistCategoryController::class);
 
         // checklist item
-        Route::resource('checklist-item', ChecklistItemController::class)->names('checklist-item');
+        Route::apiResource('checklist-item', ChecklistItemController::class);
 
         // route position
         Route::resource('position', PositionController::class)->names('position');
@@ -147,7 +147,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::apiResource('bank-account', BankAccountController::class);
 
         // route bank account
-        Route::resource('decoration-area', DecorationAreaController::class)->names('decoration-area');
+        Route::apiResource('decoration-area', DecorationAreaController::class);
 
         // route department
         Route::apiResource('/department', DepartmentController::class);
@@ -162,13 +162,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('team-member', TeamMemberController::class)->names('team-member');
 
         // route vehicle
-        Route::resource('vehicle', VehicleController::class)->names('vehicle');
+        Route::apiResource('vehicle', VehicleController::class);
 
         // route config loan installment
-        Route::resource('config-installment', ConfigLoanInstallmentController::class)->names('config-installment');
+        Route::apiResource('config-installment', ConfigLoanInstallmentController::class);
 
-        // leads
-        Route::resource('/leads', LeadController::class)->names('leads');
+        // route lead
+        Route::resource('leads', LeadController::class)->names('lead');
     });
 
     // route for permission

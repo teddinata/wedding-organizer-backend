@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\API\Web;
+namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DecorationArea\StoreAreaRequest;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
-use Illuminate\Http\Request;
 // use resource
 use App\Http\Resources\DecorationAreaResource;
 // model
 use App\Models\MasterData\DecorationArea;
+// request
+use App\Http\Requests\DecorationArea\StoreAreaRequest;
+use App\Http\Requests\DecorationArea\UpdateAreaRequest;
 
 class DecorationAreaController extends Controller
 {
@@ -38,12 +39,11 @@ class DecorationAreaController extends Controller
         //store to database
         $query = DecorationArea::create([
             'name' => $request->name,
-            'created_by' => Auth::user()->id,
         ] + $request->validated());
 
         // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' Create data area ' . $query->name,
+            'log_name' => 'User ' . Auth::user()->name . ' add new area',
             'description' => 'User ' . Auth::user()->name . ' Create data area ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
@@ -60,7 +60,7 @@ class DecorationAreaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
         // find the data by id
         $query = DecorationArea::findOrFail($id);
@@ -72,9 +72,31 @@ class DecorationAreaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateAreaRequest $request, $id)
     {
-        //
+        // check the data by id
+        $query = DecorationArea::findOrFail($id);
+
+        // update to database
+        $query->update(($request->validated() + [
+            'name' => $request->name,
+        ]));
+
+        // activity log
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' update area',
+            'description' => 'User ' . Auth::user()->name . ' update area ' . $query->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // return json response
+        return new DecorationAreaResource(true, $query->name . ' has successfully been updated.', $query);
     }
 
     /**

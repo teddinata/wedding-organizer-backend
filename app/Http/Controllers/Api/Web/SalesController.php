@@ -59,8 +59,8 @@ class SalesController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Sales Creation',
-            'description' => 'User ' . Auth::user()->name . ' create sales ' . $query->name,
+            'log_name' => 'User ' . Auth::user()->name . ' add new sales',
+            'description' => 'User ' . Auth::user()->name . ' create new sales ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -101,8 +101,8 @@ class SalesController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Update Data',
-            'description' => 'User ' . Auth::user()->name . ' update sales to ' . $query->name,
+            'log_name' => 'User ' . Auth::user()->name . ' update sales personnel',
+            'description' => 'User ' . Auth::user()->name . ' update sales personnel ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -130,8 +130,8 @@ class SalesController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Delete Data',
-            'description' => 'User ' . Auth::user()->name . ' delete sales ' . $query->name,
+            'log_name' => 'User ' . Auth::user()->name . ' delete sales personnel',
+            'description' => 'User ' . Auth::user()->name . ' delete sales personnel ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
