@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\MasterData\Allowance;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
+// use resource
 use App\Http\Resources\AllowanceResource;
+// use model
+use App\Models\MasterData\Allowance;
 // request
 use App\Http\Requests\Allowance\StoreAllowanceRequest;
 use App\Http\Requests\Allowance\UpdateAllowanceRequest;

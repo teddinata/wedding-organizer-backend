@@ -30,7 +30,7 @@ class BankAccountController extends Controller
 
         //set condition if search not empty then search by account_holder or account_number else then show all data
         if (!empty($search)) {
-            $query = BankAccount::where('nominal', 'like', '%' . $search . '%')
+            $query = BankAccount::where('account_holder', 'like', '%' . $search . '%')
                 ->orWhere(
                     'account_number',
                     'like',
@@ -49,8 +49,8 @@ class BankAccountController extends Controller
                 return response(['Message' => 'Data not found!'], 404);
             }
         } else {
-            // get config installment data and sort by nominal ascending
-            $query = BankAccount::orderBy('nominal', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            // get bank account data and sort by account_holder ascending
+            $query = BankAccount::orderBy('account_holder', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
         //return collection of bank account as a resource
