@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Web;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 // use resource
@@ -18,30 +19,31 @@ class ProductCategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
 
-        // get data with pagination
-        $category = ProductCategory::withCount(['product_attributes'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        //set variable for search
+        $search = $request->query('search');
+
+        //set condition if search not empty then find by name else then show all data
+        if (!empty($search)) {
+            $query = ProductCategory::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
+
+            //check result
+            $recordsTotal = $query->count();
+            if (empty($recordsTotal)) {
+                return response(['Message' => 'Data not found!'], 404);
+            }
+        } else {
+            // get product category data and sort by name ascending
+            $query = ProductCategory::withCount(['product_attributes'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        }
 
         //return collection of product category as a resource
-        return new ProductCategoryResource(true, 'Product Category retrieved successfully', $category);
-
-        // Log Activity
-        Activity::create([
-            'log_name' => 'Show Data',
-            'description' => 'User ' . Auth::user()->name . ' Show sales list',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        return new ProductCategoryResource(true, 'Product Category retrieved successfully', $query);
     }
 
     /**
@@ -50,15 +52,15 @@ class ProductCategoryController extends Controller
     public function store(StoreProductCategoryRequest $request)
     {
         //store to database
-        $category = ProductCategory::create([
+        $query = ProductCategory::create([
             'name' => $request->name,
             'created_by' => Auth::user()->id,
         ] + $request->validated());
 
         // activity log
         Activity::create([
-            'log_name' => 'Product Category Creation',
-            'description' => 'User ' . Auth::user()->name . ' create product category ' . $category->name,
+            'log_name' => 'User ' . Auth::user()->name . ' add new product category',
+            'description' => 'User ' . Auth::user()->name . ' create product category ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -68,7 +70,7 @@ class ProductCategoryController extends Controller
         ]);
 
         // return json response
-        return new ProductCategoryResource(true, $category->name . ' has successfully been created.', $category);
+        return new ProductCategoryResource(true, $query->name . ' has successfully been created.', $query);
     }
 
     /**
@@ -76,22 +78,11 @@ class ProductCategoryController extends Controller
      */
     public function show($id)
     {
-        $category = ProductCategory::findOrFail($id);
-        //return single post as a resource
-        return new ProductCategoryResource(true, 'Data Category Found!', $category);
+        // find data by ID
+        $query = ProductCategory::findOrFail($id);
 
-        // activity log
-        Activity::create([
-            'log_name' => 'View Data',
-            'description' => 'User ' . Auth::user()->name . ' view sales ' . $category->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        //return single post as a resource
+        return new ProductCategoryResource(true, 'Data Category Found!', $query);
     }
 
     /**
@@ -100,18 +91,18 @@ class ProductCategoryController extends Controller
     public function update(UpdateProductCategoryRequest $request, $id)
     {
         // find the data
-        $category = ProductCategory::findOrFail($id);
+        $query = ProductCategory::findOrFail($id);
 
         // update to database
-        $category->update(($request->validated() + [
+        $query->update(($request->validated() + [
             'name' => $request->name,
             'updated_by' => Auth::user()->id,
         ]));
 
         // activity log
         Activity::create([
-            'log_name' => 'Update Data',
-            'description' => 'User ' . Auth::user()->name . ' update product category to ' . $category->name,
+            'log_name' => 'User ' . Auth::user()->name . ' update product category',
+            'description' => 'User ' . Auth::user()->name . ' update product category to ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -122,7 +113,7 @@ class ProductCategoryController extends Controller
         ]);
 
         // return json response
-        return new ProductCategoryResource(true, $category->name . ' has successfully been updated.', $category);
+        return new ProductCategoryResource(true, $query->name . ' has successfully been updated.', $query);
     }
 
     /**
@@ -130,17 +121,17 @@ class ProductCategoryController extends Controller
      */
     public function destroy($id)
     {
-        // find data
-        $category = ProductCategory::findOrFail($id);
-        $category->delete();
+        // find data by ID
+        $query = ProductCategory::findOrFail($id);
+        $query->delete();
         // soft delete to database
-        $category->deleted_by = Auth::user()->id;
-        $category->save();
+        $query->deleted_by = Auth::user()->id;
+        $query->save();
 
         // activity log
         Activity::create([
-            'log_name' => 'Delete Data',
-            'description' => 'User ' . Auth::user()->name . ' delete product category ' . $category->name,
+            'log_name' => 'User ' . Auth::user()->name . ' delete product category',
+            'description' => 'User ' . Auth::user()->name . ' delete product category ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -150,6 +141,6 @@ class ProductCategoryController extends Controller
         ]);
 
         // return json response
-        return new ProductCategoryResource(true, $category->name . ' has successfully been deleted.', null);
+        return new ProductCategoryResource(true, $query->name . ' has successfully been deleted.', null);
     }
 }
