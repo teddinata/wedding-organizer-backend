@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\Web\ActivityLogController;
 use App\Http\Controllers\Api\Web\OrderAdditionalServiceController;
 use App\Http\Controllers\Api\Web\TeamMemberController;
 use App\Http\Controllers\Api\Web\AdditionalServiceController;
+use App\Http\Controllers\Api\Web\LeadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -165,6 +166,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // route config loan installment
         Route::resource('config-installment', ConfigLoanInstallmentController::class)->names('config-installment');
+
+        // leads
+        Route::resource('/leads', LeadController::class)->names('leads');
     });
 
     // route for permission

@@ -73,4 +73,10 @@ class Vendor extends Model
     {
         return $this->belongsTo(Membership::class, 'membership_id', 'id');
     }
+
+    // 1 vendor memiliki banyak lead
+    public function leads()
+    {
+        return $this->hasMany(Lead::class, 'vendor_id', 'id');
+    }
 }
