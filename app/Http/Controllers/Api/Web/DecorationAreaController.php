@@ -24,9 +24,10 @@ class DecorationAreaController extends Controller
         $page = request('page', 1);
 
         // get area data and sort by name ascending
-        $sales = DecorationArea::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        $query = DecorationArea::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+
         //return collection of area as a resource
-        return new DecorationAreaResource(true, 'Area retrieved successfully', $sales);
+        return new DecorationAreaResource(true, 'Area retrieved successfully', $query);
     }
 
     /**
@@ -35,15 +36,15 @@ class DecorationAreaController extends Controller
     public function store(StoreAreaRequest $request)
     {
         //store to database
-        $area = DecorationArea::create([
+        $query = DecorationArea::create([
             'name' => $request->name,
             'created_by' => Auth::user()->id,
         ] + $request->validated());
 
         // activity log
         Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' Create data area ' . $area->name,
-            'description' => 'User ' . Auth::user()->name . ' Create data area ' . $area->name,
+            'log_name' => 'User ' . Auth::user()->name . ' Create data area ' . $query->name,
+            'description' => 'User ' . Auth::user()->name . ' Create data area ' . $query->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -53,7 +54,7 @@ class DecorationAreaController extends Controller
         ]);
 
         // return json response
-        return new DecorationAreaResource(true, $area->name . ' has been created successfully', $area);
+        return new DecorationAreaResource(true, $query->name . ' has been created successfully', $query);
     }
 
     /**
@@ -61,9 +62,11 @@ class DecorationAreaController extends Controller
      */
     public function show(string $id)
     {
-        $area = DecorationArea::findOrFail($id);
+        // find the data by id
+        $query = DecorationArea::findOrFail($id);
+
         //return single post as a resource
-        return new DecorationAreaResource(true, 'Area decoration found!', $area);
+        return new DecorationAreaResource(true, 'Area decoration found!', $query);
     }
 
     /**

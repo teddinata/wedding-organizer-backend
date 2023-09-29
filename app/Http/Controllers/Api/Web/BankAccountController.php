@@ -53,19 +53,6 @@ class BankAccountController extends Controller
             $query = BankAccount::orderBy('nominal', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        // Log Activity
-        Activity::create([
-            'log_name' => 'Show Data',
-            'description' => 'User ' . Auth::user()->name . ' Show bank account list',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
         //return collection of bank account as a resource
         return new BankAccountResource(true, 'Bank account retrieved successfully', $query);
     }
@@ -104,20 +91,8 @@ class BankAccountController extends Controller
      */
     public function show($id)
     {
+        // find the data by id
         $query = BankAccount::findOrFail($id);
-
-        // activity log
-        Activity::create([
-            'log_name' => 'View Data',
-            'description' => 'User ' . Auth::user()->name . ' view bank account ' . $query->account_holder,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
 
         //return single post as a resource
         return new BankAccountResource(true, 'Bank account found!', $query);
@@ -128,7 +103,7 @@ class BankAccountController extends Controller
      */
     public function update(UpdateBankAccountRequest $request, $id)
     {
-        // find the data
+        // check the data by id
         $query = BankAccount::findOrFail($id);
 
         // update to database

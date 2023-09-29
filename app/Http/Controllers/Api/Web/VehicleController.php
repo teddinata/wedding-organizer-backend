@@ -53,19 +53,6 @@ class VehicleController extends Controller
             $query = Vehicle::orderBy('model_name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        // Log Activity
-        Activity::create([
-            'log_name' => 'Show Data',
-            'description' => 'User ' . Auth::user()->name . ' Show vehicle list',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
         //return collection of vehicle as a resource
         return new VehicleResource(true, 'Vehicle retrieved successfully', $query);
     }
@@ -103,20 +90,8 @@ class VehicleController extends Controller
      */
     public function show(string $id)
     {
+        // find the data by id
         $query = Vehicle::findOrFail($id);
-
-        // activity log
-        Activity::create([
-            'log_name' => 'View Data',
-            'description' => 'User ' . Auth::user()->name . ' view vehicle ' . $query->model_name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
 
         //return single post as a resource
         return new VehicleResource(true, 'Vehicle found!', $query);
