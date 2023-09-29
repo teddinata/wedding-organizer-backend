@@ -30,7 +30,7 @@ class ProductCategoryController extends Controller
 
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
-            $query = ProductCategory::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
+            $query = ProductCategory::where('name', 'like', '%' . $search . '%')->withCount(['product_attributes'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
 
             //check result
             $recordsTotal = $query->count();

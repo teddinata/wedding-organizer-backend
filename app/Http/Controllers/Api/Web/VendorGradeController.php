@@ -38,7 +38,7 @@ class VendorGradeController extends Controller
                 return response(['Message' => 'Data not found!'], 404);
             }
         } else {
-            // get sales data and sort by name ascending
+            // get grade data and sort by id ascending
             $query = VendorGrade::orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 

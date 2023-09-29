@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Web;
 
 use App\Actions\Jetstream\UpdateTeamName;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 // use resource
@@ -22,28 +23,31 @@ class TeamController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
-        // get team data and sort by name ascending with lead and member
-        $team = Team::with('lead', 'member')->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
-        //return collection of sales as a resource
 
-        // Log Activity
-        Activity::create([
-            'log_name' => 'Show Data',
-            'description' => 'User ' . Auth::user()->name . ' Show team list',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        return new TeamResource(true, 'Team retrieved successfully', $team);
+        //set variable for search
+        $search = $request->query('search');
+
+        //set condition if search not empty then find by name else then show all data
+        if (!empty($search)) {
+            $query = Team::where('name', 'like', '%' . $search . '%')->with('lead', 'member')->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+
+            //check result
+            $recordsTotal = $query->count();
+            if (empty($recordsTotal)) {
+                return response(['Message' => 'Data not found!'], 404);
+            }
+        } else {
+            // get team data and sort by name ascending with lead and member
+            $query = Team::with('lead', 'member')->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        }
+
+        //return collection of teams as a resource
+        return new TeamResource(true, 'Team retrieved successfully', $query);
     }
 
     /**
@@ -65,8 +69,8 @@ class TeamController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Sales Creation',
-            'description' => 'User ' . Auth::user()->name . ' create team ' . $team->name,
+            'log_name' => 'User ' . Auth::user()->name . ' add new team',
+            'description' => 'User ' . Auth::user()->name . ' create new team ' . $team->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
@@ -111,7 +115,7 @@ class TeamController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Update Data',
+            'log_name' => 'User ' . Auth::user()->name . ' update team information',
             'description' => 'User ' . Auth::user()->name . ' update team to ' . $team->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
@@ -147,7 +151,7 @@ class TeamController extends Controller
 
         // activity log
         Activity::create([
-            'log_name' => 'Delete Data',
+            'log_name' => 'User ' . Auth::user()->name . ' delete team',
             'description' => 'User ' . Auth::user()->name . ' delete team ' . $team->name,
             'subject_id' => Auth::user()->id,
             'subject_type' => 'App\Models\User',
