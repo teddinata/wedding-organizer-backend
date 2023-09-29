@@ -20,12 +20,23 @@ class DepartmentController extends Controller
      */
     public function index()
     {
+        // get all department with filter and pagination
+        $department = Department::orderBy('name', 'asc');
+
+        // filter by name and description in one search field
+        if (request()->has('search')) {
+            $department->where(function ($q) {
+                $q->where('name', 'like', '%' . request('search') . '%');
+            });
+        }
+
+
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
 
         // get department data and sort by name ascending
-        $department = Department::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        $department = $department->paginate($perPage, ['*'], 'page', $page);
 
         // Log Activity
         Activity::create([

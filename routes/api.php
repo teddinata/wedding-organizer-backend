@@ -134,7 +134,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('order-product', OrderProductController::class)->names('order-product');
 
         // route order team
-        Route::resource('order-team', OrderTeamController::class)->names('order');
+        Route::resource('order-team', OrderTeamController::class)->names('order-team');
 
         // order additional service
         Route::resource('order-add-on', OrderAdditionalServiceController::class)->names('order-additional-service');
