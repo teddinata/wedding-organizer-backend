@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Auth;
 // use resource
-use App\Http\Resources\AdditionalServiceResource;
+use App\Http\Resources\Resource;
 // model
 use App\Models\MasterData\AdditionalService;
 // request
@@ -48,7 +48,7 @@ class AdditionalServiceController extends Controller
         }
 
         // return json response
-        return new AdditionalServiceResource(true, 'Additional Services retrieved successfully', $query);
+        return new Resource(true, 'Additional Services retrieved successfully', $query);
     }
 
     /**
@@ -76,7 +76,7 @@ class AdditionalServiceController extends Controller
         ]);
 
         // return json response
-        return new AdditionalServiceResource(true, $query->name . ' has successfully been created', $query);
+        return new Resource(true, $query->name . ' has successfully been created', $query);
     }
 
     /**
@@ -115,7 +115,7 @@ class AdditionalServiceController extends Controller
         ]);
 
         // return json response
-        return new AdditionalServiceResource(true, $query->name . ' has successfully been updated.', $query);
+        return new Resource(true, $query->name . ' has successfully been updated.', $query);
     }
 
     /**
@@ -144,6 +144,6 @@ class AdditionalServiceController extends Controller
         ]);
 
         // return json response
-        return new AdditionalServiceResource(true, $query->name . ' has successfully been deleted', $query);
+        return new Resource(true, $query->name . ' has successfully been deleted', $query);
     }
 }
