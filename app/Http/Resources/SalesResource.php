@@ -7,25 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class SalesResource extends JsonResource
 {
-    //define properti
-    public $status;
-    public $message;
-
-    /**
-     * __construct
-     *
-     * @param  mixed $status
-     * @param  mixed $message
-     * @param  mixed $resource
-     * @return void
-     */
-    public function __construct($status, $message, $resource)
-    {
-        parent::__construct($resource);
-        $this->status  = $status;
-        $this->message = $message;
-    }
-
     /**
      * Transform the resource into an array.
      *
@@ -34,9 +15,9 @@ class SalesResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'success'   => $this->status,
-            'message'   => $this->message,
-            'data'      => $this->resource
+            'id' => $this->id,
+            'name' => $this->name,
+            'created_at' => date_format($this->created_at, "Y/d/d H:i:s")
         ];
     }
 }
