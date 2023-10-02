@@ -39,6 +39,8 @@ use App\Http\Controllers\Api\Web\TeamMemberController;
 use App\Http\Controllers\Api\Web\AdditionalServiceController;
 use App\Http\Controllers\Api\Web\LeadController;
 use App\Http\Controllers\Api\Web\OrderDriverController;
+use App\Http\Controllers\Api\Web\InvoiceController;
+use App\Http\Controllers\Api\Web\OrderHistoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -144,6 +146,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // order additional service
         Route::resource('order-add-on', OrderAdditionalServiceController::class)->names('order-additional-service');
 
+        // order history route resource
+        Route::resource('order-history', OrderHistoryController::class)->names('order-history');
+        // route update status in order history by order id
+        Route::post('order-history/update-status-order', [OrderHistoryController::class, 'changeStatus'])->name('order-history.change-status-order');
+
         // route sales
         Route::apiResource('sales', SalesController::class);
 
@@ -173,6 +180,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // route lead
         Route::resource('leads', LeadController::class)->names('lead');
+
+        // invoice route resource
+        Route::resource('invoice', InvoiceController::class)->names('invoice');
     });
 
     // route for permission

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Models\Operational\Order;
+use App\Models\Operational\OrderHistory;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Resources\OrderResource;
 use App\Http\Requests\Order\StoreOrderRequest;
+
 
 class OrderController extends Controller
 {
@@ -95,6 +97,18 @@ class OrderController extends Controller
         // order seq auto increment dan setelah melewati jam 12 malam, maka akan direset gunakan format 004
         $order->order_seq = str_pad(Order::whereDate('created_at', now())->count(), 3, '0', STR_PAD_LEFT);
         $order->save();
+
+        // order created then created order history
+        $orderHistory = OrderHistory::create([
+            'order_id' => $order->id,
+            'employee_id' => $request->employee_id,
+            'status' => 'new',
+            // 'created_by' => Auth::user()->id,
+        ]);
+
+        // hit order history
+        // $order->orderHistory()->save($orderHistory);
+
         // dd($order);
         // logs activity
         Activity::create([

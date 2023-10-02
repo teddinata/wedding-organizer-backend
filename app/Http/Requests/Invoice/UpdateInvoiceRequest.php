@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class StoreInvoiceRequest extends FormRequest
+class UpdateInvoiceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,7 @@ class StoreInvoiceRequest extends FormRequest
             'order_id' => 'required',
             'bank_account_id' => 'required',
             'transfer_date' => 'required|date',
-            'transfer_proof' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'transfer_proof' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'status' => 'nullable',
             'amount' => 'required'
         ];

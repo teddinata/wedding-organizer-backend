@@ -9,6 +9,15 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+// user
+use App\Models\User;
+
+// order
+use App\Models\Operational\Order;
+
+// bank account
+use App\Models\MasterData\BankAccount;
+
 class Invoice extends Model
 {
     use HasFactory;
@@ -27,6 +36,8 @@ class Invoice extends Model
         'transfer_proof_uploaded_at',
         'transfer_proof_uploaded_by',
         'status',
+        'amount',
+        // 'invoice_status_id',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -51,5 +62,15 @@ class Invoice extends Model
         return $this->belongsTo(BankAccount::class, 'bank_account_id', 'id');
     }
 
+    // transfer_proof_uploaded_by
+    public function transferProofUploadedBy()
+    {
+        return $this->belongsTo(User::class, 'transfer_proof_uploaded_by', 'id');
+    }
 
+    // relasi dengan invoice status
+    // public function invoiceStatus()
+    // {
+    //     return $this->belongsTo(InvoiceStatus::class, 'invoice_status_id', 'id');
+    // }
 }
