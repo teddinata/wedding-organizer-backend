@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources\BankAccount;
+namespace App\Http\Resources\ConfigLoanInstallment;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class BankAccountResource extends JsonResource
+class ConfigLoanInstallmentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +16,8 @@ class BankAccountResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'bank' => $this->bank,
-            'account_holder' => $this->account_holder,
-            'account_number' => $this->account_number,
+            'nominal' => $this->nominal,
             'created_at' => $this->created_at
-            //'created_at' => date_format($this->created_at, "Y/m/d H:i:s")
         ];
     }
 }

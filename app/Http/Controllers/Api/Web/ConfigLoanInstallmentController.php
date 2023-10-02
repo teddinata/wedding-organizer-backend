@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\ConfigLoanInstallmentResource;
+use App\Http\Resources\ConfigLoanInstallment\ConfigLoanInstallmentCollection;
+use App\Http\Resources\ConfigLoanInstallment\ConfigLoanInstallmentResource;
 // model
 use App\Models\MasterData\ConfigLoanInstallment;
 // request
@@ -16,6 +17,9 @@ use App\Http\Requests\ConfigLoanInstallment\UpdateInstallmentRequest;
 
 class ConfigLoanInstallmentController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -48,8 +52,8 @@ class ConfigLoanInstallmentController extends Controller
             $query = ConfigLoanInstallment::orderBy('nominal', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        //return collection of config installment as a resource
-        return new ConfigLoanInstallmentResource(true, 'Config Installment retrieved successfully', $query);
+        //return resource collection
+        return new ConfigLoanInstallmentCollection(true, 'Config Installment retrieved successfully', $query);
     }
 
     /**
@@ -57,26 +61,23 @@ class ConfigLoanInstallmentController extends Controller
      */
     public function store(StoreInstallemntRequest $request)
     {
-        //store to database
-        $query = ConfigLoanInstallment::create([
-            'nominal' => $request->nominal,
-            'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        try {
+            //store to database
+            $query = ConfigLoanInstallment::create([
+                'nominal' => $request->nominal,
+                'created_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' add installment configuration',
-            'description' => 'User ' . Auth::user()->name . ' create installment configuration ' . $query->nominal,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new ConfigLoanInstallmentResource(true, $query->nominal . ' has successfully been created.', $query);
+            // return JSON response
+            return $this->successResponse(new ConfigLoanInstallmentResource($query), $query->nominal . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
@@ -87,8 +88,8 @@ class ConfigLoanInstallmentController extends Controller
         // find the data by ID
         $query = ConfigLoanInstallment::findOrFail($id);
 
-        //return single post as a resource
-        return new ConfigLoanInstallmentResource(true, 'Config installment found!', $query);
+        //return JSON response
+        return $this->successResponse(new ConfigLoanInstallmentResource($query), 'Data found');
     }
 
     /**
@@ -96,30 +97,25 @@ class ConfigLoanInstallmentController extends Controller
      */
     public function update(UpdateInstallmentRequest $request, $id)
     {
-        // find the data
-        $query = ConfigLoanInstallment::findOrFail($id);
+        try {
+            // find the data
+            $query = ConfigLoanInstallment::findOrFail($id);
 
-        // update to database
-        $query->update(($request->validated() + [
-            'nominal' => $request->nominal,
-            'updated_by' => Auth::user()->id,
-        ]));
+            // update to database
+            $query->update(($request->validated() + [
+                'nominal' => $request->nominal,
+                'updated_by' => Auth::user()->id,
+            ]));
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update installment configuration',
-            'description' => 'User ' . Auth::user()->name . ' update config installment to ' . $query->nominal,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        // return json response
-        return new ConfigLoanInstallmentResource(true, $query->nominal . ' has successfully been updated.', $query);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
+            // return JSON response
+            return $this->successResponse(new ConfigLoanInstallmentResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
@@ -135,18 +131,11 @@ class ConfigLoanInstallmentController extends Controller
         $query->save();
 
         // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete installment configuration',
-            'description' => 'User ' . Auth::user()->name . ' delete config installment ' . $query->nominal,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-        ]);
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
-        // return json response
-        return new ConfigLoanInstallmentResource(true, $query->nominal . ' has successfully been deleted.', null);
+        // return JSON response
+        return $this->successResponse(new ConfigLoanInstallmentResource($query), $query->nominal . ' has been deleted successfully.');
     }
 }

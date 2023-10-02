@@ -37,6 +37,10 @@ class ConfigLoanInstallment extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nominal', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['nominal', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} config installment")
+            ->useLogName('Configuration Installment Nominal log');
     }
 }

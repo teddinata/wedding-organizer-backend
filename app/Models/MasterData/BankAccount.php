@@ -42,7 +42,7 @@ class BankAccount extends Model
             ->logOnly(['bank', 'account_holder', 'account_number', 'created_by', 'updated_by', 'deleted_by'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} sales")
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} bank account")
             ->useLogName('Master Bank Account log');
     }
 
