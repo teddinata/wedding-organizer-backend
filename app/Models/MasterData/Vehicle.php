@@ -41,7 +41,7 @@ class Vehicle extends Model
             ->logOnly(['model_name', 'plate_number', 'created_by', 'updated_by', 'deleted_by'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} sales")
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} vehicle")
             ->useLogName('Master Vehicle log');
     }
 }
