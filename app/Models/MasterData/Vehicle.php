@@ -38,6 +38,10 @@ class Vehicle extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['model_name', 'plate_number', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['model_name', 'plate_number', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} sales")
+            ->useLogName('Master Vehicle log');
     }
 }

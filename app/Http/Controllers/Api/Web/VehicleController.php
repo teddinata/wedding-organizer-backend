@@ -5,17 +5,22 @@ namespace App\Http\Controllers\Api\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\VehicleResource;
+use App\Http\Resources\Vehicle\VehicleCollection;
+use App\Http\Resources\Vehicle\VehicleResource;
 // model
 use App\Models\MasterData\Vehicle;
 // request
 use App\Http\Requests\Vehicle\StoreVehicleRequest;
 use App\Http\Requests\Vehicle\UpdateVehicleRequest;
 
+
 class VehicleController extends Controller
 {
+    // use traits for success and error JSON response format
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -53,8 +58,8 @@ class VehicleController extends Controller
             $query = Vehicle::orderBy('model_name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        //return collection of vehicle as a resource
-        return new VehicleResource(true, 'Vehicle retrieved successfully', $query);
+        //return resource collection
+        return new VehicleCollection(true, 'Vehicle retrieved successfully.', $query);
     }
 
     /**
@@ -62,27 +67,24 @@ class VehicleController extends Controller
      */
     public function store(StoreVehicleRequest $request)
     {
-        //store to database
-        $vehicle = Vehicle::create([
-            'model_name' => $request->model_name,
-            'plate_number' => $request->plate_number,
-            'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        try {
+            //store to database
+            $query = Vehicle::create([
+                'model_name' => $request->model_name,
+                'plate_number' => $request->plate_number,
+                'created_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' add new vechile',
-            'description' => 'User ' . Auth::user()->name . ' create new vehicle ' . $vehicle->model_name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new VehicleResource(true, $vehicle->model_name . ' has successfully been created.', $vehicle);
+            // return JSON response
+            return $this->successResponse(new VehicleResource($query), $query->model_name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
@@ -93,8 +95,8 @@ class VehicleController extends Controller
         // find the data by id
         $query = Vehicle::findOrFail($id);
 
-        //return single post as a resource
-        return new VehicleResource(true, 'Vehicle found!', $query);
+        //return JSON response
+        return $this->successResponse(new VehicleResource($query), 'Data found');
     }
 
     /**
@@ -102,31 +104,28 @@ class VehicleController extends Controller
      */
     public function update(UpdateVehicleRequest $request, string $id)
     {
-        // find the data
-        $vehicle = Vehicle::findOrFail($id);
+        try {
+            // find the data
+            $query = Vehicle::findOrFail($id);
 
-        // update to database
-        $vehicle->update(($request->validated() + [
-            'model_name' => $request->model_name,
-            'plate_number' => $request->plate_number,
-            'updated_by' => Auth::user()->id,
-        ]));
+            // update to database
+            $query->update(($request->validated() + [
+                'model_name' => $request->model_name,
+                'plate_number' => $request->plate_number,
+                'updated_by' => Auth::user()->id,
+            ]));
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update vechile information',
-            'description' => 'User ' . Auth::user()->name . ' update vehicle information ' . $vehicle->model_name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new VehicleResource(true, $vehicle->model_name . ' has successfully been updated.', $vehicle);
+            // return JSON response
+            return $this->successResponse(new VehicleResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            //return $e->getMessage();
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
@@ -135,25 +134,18 @@ class VehicleController extends Controller
     public function destroy($id)
     {
         // find data
-        $vehicle = Vehicle::findOrFail($id);
-        $vehicle->delete();
+        $query = Vehicle::findOrFail($id);
+        $query->delete();
         // soft delete to database
-        $vehicle->deleted_by = Auth::user()->id;
-        $vehicle->save();
+        $query->deleted_by = Auth::user()->id;
+        $query->save();
 
         // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete vehicle',
-            'description' => 'User ' . Auth::user()->name . ' delete vehicle ' . $vehicle->model_name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-        ]);
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
-        // return json response
-        return new VehicleResource(true, $vehicle->model_name . ' has successfully been deleted.', null);
+        // return JSON response
+        return $this->successResponse(new VehicleResource($query), $query->model_name . ' has been deleted successfully.');
     }
 }

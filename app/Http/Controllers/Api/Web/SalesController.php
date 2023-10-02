@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\SalesResource;
+use App\Http\Resources\Sales\SalesCollection;
+use App\Http\Resources\Sales\SalesResource;
 // model
 use App\Models\MasterData\Sales;
 // request
@@ -16,6 +17,9 @@ use App\Http\Requests\Sales\UpdateSalesRequest;
 
 class SalesController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -42,8 +46,8 @@ class SalesController extends Controller
             $query = Sales::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        //return collection of sales as a resource
-        return new SalesResource(true, 'Sales retrieved successfully', $query);
+        //return resource collection
+        return new SalesCollection(true, 'Sales retrieved successfully', $query);
     }
 
     /**
@@ -51,26 +55,24 @@ class SalesController extends Controller
      */
     public function store(StoreSalesRequest $request)
     {
-        //store to database
-        $query = Sales::create([
-            'name' => $request->name,
-            'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        try {
+            //store to database
+            $query = Sales::create([
+                'name' => $request->name,
+                'created_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' add new sales',
-            'description' => 'User ' . Auth::user()->name . ' create new sales ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new SalesResource(true, $query->name . ' has successfully been created.', $query);
+            // return JSON response
+            return $this->successResponse(new SalesResource($query), $query->name . ' has been created successfully.');
+            //return (new SalesResource($query))->additional(['status' => true, 'message' => $query->name . ' has been created.']);
+        } catch (\Exception $e) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
@@ -81,8 +83,8 @@ class SalesController extends Controller
         // find the data by id
         $query = Sales::findOrFail($id);
 
-        //return single post as a resource
-        return new SalesResource(true, 'Sales data found!', $query);
+        //return JSON response
+        return $this->successResponse(new SalesResource($query), 'Data found');
     }
 
     /**
@@ -90,30 +92,27 @@ class SalesController extends Controller
      */
     public function update(UpdateSalesRequest $request, $id)
     {
-        // find the data
-        $query = Sales::findOrFail($id);
+        try {
+            // find the data
+            $query = Sales::findOrFail($id);
 
-        // update to database
-        $query->update(($request->validated() + [
-            'name' => $request->name,
-            'updated_by' => Auth::user()->id,
-        ]));
+            // update to database
+            $query->update(($request->validated() + [
+                'name' => $request->name,
+                'updated_by' => Auth::user()->id,
+            ]));
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update sales personnel',
-            'description' => 'User ' . Auth::user()->name . ' update sales personnel ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new SalesResource(true, $query->name . ' has successfully been updated.', $query);
+            // return JSON response
+            return $this->successResponse(new SalesResource($query), 'Changes has been successfully saved.');
+        } catch (\Exception $e) {
+            //return $e->getMessage();
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
@@ -129,18 +128,11 @@ class SalesController extends Controller
         $query->save();
 
         // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete sales personnel',
-            'description' => 'User ' . Auth::user()->name . ' delete sales personnel ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-        ]);
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
-        // return json response
-        return new SalesResource(true, $query->name . ' has successfully been deleted.', null);
+        // return JSON response
+        return $this->successResponse(new SalesResource($query), $query->name . ' has been deleted successfully.');
     }
 }
