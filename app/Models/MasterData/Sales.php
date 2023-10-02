@@ -40,7 +40,7 @@ class Sales extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} sales")
-            ->useLogName('Sales log');
+            ->useLogName('Master Sales log');
     }
 
     // one sales has any order

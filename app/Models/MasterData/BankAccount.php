@@ -39,7 +39,11 @@ class BankAccount extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['bank', 'account_holder', 'account_number', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['bank', 'account_holder', 'account_number', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} sales")
+            ->useLogName('Master Bank Account log');
     }
 
     // one bank account has many invoice
