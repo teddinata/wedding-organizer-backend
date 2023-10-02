@@ -26,6 +26,7 @@ class StorePositionRequest extends FormRequest
         return [
             'name' => 'required',
             'department_id' => 'required|exists:departments,id',
+            'career_level_id' => 'required|exists:career_levels,id',
         ];
     }
 
