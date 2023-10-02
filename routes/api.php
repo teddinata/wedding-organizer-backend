@@ -38,6 +38,7 @@ use App\Http\Controllers\Api\Web\OrderAdditionalServiceController;
 use App\Http\Controllers\Api\Web\TeamMemberController;
 use App\Http\Controllers\Api\Web\AdditionalServiceController;
 use App\Http\Controllers\Api\Web\LeadController;
+use App\Http\Controllers\Api\Web\OrderDriverController;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,13 +130,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('team-loan', TeamLoanController::class)->names('team-loan');
 
         // route order
-        Route::resource('order', OrderController::class)->names('order');
+        Route::resource('order', OrderController::class);
 
         // route order product
         Route::resource('order-product', OrderProductController::class)->names('order-product');
 
         // route order team
         Route::resource('order-team', OrderTeamController::class)->names('order-team');
+
+        // route order driver
+        Route::resource('order-driver', OrderDriverController::class)->names('order-driver');
 
         // order additional service
         Route::resource('order-add-on', OrderAdditionalServiceController::class)->names('order-additional-service');

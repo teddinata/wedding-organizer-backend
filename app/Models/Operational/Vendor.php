@@ -79,4 +79,10 @@ class Vendor extends Model
     {
         return $this->hasMany(Lead::class, 'vendor_id', 'id');
     }
+
+    // 1 vendor memiliki banyak order
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'vendor_id', 'id');
+    }
 }

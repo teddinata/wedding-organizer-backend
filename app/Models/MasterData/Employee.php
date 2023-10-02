@@ -13,7 +13,7 @@ use App\Models\Operational\OrderTeam;
 use App\Models\MasterData\Department;
 use App\Models\MasterData\Position;
 use App\Models\MasterData\Level;
-
+use App\Models\Operational\OrderDriver;
 
 class Employee extends Model
 {
@@ -135,5 +135,11 @@ class Employee extends Model
     public function member()
     {
         return $this->hasMany(TeamMember::class, 'team_members', 'employee_id', 'team_id');
+    }
+
+    // relasi dengan order driver
+    public function order_driver()
+    {
+        return $this->belongsToMany(OrderDriver::class, 'driver_id', 'id');
     }
 }
