@@ -69,6 +69,7 @@ class PositionController extends Controller
         $position = Position::create([
             'name' => $request->name,
             'department_id' => $request->department_id,
+            'career_level_id' => $request->career_level_id,
             'created_by' => Auth::user()->id,
         ] + $request->validated());
 
@@ -115,6 +116,7 @@ class PositionController extends Controller
         $position->update([
             'name' => $request->name,
             'department_id' => $request->department_id,
+            'career_level_id' => $request->career_level_id,
             'updated_by' => Auth::user()->id,
         ] + $request->validated());
 

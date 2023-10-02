@@ -20,6 +20,7 @@ class Position extends Model
     protected $fillable = [
         'name',
         'department_id',
+        'career_level_id',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -29,7 +30,7 @@ class Position extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'created_by', 'updated_by', 'deleted_by']);
+        ->logOnly(['name', 'career_level_id', 'created_by', 'updated_by', 'deleted_by']);
     }
 
     // 1 position memiliki banyak employee
