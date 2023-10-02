@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Vehicle;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SalesResource extends JsonResource
+class VehicleResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,8 +16,9 @@ class SalesResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'created_at' => date_format($this->created_at, "Y/d/d H:i:s")
+            'model_name' => $this->model_name,
+            'plate_number' => $this->plate_number,
+            'created_at' => date_format($this->created_at, "Y/m/d H:i:s")
         ];
     }
 }

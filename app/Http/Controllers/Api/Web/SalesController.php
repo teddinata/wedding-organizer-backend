@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Api\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\SalesResource;
+use App\Http\Resources\Sales\SalesCollection;
+use App\Http\Resources\Sales\SalesResource;
 // model
 use App\Models\MasterData\Sales;
 // request
@@ -17,6 +17,9 @@ use App\Http\Requests\Sales\UpdateSalesRequest;
 
 class SalesController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -43,8 +46,8 @@ class SalesController extends Controller
             $query = Sales::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        //return resource collection 
-        return (SalesResource::collection($query))->additional(['status' => true, 'message' => 'Sales retrieved successfully.']);
+        //return resource collection
+        return new SalesCollection(true, 'Sales retrieved successfully', $query);
     }
 
     /**
@@ -64,10 +67,11 @@ class SalesController extends Controller
                 ->performedOn($query)
                 ->causedBy(Auth::user());
 
-            // return resource
-            return (new SalesResource($query))->additional(['status' => true, 'message' => $query->name . ' has been created.']);
+            // return JSON response
+            return $this->successResponse(new SalesResource($query), $query->name . ' has been created successfully.');
+            //return (new SalesResource($query))->additional(['status' => true, 'message' => $query->name . ' has been created.']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Data failed to save. Please try again!',], 400);
+            return $this->errorResponse('Data failed to save. Please try again!');
         }
     }
 
@@ -79,8 +83,8 @@ class SalesController extends Controller
         // find the data by id
         $query = Sales::findOrFail($id);
 
-        //return single post as a resource
-        return (new SalesResource($query))->additional(['status' => true, 'message' => 'Data found!']);
+        //return JSON response
+        return $this->successResponse(new SalesResource($query), 'Data found');
     }
 
     /**
@@ -103,11 +107,11 @@ class SalesController extends Controller
                 ->performedOn($query)
                 ->causedBy(Auth::user());
 
-            // return resource
-            return (new SalesResource($query))->additional(['status' => true, 'message' => 'Changes has been successfully saved.']);
+            // return JSON response
+            return $this->successResponse(new SalesResource($query), 'Changes has been successfully saved.');
         } catch (\Exception $e) {
             //return $e->getMessage();
-            return response()->json(['success' => false, 'message' => 'Something went wrong. Data failed to update!'], 400);
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
         }
     }
 
@@ -128,7 +132,7 @@ class SalesController extends Controller
             ->performedOn($query)
             ->causedBy(Auth::user());
 
-        // return resource
-        return (new SalesResource($query))->additional(['status' => true, 'message' => $query->name . ' has been deleted successfully.']);
+        // return JSON response
+        return $this->successResponse(new SalesResource($query), $query->name . ' has been deleted successfully.');
     }
 }
