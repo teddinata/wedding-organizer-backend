@@ -11,6 +11,7 @@ use App\Models\Operational\Order;
 // use resource
 use App\Http\Resources\InvoiceResource;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 
 class InvoiceController extends Controller
 {
@@ -65,21 +66,38 @@ class InvoiceController extends Controller
      */
     public function store(StoreInvoiceRequest $request)
     {
+        // generate invoice code
+        $invoice_code = 'INV-' . str_pad(Invoice::whereDate('created_at', now())->count() + 1, 6, '0', STR_PAD_LEFT) . '-V-' . date('Y/m/d');
+
         // store data
-        $invoice = Invoice::create([
+        $invoice = [
             'order_id' => request('order_id'),
             'bank_account_id' => request('bank_account_id'),
             //  generate invoice code INV-0000492-V-2023/08/01-00001 (INV-
-            'invoice_code' => 'INV-'. str_pad(Order::whereDate('created_at', now())->count() + 1, 6, '0', STR_PAD_LEFT) . '-V-' . date('Y/m/d') . '-' . str_pad(Order::whereDate('created_at', now())->count() + 1, 4, '0', STR_PAD_LEFT),
+            'invoice_code' => $invoice_code,
             'transfer_date' => request('transfer_date'),
-            'transfer_proof' => request('transfer_proof'),
-            'transfer_proof_uploaded_by' => request('transfer_proof_uploaded_by'),
-            'transfer_proof_uploaded_at' => request('transfer_proof_uploaded_at'),
-            'due_date' => request('due_date'),
+            // 'transfer_proof' => request('transfer_proof'),
+            'transfer_proof_uploaded_by' => Auth::user()->id,
+            'transfer_proof_uploaded_at' => now(),
+            'status' => 'waiting for payment',
             'amount' => request('amount'),
-        ] + $request->validated());
+        ];
 
-        // logs
+        // upload transfer proof
+        if ($request->hasFile('transfer_proof')) {
+            $transfer_proof = $request->file('transfer_proof');
+            $filename = 'transfer_proof' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $transfer_proof->getClientOriginalName());
+
+            $path = $transfer_proof->storeAs('uploads/employee', $filename, 'public');
+
+            if ($path) {
+                $invoice['transfer_proof'] = $filename;
+            }
+        }
+
+        // store data
+        $invoice = Invoice::create($invoice);
+
         // log activity
         Activity::create([
             'log_name' => 'User ' . Auth::user()->name . ' store data Invoice',
@@ -88,7 +106,8 @@ class InvoiceController extends Controller
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
+            // properties Json
+            'properties' => $invoice->toJson(),
             // 'host' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()
@@ -117,20 +136,37 @@ class InvoiceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateInvoiceRequest $request, Invoice $invoice)
+    public function update(UpdateInvoiceRequest $request, string $id)
     {
+        // dd($invoice);
+        // find data
+        $invoice = Invoice::findOrFail($id);
         // update data
-        $invoice->update([
-            'order_id' => request('order_id'),
-            'bank_account_id' => request('bank_account_id'),
+        $invoice_id = [
+            'order_id' => $request->order_id,
+            'bank_account_id' => $request->bank_account_id,
             // 'invoice_code' => 'INV-'. str_pad(Order::whereDate('created_at', now())->count() + 1, 6, '0', STR_PAD_LEFT) . '-V-' . date('Y/m/d') . '-' . str_pad(Order::whereDate('created_at', now())->count() + 1, 4, '0', STR_PAD_LEFT),
-            'transfer_date' => request('transfer_date'),
-            'transfer_proof' => request('transfer_proof'),
-            'transfer_proof_uploaded_by' => request('transfer_proof_uploaded_by'),
-            'transfer_proof_uploaded_at' => request('transfer_proof_uploaded_at'),
-            'due_date' => request('due_date'),
-            'amount' => request('amount'),
-        ] + $request->validated());
+            'transfer_date' => $request->transfer_date,
+            'transfer_proof_uploaded_by' => Auth::user()->id,
+            'transfer_proof_uploaded_at' => now(),
+            'status' => $request->status,
+            'amount' => $request->amount,
+        ];
+
+        // upload transfer proof
+        if ($request->hasFile('transfer_proof')) {
+            $transfer_proof = $request->file('transfer_proof');
+            $filename = 'transfer_proof' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $transfer_proof->getClientOriginalName());
+
+            $path = $transfer_proof->storeAs('uploads/employee', $filename, 'public');
+
+            if ($path) {
+                $invoice_id['transfer_proof'] = $filename;
+            }
+        }
+
+        // update data
+        $invoice->update($invoice_id + $request->validated());
 
         // log activity
         Activity::create([
@@ -140,7 +176,7 @@ class InvoiceController extends Controller
             'subject_type' => 'App\Models\User',
             'causer_id' => Auth::user()->id,
             'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
+            'properties' => $invoice->toJson(),
             // 'host' => request()->ip(),
             'created_at' => now(),
             'updated_at' => now()

@@ -87,6 +87,12 @@ class User extends Authenticatable
         return $this->hasOne('App\Models\Employee', 'user_id', 'id');
     }
 
+    // transfer_proof_uploaded_by
+    public function transferProofUploadedBy()
+    {
+        return $this->belongsTo(Invoice::class, 'transfer_proof_uploaded_by', 'id');
+    }
+
     // public function team_lead()
     // {
     //     return $this->belongsToMany(Team::class, 'team_lead', 'user_id', 'team_id')->withTimestamps();
