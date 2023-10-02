@@ -28,7 +28,11 @@ class AdditionalService extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['name', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} additional service")
+            ->useLogName('Master Additional Service log');
     }
 
     // relasi dengan order additional service

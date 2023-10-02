@@ -30,7 +30,11 @@ class Allowance extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['department_id', 'name', 'description', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['department_id', 'name', 'description', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} allowance")
+            ->useLogName('Master Allowance log');
     }
 
     // relasi dengan department id

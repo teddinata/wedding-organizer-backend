@@ -41,7 +41,11 @@ class Department extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'payroll_type', 'is_has_schedule', 'clock_in', 'clock_out', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['name', 'payroll_type', 'is_has_schedule', 'clock_in', 'clock_out', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} departement")
+            ->useLogName('Master Department log');
     }
 
     // 1 department memiliki banyak employee

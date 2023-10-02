@@ -33,7 +33,7 @@ class VehicleController extends Controller
         //set variable for search
         $search = $request->query('search');
 
-        //set condition if search not empty then search by account_holder or account_number else then show all data
+        //set condition if search not empty then search by model_name or plate_number else then show all data
         if (!empty($search)) {
             $query = Vehicle::where('model_name', 'like', '%' . $search . '%')
                 ->orWhere(

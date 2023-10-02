@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\AdditionalServiceResource;
+use App\Http\Resources\AdditionalService\AdditionalServiceCollection;
+use App\Http\Resources\AdditionalService\AdditionalServiceResource;
 // model
 use App\Models\MasterData\AdditionalService;
 // request
@@ -15,6 +17,9 @@ use App\Http\Requests\AdditionalService\StoreAdditionalServiceRequest;
 
 class AdditionalServiceController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -27,7 +32,7 @@ class AdditionalServiceController extends Controller
         //set variable for search
         $search = $request->query('search');
 
-        //set condition if search not empty then search by account_holder or account_number else then show all data
+        //set condition if search not empty then search by name
         if (!empty($search)) {
             $query = AdditionalService::where('name', 'like', '%' . $search . '%')
                 ->paginate(
@@ -43,12 +48,12 @@ class AdditionalServiceController extends Controller
                 return response(['Message' => 'Data not found!'], 404);
             }
         } else {
-            // get bank account data and sort by account_holder ascending
+            // get additional service data and sort by name ascending
             $query = AdditionalService::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        // return json response
-        return new AdditionalServiceResource(true, 'Additional Services retrieved successfully', $query);
+        //return resource collection
+        return new AdditionalServiceCollection(true, 'Additional Service retrieved successfully', $query);
     }
 
     /**
@@ -56,35 +61,35 @@ class AdditionalServiceController extends Controller
      */
     public function store(StoreAdditionalServiceRequest $request)
     {
-        // create new additional service
-        $query = AdditionalService::create([
-            'name' => $request->name,
-            'created_by' => auth()->user()->id,
-        ] + $request->validated());
+        try {
+            // create new additional service
+            $query = AdditionalService::create([
+                'name' => $request->name,
+                'created_by' => auth()->user()->id,
+            ] + $request->validated());
 
-        // activity logs
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' add new service',
-            'description' => 'User ' . Auth::user()->name . ' create additional service',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new AdditionalServiceResource(true, $query->name . ' has successfully been created', $query);
+            // return JSON response
+            return $this->successResponse(new AdditionalServiceResource($query), $query->name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        // find the data by id
+        $query = AdditionalService::findOrFail($id);
+
+        //return JSON response
+        return $this->successResponse(new AdditionalServiceResource($query), 'Data found');
     }
 
     /**
@@ -92,30 +97,27 @@ class AdditionalServiceController extends Controller
      */
     public function update(StoreAdditionalServiceRequest $request, string $id)
     {
-        // find data by ID
-        $query = AdditionalService::findOrFail($id);
+        try {
+            // find the data by id
 
-        // update data
-        $query->update([
-            'name' => $request->name,
-            'updated_by' => auth()->user()->id,
-        ] + $request->validated());
+            $query = AdditionalService::findOrFail($id);
 
-        // logs
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update service information',
-            'description' => 'User ' . Auth::user()->name . ' update data additional service',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // update data
+            $query->update([
+                'name' => $request->name,
+                'updated_by' => auth()->user()->id,
+            ] + $request->validated());
 
-        // return json response
-        return new AdditionalServiceResource(true, $query->name . ' has successfully been updated.', $query);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
+
+            // return JSON response
+            return $this->successResponse(new AdditionalServiceResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
@@ -130,20 +132,12 @@ class AdditionalServiceController extends Controller
         $query->deleted_by = auth()->user()->id;
         $query->save();
 
-        // logs
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete data Additional Service',
-            'description' => 'User ' . Auth::user()->name . ' delete data Additional Service',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        // activity log
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
-        // return json response
-        return new AdditionalServiceResource(true, $query->name . ' has successfully been deleted', $query);
+        // return JSON response
+        return $this->successResponse(new AdditionalServiceResource($query), $query->name . ' has been deleted successfully.');
     }
 }

@@ -32,7 +32,7 @@ class ConfigLoanInstallmentController extends Controller
         //set variable for search
         $search = $request->query('search');
 
-        //set condition if search not empty then search by account_holder or account_number else then show all data
+        //set condition if search not empty then search by nominal else then show all data
         if (!empty($search)) {
             $query = ConfigLoanInstallment::where('nominal', 'like', '%' . $search . '%')
                 ->paginate(

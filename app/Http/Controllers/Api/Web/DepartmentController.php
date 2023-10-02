@@ -5,9 +5,10 @@ namespace App\Http\Controllers\API\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\DepartmentResource;
+use App\Http\Resources\Department\DepartmentCollection;
+use App\Http\Resources\Department\DepartmentResource;
 // model
 use App\Models\MasterData\Department;
 // request
@@ -16,6 +17,9 @@ use App\Http\Requests\Department\UpdateDepartmentRequest;
 
 class DepartmentController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -28,7 +32,7 @@ class DepartmentController extends Controller
         //set variable for search
         $search = $request->query('search');
 
-        //set condition if search not empty then search by account_holder or account_number else then show all data
+        //set condition if search not empty then search by name
         if (!empty($search)) {
             $query = Department::where('name', 'like', '%' . $search . '%')
                 ->paginate(
@@ -44,12 +48,12 @@ class DepartmentController extends Controller
                 return response(['Message' => 'Data not found!'], 404);
             }
         } else {
-            // get bank account data and sort by account_holder ascending
+            // get department data and sort by name ascending
             $query = Department::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        //return collection of department as a resource
-        return new DepartmentResource(true, 'Department retrieved successfully', $query);
+        //return resource collection
+        return new DepartmentCollection(true, 'Department retrieved successfully', $query);
     }
 
     /**
@@ -57,30 +61,27 @@ class DepartmentController extends Controller
      */
     public function store(StoreDepartmentRequest $request)
     {
-        //store to database
-        $query = Department::create([
-            'name' => $request->name,
-            'payroll_type' => $request->payroll_type,
-            'is_has_schedule' => $request->is_has_schedule,
-            'clock_in' => $request->clock_in,
-            'clock_out' => $request->clock_out,
-            'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        try {
+            //store to database
+            $query = Department::create([
+                'name' => $request->name,
+                'payroll_type' => $request->payroll_type,
+                'is_has_schedule' => $request->is_has_schedule,
+                'clock_in' => $request->clock_in,
+                'clock_out' => $request->clock_out,
+                'created_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' add new department',
-            'description' => 'User ' . Auth::user()->name . ' create new department ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new DepartmentResource(true, $query->name . ' has successfully been created.', $query);
+            // return JSON response
+            return $this->successResponse(new DepartmentResource($query), $query->name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
@@ -91,8 +92,8 @@ class DepartmentController extends Controller
         // find the data by ID
         $query = Department::findOrFail($id);
 
-        //return single post as a resource
-        return new DepartmentResource(true, 'Department found!', $query);
+        //return JSON response
+        return $this->successResponse(new DepartmentResource($query), 'Data found');
     }
 
     /**
@@ -100,34 +101,30 @@ class DepartmentController extends Controller
      */
     public function update(UpdateDepartmentRequest $request, $id)
     {
-        // find the data by ID
-        $query = Department::findOrFail($id);
+        try {
+            // find the data by ID
+            $query = Department::findOrFail($id);
 
-        // update to database
-        $query->update(($request->validated() + [
-            'name' => $request->name,
-            'payroll_type' => $request->payroll_type,
-            'is_has_schedule' => $request->is_has_schedule,
-            'clock_in' => $request->clock_in,
-            'clock_out' => $request->clock_out,
-            'updated_by' => Auth::user()->id,
-        ]));
+            // update to database
+            $query->update(($request->validated() + [
+                'name' => $request->name,
+                'payroll_type' => $request->payroll_type,
+                'is_has_schedule' => $request->is_has_schedule,
+                'clock_in' => $request->clock_in,
+                'clock_out' => $request->clock_out,
+                'updated_by' => Auth::user()->id,
+            ]));
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update department information',
-            'description' => 'User ' . Auth::user()->name . ' update department to ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new DepartmentResource(true, $query->name . ' has successfully been updated.', $query);
+            // return JSON response
+            return $this->successResponse(new DepartmentResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
@@ -143,18 +140,11 @@ class DepartmentController extends Controller
         $query->save();
 
         // activity log
-        Activity::create([
-            'log_name' => 'Delete Data',
-            'description' => 'User ' . Auth::user()->name . ' delete department ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-        ]);
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
-        // return json response
-        return new DepartmentResource(true, $query->name . ' has successfully been deleted.', null);
+        // return JSON response
+        return $this->successResponse(new DepartmentResource($query), $query->name . ' has been deleted successfully.');
     }
 }
