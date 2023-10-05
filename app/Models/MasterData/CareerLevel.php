@@ -4,19 +4,15 @@ namespace App\Models\MasterData;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DecorationArea extends Model
+class CareerLevel extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     use LogsActivity;
 
-    // declare table name
-    protected $table = 'decoration_areas';
+    protected $table = 'career_levels';
 
     // this field must type date yyyy-mm-dd hh:mm:ss
     protected $dates = [
@@ -25,22 +21,19 @@ class DecorationArea extends Model
         'deleted_at',
     ];
 
-    // declare fillable fields
     protected $fillable = [
-        'name',
-        'created_by',
-        'updated_by',
-        'deleted_by',
+        'career_level',
+        'description',
     ];
 
-    // get logs
+    // logs
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnly(['name'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} decoration")
-            ->useLogName('Decoration log');
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} career level")
+            ->useLogName('Career level log');
     }
 }

@@ -28,7 +28,7 @@ class DecorationAreaController extends Controller
         $query = DecorationArea::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
 
         //return collection of area as a resource
-        return new DecorationAreaResource(true, 'Area retrieved successfully', $query);
+        return DecorationAreaResource::collection($query);
     }
 
     /**
@@ -42,19 +42,12 @@ class DecorationAreaController extends Controller
         ] + $request->validated());
 
         // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' add new area',
-            'description' => 'User ' . Auth::user()->name . ' Create data area ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now()
-        ]);
+        activity('created')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
         // return json response
-        return new DecorationAreaResource(true, $query->name . ' has been created successfully', $query);
+        return new DecorationAreaResource($query);
     }
 
     /**
@@ -66,7 +59,7 @@ class DecorationAreaController extends Controller
         $query = DecorationArea::findOrFail($id);
 
         //return single post as a resource
-        return new DecorationAreaResource(true, 'Area decoration found!', $query);
+        return new DecorationAreaResource($query);
     }
 
     /**
@@ -83,20 +76,12 @@ class DecorationAreaController extends Controller
         ]));
 
         // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update area',
-            'description' => 'User ' . Auth::user()->name . ' update area ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        activity('updated')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
         // return json response
-        return new DecorationAreaResource(true, $query->name . ' has successfully been updated.', $query);
+        return new DecorationAreaResource($query);
     }
 
     /**

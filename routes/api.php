@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\Web\ActivityLogController;
 use App\Http\Controllers\Api\Web\OrderAdditionalServiceController;
 use App\Http\Controllers\Api\Web\TeamMemberController;
 use App\Http\Controllers\Api\Web\AdditionalServiceController;
+use App\Http\Controllers\Api\Web\CareerLevelController;
 use App\Http\Controllers\Api\Web\LeadController;
 use App\Http\Controllers\Api\Web\OrderDriverController;
 use App\Http\Controllers\Api\Web\InvoiceController;
@@ -177,6 +178,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // route config loan installment
         Route::apiResource('config-installment', ConfigLoanInstallmentController::class);
+
+        // route career level
+        Route::apiResource('career-level', CareerLevelController::class);
 
         // route lead
         Route::resource('leads', LeadController::class)->names('lead');

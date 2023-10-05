@@ -2,62 +2,51 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\MasterData\Position;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Resource;
+use App\Traits\ApiResponseTrait;
+// use resource
+use App\Http\Resources\Position\PositionCollection;
+use App\Http\Resources\Position\PositionResource;
+// model
+use App\Models\MasterData\Position;
+// request
 use App\Http\Requests\Position\StorePositionRequest;
 
 class PositionController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // dd('test');
-        // get all positions with filter and pagination
-        $query = Position::with(['department']);
-
-
-        // filter by name
-        if (request()->has('search')) {
-            $query->where('name', 'like', '%' . request('name') . '%');
-        }
-
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
 
-        // Get data
-        $positions = $query->paginate($perPage, ['*'], 'page', $page);
+        //set variable for search
+        $search = $request->query('search');
 
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' show data Position',
-            'description' => 'User ' . Auth::user()->name . ' show data Position',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        //set condition if search not empty then find by name else then show all data
+        if (!empty($search)) {
+            $query = Position::where('name', 'like', '%' . $search . '%')->with(['department', 'career_level'])->paginate($perPage, ['*'], 'page', $page);
 
-        // return json response
-        return new Resource(true, 'Positions retrieved successfully', $positions);
-    }
+            //check result
+            $recordsTotal = $query->count();
+            if (empty($recordsTotal)) {
+                return response(['Message' => 'Data not found!'], 404);
+            }
+        } else {
+            // get position employee data and sort by name ascending
+            $query = Position::with(['department', 'career_level'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        //return resource collection
+        return new PositionCollection(true, 'Employee position retrieved successfully', $query);
     }
 
     /**
@@ -65,44 +54,31 @@ class PositionController extends Controller
      */
     public function store(StorePositionRequest $request)
     {
-        // create new position
-        $position = Position::create([
-            'name' => $request->name,
-            'department_id' => $request->department_id,
-            'career_level_id' => $request->career_level_id,
-            'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        try {
+            // create new position
+            $query = Position::create([
+                'name' => $request->name,
+                'department_id' => $request->department_id,
+                'career_level_id' => $request->career_level_id,
+                'created_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' create data Position',
-            'description' => 'User ' . Auth::user()->name . ' create data Position',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new Resource(true, 'Position created successfully', $position);
+            // return JSON response
+            return $this->successResponse(new PositionResource($query), $query->name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Position $position)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Position $position)
+    public function show(Position $query)
     {
         //
     }
@@ -110,32 +86,29 @@ class PositionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StorePositionRequest $request, Position $position)
+    public function update(StorePositionRequest $request, $id)
     {
-        // update position
-        $position->update([
-            'name' => $request->name,
-            'department_id' => $request->department_id,
-            'career_level_id' => $request->career_level_id,
-            'updated_by' => Auth::user()->id,
-        ] + $request->validated());
+        try {
+            // find the data
+            $query = Position::findOrFail($id);
 
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update data Position ' . $position->name,
-            'description' => 'User ' . Auth::user()->name . ' update data Position ' . $position->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // update position
+            $query->update([
+                'name' => $request->name,
+                'department_id' => $request->department_id,
+                'career_level_id' => $request->career_level_id,
+                'updated_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        // return json response
-        return new Resource(true, 'Position updated successfully', $position);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
+            // return JSON response
+            return $this->successResponse(new PositionResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
@@ -144,28 +117,18 @@ class PositionController extends Controller
     public function destroy($id)
     {
         // find position by id
-        $position = Position::findOrFail($id);
+        $query = Position::findOrFail($id);
+        $query->delete();
+        // soft delete to database
+        $query->deleted_by = Auth::user()->id;
+        $query->save();
 
-        // delete position
-        $position->delete();
-        $position->deleted_by = Auth::user()->id;
-        $position->save();
+        // activity log
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete data Position ' . $position->name,
-            'description' => 'User ' . Auth::user()->name . ' delete data Position ' . $position->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        // return json response
-        return new Resource(true, 'Position deleted successfully', $position);
+        // return JSON response
+        return $this->successResponse(new PositionResource($query), $query->name . ' has been deleted successfully.');
     }
 }

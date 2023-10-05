@@ -2,39 +2,53 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\MasterData\ChecklistItem;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
-use App\Http\Resources\ChecklistItemResource;
+use App\Traits\ApiResponseTrait;
+// use resource
+use App\Http\Resources\ChecklistItem\ChecklistItemCollection;
+use App\Http\Resources\ChecklistItem\ChecklistItemResource;
+// use model
+use App\Models\MasterData\ChecklistItem;
+// use request
 use App\Http\Requests\ChecklistItem\StoreChecklistItemRequest;
 use App\Http\Requests\ChecklistItem\UpdateChecklistItemRequest;
 
 class ChecklistItemController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // get all checklist items with filter and pagination
-        $query = ChecklistItem::with(['checklist_category']);
-
-        // filter by name
-        if (request()->has('search')) {
-            $query->where('name', 'like', '%' . request('search') . '%');
-        }
-
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
 
-        // Get data
-        $checklist_items = $query->paginate($perPage, ['*'], 'page', $page);
+        //set variable for search
+        $search = $request->query('search');
+
+        //set condition if search not empty then find by name else then show all data
+        if (!empty($search)) {
+            $query = ChecklistItem::where('name', 'like', '%' . $search . '%')->with(['checklist_category'])->paginate($perPage, ['*'], 'page', $page);
+
+            //check result
+            $recordsTotal = $query->count();
+            if (empty($recordsTotal)) {
+                return response(['Message' => 'Data not found!'], 404);
+            }
+        } else {
+            // get checklist item data and sort by name ascending
+            $query = ChecklistItem::with(['checklist_category'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        }
 
         // return json response
-        return new ChecklistItemResource(true, 'Checklist Items retrieved successfully', $checklist_items);
+        return new ChecklistItemCollection(true, 'Checklist items retrieved successfully', $query);
     }
 
     /**
@@ -42,94 +56,72 @@ class ChecklistItemController extends Controller
      */
     public function store(StoreChecklistItemRequest $request)
     {
-        // create data
-        $checklist_item = ChecklistItem::create([
-            'name' => $request->name,
-            'checklist_category_id' => $request->checklist_category_id,
-            'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        try {
+            //store to database
+            $query = ChecklistItem::create([
+                'name' => $request->name,
+                'checklist_category_id' => $request->checklist_category_id,
+                'created_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        // Log Activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' add checklist item',
-            'description' => 'User ' . Auth::user()->name . ' create checklist item',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new ChecklistItemResource(true, $checklist_item->name .  'has successfully been created.', $checklist_item);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(ChecklistItem $checklistItem)
-    {
-        //
+            // return JSON response
+            return $this->successResponse(new ChecklistItemResource($query), $query->name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateChecklistItemRequest $request, ChecklistItem $checklistItem)
+    public function update(UpdateChecklistItemRequest $request, $id)
     {
-        // update data
-        $checklistItem->update([
-            'name' => $request->name,
-            'checklist_category_id' => $request->checklist_category_id,
-            'updated_by' => Auth::user()->id,
-        ]);
+        try {
+            // find the data
+            $query = ChecklistItem::findOrFail($id);
 
-        // Log Activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update checklist item',
-            'description' => 'User ' . Auth::user()->name . ' update checklist item' . $checklistItem->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // update to database
+            $query->update(($request->validated() + [
+                'name' => $request->name,
+                'checklist_category_id' => $request->checklist_category_id,
+                'updated_by' => Auth::user()->id,
+            ]));
 
-        // return json response
-        return new ChecklistItemResource(true, $checklistItem->name . ' has successfully been updated.', $checklistItem);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
+
+            // return JSON response
+            return $this->successResponse(new ChecklistItemResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ChecklistItem $checklistItem)
+    public function destroy($id)
     {
         // find data by id
-        $checklistItem = ChecklistItem::findOrFail($checklistItem->id);
-        $checklistItem->delete();
+        $query = ChecklistItem::findOrFail($id);
+        $query->delete();
         // deleted by
-        $checklistItem->deleted_by = Auth::user()->id;
-        $checklistItem->save();
+        $query->deleted_by = Auth::user()->id;
+        $query->save();
 
-        // Log Activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete checklist item',
-            'description' => 'User ' . Auth::user()->name . ' delete checklist item' . $checklistItem->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        // activity log
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
         // return json response
-        return new ChecklistItemResource(true, $checklistItem->name . ' has successfully been deleted.', $checklistItem);
+        return $this->successResponse(new ChecklistItemResource($query), $query->name . ' has been deleted successfully.');
     }
 }

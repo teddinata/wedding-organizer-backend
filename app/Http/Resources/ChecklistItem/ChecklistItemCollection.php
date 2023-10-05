@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\ChecklistItem;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class ChecklistItemResource extends JsonResource
+class ChecklistItemCollection extends ResourceCollection
 {
-    //define properti
+    //define property
     public $status;
     public $message;
 
@@ -27,9 +27,9 @@ class ChecklistItemResource extends JsonResource
     }
 
     /**
-     * Transform the resource into an array.
+     * Transform the resource collection into an array.
      *
-     * @return array<string, mixed>
+     * @return array<int|string, mixed>
      */
     public function toArray(Request $request): array
     {
@@ -37,6 +37,13 @@ class ChecklistItemResource extends JsonResource
             'success'   => $this->status,
             'message'   => $this->message,
             'data'      => $this->resource
+        ];
+    }
+
+    public function with($request)
+    {
+        return [
+            'version' => '0.0.1'
         ];
     }
 }

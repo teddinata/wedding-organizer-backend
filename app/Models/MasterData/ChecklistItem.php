@@ -14,12 +14,17 @@ class ChecklistItem extends Model
     use SoftDeletes;
     use LogsActivity;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    // declare table name
+    protected $table = 'checklist_items';
 
+    // this field must type date yyyy-mm-dd hh:mm:ss
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    // declare fillable fields
     protected $fillable = [
         'checklist_category_id',
         'name',
@@ -28,16 +33,20 @@ class ChecklistItem extends Model
         'deleted_by',
     ];
 
-    // 1 category memiliki banyak item
-    public function checklist_category()
-    {
-        return $this->belongsTo(ChecklistCategory::class, 'checklist_category_id', 'id');
-    }
-
     // logs activity
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['checklist_category_id', 'name', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['checklist_category_id', 'name', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} checklist_item")
+            ->useLogName('Checklist Item log');
+    }
+
+    // 1 category memiliki banyak item
+    public function checklist_category()
+    {
+        return $this->belongsTo(ChecklistCategory::class, 'checklist_category_id', 'id');
     }
 }

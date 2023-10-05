@@ -17,6 +17,13 @@ class Position extends Model
 
     protected $table = 'positions';
 
+    // this field must type date yyyy-mm-dd hh:mm:ss
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
     protected $fillable = [
         'name',
         'department_id',
@@ -30,7 +37,11 @@ class Position extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['name', 'career_level_id', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['name', 'career_level_id', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} position")
+            ->useLogName('Master Position log');
     }
 
     // 1 position memiliki banyak employee
@@ -43,5 +54,11 @@ class Position extends Model
     public function department()
     {
         return $this->belongsTo(Department::class, 'department_id', 'id');
+    }
+
+    // relasi dengan career level
+    public function career_level()
+    {
+        return $this->belongsTo(CareerLevel::class, 'career_level_id', 'id');
     }
 }

@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\ChecklistCategoryResource;
+use App\Http\Resources\ChecklistCategory\ChecklistCategoryCollection;
+use App\Http\Resources\ChecklistCategory\ChecklistCategoryResource;
 // use model
 use App\Models\MasterData\ChecklistCategory;
 // request
@@ -15,6 +16,9 @@ use App\Http\Requests\ChecklistCategory\UpdateChecklistCategoryRequest;
 
 class ChecklistCategoryController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -28,7 +32,7 @@ class ChecklistCategoryController extends Controller
         $query = ChecklistCategory::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
 
         // return json response
-        return new ChecklistCategoryResource(true, 'Checklist Categories retrieved successfully', $query);
+        return new ChecklistCategoryCollection(true, 'Checklist categories retrieved successfully', $query);
     }
 
     /**
@@ -36,33 +40,22 @@ class ChecklistCategoryController extends Controller
      */
     public function store(StoreChecklistCategoryRequest $request)
     {
-        //store to database
-        $query = ChecklistCategory::create([
-            'name' => $request->name,
-        ] + $request->validated());
+        try {
+            //store to database
+            $query = ChecklistCategory::create([
+                'name' => $request->name,
+            ] + $request->validated());
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' add checklist category',
-            'description' => 'User ' . Auth::user()->name . ' create checklist category ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new ChecklistCategoryResource(true, $query->name . ' has been created successfully', $query);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+            // return json response
+            return $this->successResponse(new ChecklistCategoryResource($query), $query->name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
@@ -70,29 +63,25 @@ class ChecklistCategoryController extends Controller
      */
     public function update(UpdateChecklistCategoryRequest $request, $id)
     {
-        // check the data by id
-        $query = ChecklistCategory::findOrFail($id);
+        try {
+            // find the data by id
+            $query = ChecklistCategory::findOrFail($id);
 
-        // update to database
-        $query->update(($request->validated() + [
-            'name' => $request->name,
-        ]));
+            // update to database
+            $query->update(($request->validated() + [
+                'name' => $request->name,
+            ]));
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update checklist category',
-            'description' => 'User ' . Auth::user()->name . ' update checklist category ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new ChecklistCategoryResource(true, $query->name . ' has successfully been updated.', $query);
+            // return json response
+            return $this->successResponse(new ChecklistCategoryResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
