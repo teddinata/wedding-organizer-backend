@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class StoreProductAttribute extends FormRequest
+class StoreProductAttributeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,8 @@ class StoreProductAttribute extends FormRequest
     public function rules(): array
     {
         return [
-            'product_category_id' => ['required|exists:product_categories,id'],
-            'name' => ['required|string'],
+            'product_category_id' => ['required', 'integer', 'exists:product_categories,id'],
+            'name' => ['required', 'string', 'min:3', 'max:20']
         ];
     }
 

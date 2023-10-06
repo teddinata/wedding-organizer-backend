@@ -24,8 +24,8 @@ class UpdateChecklistItemRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'checklist_category_id' =>  ['required', 'integer', 'exists:checklist_categories,id'],
             'name' => ['required', 'string', 'min:3', 'max:255'],
-            'checklist_category_id' =>  ['required'],
         ];
     }
 

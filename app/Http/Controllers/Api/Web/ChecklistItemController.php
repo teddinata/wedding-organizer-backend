@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
 use App\Traits\ApiResponseTrait;
 // use resource
 use App\Http\Resources\ChecklistItem\ChecklistItemCollection;

@@ -5,9 +5,10 @@ namespace App\Http\Controllers\API\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\ProductCategoryResource;
+use App\Http\Resources\ProductCategory\ProductCategoryCollection;
+use App\Http\Resources\ProductCategory\ProductCategoryResource;
 // model
 use App\Models\MasterData\ProductCategory;
 // request
@@ -16,6 +17,9 @@ use App\Http\Requests\ProductCategory\UpdateProductCategoryRequest;
 
 class ProductCategoryController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -42,8 +46,8 @@ class ProductCategoryController extends Controller
             $query = ProductCategory::withCount(['product_attributes'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
-        //return collection of product category as a resource
-        return new ProductCategoryResource(true, 'Product Category retrieved successfully', $query);
+        //return collection of product category
+        return new ProductCategoryCollection(true, 'Product category retrieved successfully', $query);
     }
 
     /**
@@ -51,26 +55,23 @@ class ProductCategoryController extends Controller
      */
     public function store(StoreProductCategoryRequest $request)
     {
-        //store to database
-        $query = ProductCategory::create([
-            'name' => $request->name,
-            'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        try {
+            //store to database
+            $query = ProductCategory::create([
+                'name' => $request->name,
+                'created_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' add new product category',
-            'description' => 'User ' . Auth::user()->name . ' create product category ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new ProductCategoryResource(true, $query->name . ' has successfully been created.', $query);
+            // return json response
+            return $this->successResponse(new ProductCategoryResource($query), $query->name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
@@ -81,8 +82,8 @@ class ProductCategoryController extends Controller
         // find data by ID
         $query = ProductCategory::findOrFail($id);
 
-        //return single post as a resource
-        return new ProductCategoryResource(true, 'Data Category Found!', $query);
+        //return JSON response
+        return $this->successResponse(new ProductCategoryResource($query), 'Data found');
     }
 
     /**
@@ -90,30 +91,26 @@ class ProductCategoryController extends Controller
      */
     public function update(UpdateProductCategoryRequest $request, $id)
     {
-        // find the data
-        $query = ProductCategory::findOrFail($id);
+        try {
+            // find the data
+            $query = ProductCategory::findOrFail($id);
 
-        // update to database
-        $query->update(($request->validated() + [
-            'name' => $request->name,
-            'updated_by' => Auth::user()->id,
-        ]));
+            // update to database
+            $query->update(($request->validated() + [
+                'name' => $request->name,
+                'updated_by' => Auth::user()->id,
+            ]));
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update product category',
-            'description' => 'User ' . Auth::user()->name . ' update product category to ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new ProductCategoryResource(true, $query->name . ' has successfully been updated.', $query);
+            // return json response
+            return $this->successResponse(new ProductCategoryResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
@@ -129,18 +126,11 @@ class ProductCategoryController extends Controller
         $query->save();
 
         // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete product category',
-            'description' => 'User ' . Auth::user()->name . ' delete product category ' . $query->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-        ]);
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
-        // return json response
-        return new ProductCategoryResource(true, $query->name . ' has successfully been deleted.', null);
+        // return JSON response
+        return $this->successResponse(new ProductCategoryResource($query), $query->account_holder . ' has been deleted successfully.');
     }
 }

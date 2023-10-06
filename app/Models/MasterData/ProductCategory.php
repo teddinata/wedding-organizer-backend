@@ -36,7 +36,11 @@ class ProductCategory extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['name', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} product category")
+            ->useLogName('Product Category log');
     }
 
     // 1 product category memiliki banyak product attribute

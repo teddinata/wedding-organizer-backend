@@ -24,8 +24,8 @@ class UpdateProductAttributeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_category_id' => 'required|exists:product_categories,id',
-            'name' => 'required|string',
+            'product_category_id' => ['required', 'integer', 'exists:product_categories,id'],
+            'name' => ['required', 'string', 'min:3', 'max:20'],
         ];
     }
 
