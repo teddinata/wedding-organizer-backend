@@ -4,14 +4,14 @@ namespace App\Models\MasterData;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+// use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 class TeamMember extends Model
 {
     use HasFactory;
-    use SoftDeletes;
+    // use SoftDeletes;
     use LogsActivity;
 
     protected $table = 'team_members';
