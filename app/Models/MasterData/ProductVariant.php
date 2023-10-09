@@ -34,6 +34,12 @@ class ProductVariant extends Model
         return $this->belongsTo(ProductAttribute::class, 'product_attribute_id', 'id');
     }
 
+    // relation to order product
+    public function order_products()
+    {
+        return $this->hasMany(OrderProduct::class, 'product_variant_id', 'id');
+    }
+
     // logs activity
     public function getActivitylogOptions(): LogOptions
     {

@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\MasterData\ProductAttribute;
+use App\Models\MasterData\ProductVariant;
+use App\Models\MasterData\DecorationArea;
+use App\Models\Operational\Order;
+use App\Models\Operational\OrderTeam;
 
 class OrderProduct extends Model
 {
@@ -19,6 +24,7 @@ class OrderProduct extends Model
     protected $fillable = [
         'order_id',
         'product_attribute_id',
+        'product_variant_id', // tambahan
         'area_id',
         'slug',
         'quantity',
@@ -33,7 +39,7 @@ class OrderProduct extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['order_id', 'product_attribute_id', 'area_id', 'slug', 'quantity', 'amount', 'notes', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['order_id', 'product_attribute_id', 'product_variant_id', 'area_id', 'slug', 'quantity', 'amount', 'notes', 'created_by', 'updated_by', 'deleted_by']);
     }
 
     // relasi dengan order
@@ -46,6 +52,12 @@ class OrderProduct extends Model
     public function product_attribute()
     {
         return $this->belongsTo(ProductAttribute::class, 'product_attribute_id', 'id');
+    }
+
+    // relasi dengan product variant
+    public function product_variant()
+    {
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id', 'id');
     }
 
     // relasi dengan decoration area
