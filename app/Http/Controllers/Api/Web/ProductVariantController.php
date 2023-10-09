@@ -21,6 +21,11 @@ class ProductVariantController extends Controller
         // get all product variants with filter and pagination
         $query = ProductVariant::orderBy('name', 'asc');
 
+        // filter by product attribute
+        if (request()->has('product_attribute_id')) {
+            $query->where('product_attribute_id', request('product_attribute_id'));
+        }
+
         // filter by name
         if (request()->has('search')) {
             $query->where('name', 'like', '%' . request('name') . '%');
