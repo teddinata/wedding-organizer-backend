@@ -27,6 +27,7 @@ class StoreOrderProductRequest extends FormRequest
             //
             'order_id' => 'required|exists:orders,id',
             'product_attribute_id' => 'required|exists:product_attributes,id',
+            'product_variant_id' => 'required|exists:product_variants,id', // tambahan
             'area_id' => 'required|exists:decoration_areas,id',
             'quantity' => 'required|integer',
             'amount' => 'required|integer',

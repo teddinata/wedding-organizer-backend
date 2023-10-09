@@ -67,6 +67,7 @@ class OrderProductController extends Controller
         $orderProduct = OrderProduct::create([
             'order_id' => $request->order_id,
             'product_attribute_id' => $request->product_attribute_id,
+            'product_variant_id' => $request->product_variant_id, // tambahan
             'area_id' => $request->area_id,
             'quantity' => $request->quantity,
             'amount' => $request->amount,
@@ -114,7 +115,8 @@ class OrderProductController extends Controller
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'product_attribute_id' => 'required|exists:product_attributes,id',
-            'area_id' => 'required|exists:areas,id',
+            'product_variant_id' => 'required|exists:product_variants,id', // tambahan
+            'area_id' => 'required|exists:decoration_areas,id',
             'quantity' => 'required|integer',
             'amount' => 'required|integer',
             'notes' => 'required|string',
