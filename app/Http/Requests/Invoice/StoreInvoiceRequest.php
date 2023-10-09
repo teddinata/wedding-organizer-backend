@@ -26,8 +26,8 @@ class StoreInvoiceRequest extends FormRequest
         return [
             'order_id' => 'required',
             'bank_account_id' => 'required',
-            'transfer_date' => 'required|date',
-            'transfer_proof' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'transfer_date' => 'nullable|date',
+            'transfer_proof' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'status' => 'nullable',
             'amount' => 'required'
         ];

@@ -122,7 +122,10 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
-        //
+        // find data
+        $invoice = Invoice::findOrFail($invoice->id);
+
+        return new InvoiceResource(true, 'Invoice detail retrieved successfully', $invoice);
     }
 
     /**
@@ -217,5 +220,113 @@ class InvoiceController extends Controller
 
         // return response
         return new InvoiceResource(true, 'Invoice deleted successfully', $invoice);
+    }
+
+    // function index invoice waiting for payment
+    public function indexWaitingForPayment()
+    {
+        // get invoices with status waiting for payment
+        $query = Invoice::query()->where('status', 'waiting for payment');
+
+        // filter by order_id
+        if (request()->has('order_id')) {
+            $query->where('order_id', request('order_id'));
+        }
+
+        // get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
+        // get data
+        $invoices = $query->paginate($perPage, ['*'], 'page', $page);
+
+        // log activity
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' show data Invoice',
+            'description' => 'User ' . Auth::user()->name . ' show data Invoice',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // return response
+        return new InvoiceResource(true, 'Invoice with status waiting for payment retrieved successfully', $invoices);
+    }
+
+    // invoice overdue
+    public function indexOverdue()
+    {
+        // get invoices where created_at + 14 days < now and where status = waiting for payment
+        $query = Invoice::where('status', 'waiting for payment')->whereDate('created_at', '<=', now()->subDays(14));
+
+        // filter by order_id
+        if (request()->has('order_id')) {
+            $query->where('order_id', request('order_id'));
+        }
+
+        // get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
+        // get data
+        $invoices = $query->paginate($perPage, ['*'], 'page', $page);
+
+        // log activity
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' show data Invoice',
+            'description' => 'User ' . Auth::user()->name . ' show data Invoice',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // return response
+        return new InvoiceResource(true, 'Invoice with status overdue retrieved successfully', $invoices);
+    }
+
+    // index invoice paid
+    public function indexPaid()
+    {
+        // get invoices where status = paid
+        $query = Invoice::where('status', 'paid');
+
+        // filter by order_id
+        if (request()->has('order_id')) {
+            $query->where('order_id', request('order_id'));
+        }
+
+        // get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
+        // get data
+        $invoices = $query->paginate($perPage, ['*'], 'page', $page);
+
+        // log activity
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' show data Invoice',
+            'description' => 'User ' . Auth::user()->name . ' show data Invoice',
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // return response
+        return new InvoiceResource(true, 'Invoice with status paid retrieved successfully', $invoices);
     }
 }

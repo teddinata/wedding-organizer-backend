@@ -185,6 +185,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // route lead
         Route::resource('leads', LeadController::class)->names('lead');
 
+        // invoice paid
+        Route::get('invoice/paid', [InvoiceController::class, 'indexPaid'])->name('invoice.paid');
+        // invoice overdue
+        Route::get('invoice/overdue', [InvoiceController::class, 'indexOverdue'])->name('invoice.overdue');
+        // invoice waiting payment
+        Route::get('invoice/waiting-payment', [InvoiceController::class, 'indexWaitingForPayment'])->name('invoice.waiting-payment');
         // invoice route resource
         Route::resource('invoice', InvoiceController::class)->names('invoice');
     });
@@ -204,4 +210,4 @@ Route::prefix('v2')->group(function () {
     Route::post('/reset-password-with-otp', [AuthController::class, 'resetPasswordWithOtp'])->name('reset-password-with-otp');
 });
 
-Route::resource('sample', App\Http\Controllers\Api\Web\SampleSalesController::class);
+// Route::resource('sample', App\Http\Controllers\Api\Web\SampleSalesController::class);
