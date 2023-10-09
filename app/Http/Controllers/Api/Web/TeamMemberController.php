@@ -90,18 +90,44 @@ class TeamMemberController extends Controller
     {
         // update team member like store function
         $teamMember = TeamMember::find($id);
+        $team_id = $teamMember->team_id;
         $employee_ids = $request->employee_id;
-        foreach ($employee_ids as $employee_id) {
+        // foreach ($employee_ids as $employee_id) {
 
-            // pengecekan data employee_id sudah ada di team berdasarkan id
-            $teamMember = TeamMember::where('team_id', $request->team_id)->where('employee_id', $employee_id)->find($id);
-            if ($teamMember) {
-                return response()->json(['message' => 'Member have already in this team'], 422);
-            } else {
-                $teamMember = TeamMember::create([
-                    'team_id' => $request->team_id,
+        //     // pengecekan data employee_id sudah ada di team berdasarkan id
+        //     $teamMember = TeamMember::where('team_id', $request->team_id)->where('employee_id', $employee_id)->find($id);
+        //     if ($teamMember) {
+        //         return response()->json(['message' => 'Member have already in this team'], 422);
+        //     } else {
+        //         $teamMember = TeamMember::create([
+        //             'team_id' => $request->team_id,
+        //             'employee_id' => $employee_id,
+        //         ]);
+        //     }
+        // }
+        // Ambil semua anggota tim yang ada dalam database untuk tim tertentu
+        $existing_team_members = TeamMember::where('team_id', $team_id)->get();
+
+        // Loop melalui anggota tim yang ada
+        foreach ($existing_team_members as $existing_member) {
+            $employee_id = $existing_member->employee_id;
+
+            // Jika employee_id tidak ada dalam daftar baru, hapus anggota tim tersebut
+            if (!in_array($employee_id, $employee_ids)) {
+                $existing_member->delete();
+            }
+        }
+
+        // Tambahkan anggota tim baru
+        foreach ($employee_ids as $employee_id) {
+            // Periksa apakah anggota tim sudah ada dalam database
+            $existing_member = TeamMember::where('team_id', $team_id)->where('employee_id', $employee_id)->first();
+
+            if (!$existing_member) {
+                // Jika tidak ada, tambahkan anggota tim baru
+                TeamMember::create([
+                    'team_id' => $team_id,
                     'employee_id' => $employee_id,
-                    // 'created_by' => auth()->user()->id,
                 ]);
             }
         }
@@ -118,7 +144,7 @@ class TeamMemberController extends Controller
         ]);
 
         // get team member updated
-        $teamMember = TeamMember::where('id', $teamMember->id)->with('employee')->find($id);
+        // $teamMember = TeamMember::where('id', $teamMember->id)->with('employee')->find($id);
 
         // return response
         return new TeamResource(true, 'Team Member updated successfully', $teamMember);
