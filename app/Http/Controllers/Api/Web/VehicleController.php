@@ -58,6 +58,17 @@ class VehicleController extends Controller
             $query = Vehicle::orderBy('model_name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
+        // request by id then show detail data, not array
+        if ($request->has('id')) {
+            $id = $request->input('id');
+
+            // find the data by id
+            $query = Vehicle::findOrFail($id);
+
+            //return JSON response
+            return $this->successResponse(new VehicleResource($query), 'Data found.');
+        }
+
         //return resource collection
         return new VehicleCollection(true, 'Vehicle retrieved successfully.', $query);
     }
@@ -92,11 +103,7 @@ class VehicleController extends Controller
      */
     public function show(string $id)
     {
-        // find the data by id
-        $query = Vehicle::findOrFail($id);
-
-        //return JSON response
-        return $this->successResponse(new VehicleResource($query), 'Data found');
+        //
     }
 
     /**

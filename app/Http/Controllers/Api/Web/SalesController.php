@@ -46,6 +46,17 @@ class SalesController extends Controller
             $query = Sales::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
+        // request by id then show detail data, not array
+        if ($request->has('id')) {
+            $id = $request->input('id');
+
+            // find the data by id
+            $query = Sales::findOrFail($id);
+
+            //return JSON response
+            return $this->successResponse(new SalesResource($query), 'Data found.');
+        }
+
         //return resource collection
         return new SalesCollection(true, 'Sales retrieved successfully', $query);
     }
@@ -80,11 +91,7 @@ class SalesController extends Controller
      */
     public function show(string $id)
     {
-        // find the data by id
-        $query = Sales::findOrFail($id);
-
-        //return JSON response
-        return $this->successResponse(new SalesResource($query), 'Data found');
+        //
     }
 
     /**

@@ -52,6 +52,17 @@ class DepartmentController extends Controller
             $query = Department::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
+        // request by id then show detail data, not array
+        if ($request->has('id')) {
+            $id = $request->input('id');
+
+            // find the data by id
+            $query = Department::findOrFail($id);
+
+            //return JSON response
+            return $this->successResponse(new DepartmentResource($query), 'Data found.');
+        }
+
         //return resource collection
         return new DepartmentCollection(true, 'Department retrieved successfully', $query);
     }
@@ -89,11 +100,7 @@ class DepartmentController extends Controller
      */
     public function show($id)
     {
-        // find the data by ID
-        $query = Department::findOrFail($id);
-
-        //return JSON response
-        return $this->successResponse(new DepartmentResource($query), 'Data found');
+        //
     }
 
     /**

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
 // use resource
 use App\Http\Resources\DecorationAreaResource;
 // model

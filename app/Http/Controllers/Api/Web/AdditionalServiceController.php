@@ -52,6 +52,17 @@ class AdditionalServiceController extends Controller
             $query = AdditionalService::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
+        // request by id then show detail data, not array
+        if ($request->has('id')) {
+            $id = $request->input('id');
+
+            // find the data by id
+            $query = AdditionalService::findOrFail($id);
+
+            //return JSON response
+            return $this->successResponse(new AdditionalServiceResource($query), 'Data found.');
+        }
+
         //return resource collection
         return new AdditionalServiceCollection(true, 'Additional Service retrieved successfully', $query);
     }
@@ -85,11 +96,7 @@ class AdditionalServiceController extends Controller
      */
     public function show($id)
     {
-        // find the data by id
-        $query = AdditionalService::findOrFail($id);
-
-        //return JSON response
-        return $this->successResponse(new AdditionalServiceResource($query), 'Data found');
+        //
     }
 
     /**

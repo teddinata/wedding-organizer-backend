@@ -52,6 +52,17 @@ class ConfigLoanInstallmentController extends Controller
             $query = ConfigLoanInstallment::orderBy('nominal', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
+        // request by id then show detail data, not array
+        if ($request->has('id')) {
+            $id = $request->input('id');
+
+            // find the data by id
+            $query = ConfigLoanInstallment::findOrFail($id);
+
+            //return JSON response
+            return $this->successResponse(new ConfigLoanInstallmentResource($query), 'Data found.');
+        }
+
         //return resource collection
         return new ConfigLoanInstallmentCollection(true, 'Config Installment retrieved successfully', $query);
     }
@@ -85,11 +96,7 @@ class ConfigLoanInstallmentController extends Controller
      */
     public function show(string $id)
     {
-        // find the data by ID
-        $query = ConfigLoanInstallment::findOrFail($id);
-
-        //return JSON response
-        return $this->successResponse(new ConfigLoanInstallmentResource($query), 'Data found');
+        //
     }
 
     /**

@@ -57,6 +57,17 @@ class BankAccountController extends Controller
             $query = BankAccount::orderBy('account_holder', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
+        // request by id then show detail data, not array
+        if ($request->has('id')) {
+            $id = $request->input('id');
+
+            // find the data by id
+            $query = BankAccount::findOrFail($id);
+
+            //return JSON response
+            return $this->successResponse(new BankAccountResource($query), 'Data found.');
+        }
+
         //return resource collection
         return new BankAccountCollection(true, 'Bank account retrieved successfully', $query);
     }
@@ -92,11 +103,7 @@ class BankAccountController extends Controller
      */
     public function show($id)
     {
-        // find the data by id
-        $query = BankAccount::findOrFail($id);
-
-        //return JSON response
-        return $this->successResponse(new BankAccountResource($query), 'Data found');
+        //
     }
 
     /**

@@ -46,6 +46,17 @@ class ProductCategoryController extends Controller
             $query = ProductCategory::withCount(['product_attributes'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
+        // request by id then show detail data, not array
+        if ($request->has('id')) {
+            $id = $request->input('id');
+
+            // find the data by id
+            $query = ProductCategory::findOrFail($id);
+
+            //return JSON response
+            return $this->successResponse(new ProductCategoryResource($query), 'Data found.');
+        }
+
         //return collection of product category
         return new ProductCategoryCollection(true, 'Product category retrieved successfully', $query);
     }
@@ -79,11 +90,7 @@ class ProductCategoryController extends Controller
      */
     public function show($id)
     {
-        // find data by ID
-        $query = ProductCategory::findOrFail($id);
-
-        //return JSON response
-        return $this->successResponse(new ProductCategoryResource($query), 'Data found');
+        //
     }
 
     /**

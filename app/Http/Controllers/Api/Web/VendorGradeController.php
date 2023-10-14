@@ -46,6 +46,17 @@ class VendorGradeController extends Controller
             $query = VendorGrade::orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
+        // request by id then show detail data, not array
+        if ($request->has('id')) {
+            $id = $request->input('id');
+
+            // find the data by id
+            $query = VendorGrade::findOrFail($id);
+
+            //return JSON response
+            return $this->successResponse(new VendorGradeResource($query), 'Data found');
+        }
+
         //return collection of grade vendor as a resource
         return new VendorGradeCollection(true, 'Grade retrieved successfully', $query);
     }
@@ -80,7 +91,6 @@ class VendorGradeController extends Controller
      */
     public function show(string $id)
     {
-        //
     }
 
     /**
