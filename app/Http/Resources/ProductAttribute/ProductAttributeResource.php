@@ -23,7 +23,8 @@ class ProductAttributeResource extends JsonResource
                 isset($this->product_variants_count),
                 $this->product_variants_count
             ),
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
         ];
     }
 }

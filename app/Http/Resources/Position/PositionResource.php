@@ -20,6 +20,7 @@ class PositionResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'department' => new DepartmentResource($this->whenLoaded('department')),
             'career_level' => new CareerLevelResource($this->whenLoaded('career_level'))
         ];

@@ -18,7 +18,8 @@ class VehicleResource extends JsonResource
             'id' => $this->id,
             'model_name' => $this->model_name,
             'plate_number' => $this->plate_number,
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
         ];
     }
 }

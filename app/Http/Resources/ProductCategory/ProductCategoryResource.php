@@ -18,6 +18,7 @@ class ProductCategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'product_attributes_count' => $this->when(
                 isset($this->product_attributes_count),
                 $this->product_attributes_count

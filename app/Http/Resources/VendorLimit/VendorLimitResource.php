@@ -18,7 +18,8 @@ class VendorLimitResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'amount_limit' => $this->amount_limit,
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
         ];
     }
 }

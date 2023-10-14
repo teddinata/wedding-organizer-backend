@@ -21,7 +21,8 @@ class DepartmentResource extends JsonResource
             'is_has_schedule' => $this->is_has_schedule,
             'clock_in' => $this->clock_in,
             'clock_out' => $this->clock_out,
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
         ];
     }
 }
