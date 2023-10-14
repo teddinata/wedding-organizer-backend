@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\VendorLimit;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class VendorLimitResource extends JsonResource
+class VendorLimitCollection extends ResourceCollection
 {
-    //define properti
+    //define property
     public $status;
     public $message;
 
@@ -27,9 +27,9 @@ class VendorLimitResource extends JsonResource
     }
 
     /**
-     * Transform the resource into an array.
+     * Transform the resource collection into an array.
      *
-     * @return array<string, mixed>
+     * @return array<int|string, mixed>
      */
     public function toArray(Request $request): array
     {

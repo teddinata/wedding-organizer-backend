@@ -54,7 +54,7 @@ class VendorGradeController extends Controller
             $query = VendorGrade::findOrFail($id);
 
             //return JSON response
-            return $this->successResponse(new VendorGradeResource($query), 'Data found');
+            return $this->successResponse(new VendorGradeResource($query), 'Data found.');
         }
 
         //return collection of grade vendor as a resource
@@ -91,6 +91,7 @@ class VendorGradeController extends Controller
      */
     public function show(string $id)
     {
+        //
     }
 
     /**

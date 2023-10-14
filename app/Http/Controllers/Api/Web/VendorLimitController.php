@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\VendorLimitResource;
+use App\Http\Resources\VendorLimit\VendorLimitCollection;
+use App\Http\Resources\VendorLimit\VendorLimitResource;
 // model
 use App\Models\MasterData\VendorLimit;
 // request
@@ -17,70 +18,59 @@ use App\Http\Requests\VendorLimit\UpdateVendorLimitRequest;
 
 class VendorLimitController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        // get all vendor limit with filter and paginate
-        $limit = VendorLimit::orderBy('id', 'asc')->paginate(10);
+        // Get pagination settings
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
 
-        if (request('search')) {
-            $limit->where('name', 'like', '%' . request('search') . '%');
-        }
+        //set variable for search
+        $search = $request->query('search');
 
-        // request sort asc or desc
-        if (request('sort')) {
-            $limit->orderBy('name', request('sort'));
+        //set condition if search not empty then find by name else then show all data
+        if (!empty($search)) {
+            $query = VendorLimit::where('name', 'like', '%' . $search . '%')
+                ->orWhere(
+                    'amount_limit',
+                    'like',
+                    '%' . $search . '%'
+                )
+                ->paginate(
+                    $perPage,
+                    ['*'],
+                    'page',
+                    $page
+                );
+
+            //check result
+            $recordsTotal = $query->count();
+            if (empty($recordsTotal)) {
+                return response(['Message' => 'Data not found!'], 404);
+            }
+        } else {
+            // get grade data and sort by id ascending
+            $query = VendorLimit::orderBy('amount_limit', 'desc')->paginate($perPage, ['*'], 'page', $page);
         }
 
         // request by id then show detail data, not array
         if ($request->has('id')) {
             $id = $request->input('id');
-            $vendor_limit = $limit->findOrFail($id);
 
-            Activity::create([
-                'log_name' => 'User ' . Auth::user()->name . ' show data vendor limit detail ' . $vendor_limit->name,
-                'description' => 'User ' . Auth::user()->name . ' show data vendor limit detail ' . $vendor_limit->name,
-                'subject_id' => Auth::user()->id,
-                'subject_type' => 'App\Models\User',
-                'causer_id' => Auth::user()->id,
-                'causer_type' => 'App\Models\User',
-                'properties' => request()->ip(),
-                // 'host' => request()->ip(),
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
+            // find the data by id
+            $query = VendorLimit::findOrFail($id);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Detail Data Vendor Limit by id ' . $id,
-                'data' => $vendor_limit
-            ], 200);
+            //return JSON response
+            return $this->successResponse(new VendorLimitResource($query), 'Data found.');
         }
 
-        return new VendorLimitResource(true, 'Limit retrieved successfully', $limit);
-
-         Activity::create([
-             'log_name' => 'User ' . Auth::user()->name . ' show data vendor limit',
-             'description' => 'User ' . Auth::user()->name . ' show data vendor limit',
-             'subject_id' => Auth::user()->id,
-             'subject_type' => 'App\Models\User',
-             'causer_id' => Auth::user()->id,
-             'causer_type' => 'App\Models\User',
-             'properties' => request()->ip(),
-             // 'host' => request()->ip(),
-             'created_at' => now(),
-             'updated_at' => now()
-         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        //return collection of grade vendor as a resource
+        return new VendorLimitCollection(true, 'Limit retrieved successfully', $query);
     }
 
     /**
@@ -88,28 +78,25 @@ class VendorLimitController extends Controller
      */
     public function store(StoreVendorLimitRequest $request)
     {
-        // create vendor limit
-        $vendor_limit = VendorLimit::create([
-            'name' => $request->name,
-            'amount_limit' => $request->amount_limit,
-            'created_by' => Auth::user()->id,
-            'updated_by' => Auth::user()->id,
-        ] + $request->validated());
+        try {
+            //store to database
+            $query = VendorLimit::create([
+                'name' => $request->name,
+                'amount_limit' => $request->amount_limit,
+                'created_by' => Auth::user()->id,
+                'updated_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' create data vendor limit ' . $vendor_limit->name,
-            'description' => 'User ' . Auth::user()->name . ' create data vendor limit ' . $vendor_limit->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        return new VendorLimitResource(true, $vendor_limit->name . ' has successfully been created.', $vendor_limit);
+            // return JSON response
+            return $this->successResponse(new VendorLimitResource($query), $query->name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
@@ -121,43 +108,31 @@ class VendorLimitController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateVendorLimitRequest $request, string $id)
     {
-        // get vendor limit by id
-        $vendor_limit = VendorLimit::findOrFail($id);
+        try {
+            // get vendor limit by id
+            $query = VendorLimit::findOrFail($id);
 
-        // update vendor limit
-        $vendor_limit->update([
-            'name' => request('name'),
-            'amount_limit' => request('amount_limit'),
-            'updated_by' => Auth::user()->id,
-        ] + $request->validated());
+            // update vendor limit
+            $query->update([
+                'name' => request('name'),
+                'amount_limit' => request('amount_limit'),
+                'updated_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' edit data vendor limit ' . $vendor_limit->name,
-            'description' => 'User ' . Auth::user()->name . ' edit data vendor limit ' . $vendor_limit->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        return new VendorLimitResource(true, $vendor_limit->name . ' has successfully been updated.', $vendor_limit);
-
+            // return JSON response
+            return $this->successResponse(new VendorLimitResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
@@ -165,28 +140,19 @@ class VendorLimitController extends Controller
      */
     public function destroy(string $id)
     {
-        // get vendor limit by id
-        $vendor_limit = VendorLimit::findOrFail($id);
+        // find data
+        $query = VendorLimit::findOrFail($id);
+        $query->delete();
+        // soft delete to database
+        $query->deleted_by = Auth::user()->id;
+        $query->save();
 
-        // delete vendor limit
-        $vendor_limit->delete();
-        // updated deleted_by
-        $vendor_limit->deleted_by = Auth::user()->id;
-        $vendor_limit->save();
+        // activity log
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete data vendor limit ' . $vendor_limit->name,
-            'description' => 'User ' . Auth::user()->name . ' delete data vendor limit ' . $vendor_limit->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        return new VendorLimitResource(true, $vendor_limit->name . ' has successfully been deleted.', $vendor_limit);
+        // return json response
+        return $this->successResponse(new VendorLimitResource($query), $query->name . ' has been deleted successfully.');
     }
 }
