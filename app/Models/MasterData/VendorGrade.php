@@ -36,7 +36,11 @@ class VendorGrade extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'description', 'created_by', 'updated_by']);
+            ->logOnly(['name', 'description', 'created_by', 'updated_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} sales")
+            ->useLogName('Vendor Grade log');
     }
 
     // 1 grade bisa dimiliki banyak vendor

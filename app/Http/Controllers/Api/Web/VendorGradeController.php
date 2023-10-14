@@ -5,9 +5,10 @@ namespace App\Http\Controllers\API\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\VendorGradeResource;
+use App\Http\Resources\VendorGrade\VendorGradeCollection;
+use App\Http\Resources\VendorGrade\VendorGradeResource;
 // model
 use App\Models\MasterData\VendorGrade;
 // request
@@ -16,6 +17,9 @@ use App\Http\Requests\VendorGrade\UpdateVendorGradeRequest;
 
 class VendorGradeController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -43,7 +47,7 @@ class VendorGradeController extends Controller
         }
 
         //return collection of grade vendor as a resource
-        return new VendorGradeResource(true, 'Grade retrieved successfully', $query);
+        return new VendorGradeCollection(true, 'Grade retrieved successfully', $query);
     }
 
     /**
@@ -51,27 +55,24 @@ class VendorGradeController extends Controller
      */
     public function store(StoreVendorGradeRequest $request)
     {
-        //store to database
-        $grade = VendorGrade::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'created_by' => Auth::user()->id,
-        ] + $request->validated());
+        try {
+            //store to database
+            $query = VendorGrade::create([
+                'name' => $request->name,
+                'description' => $request->description,
+                'created_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' add new grade',
-            'description' => 'User ' . Auth::user()->name . ' create new grade ' . $grade->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now()
-        ]);
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new VendorGradeResource(true, $grade->name . ' has successfully been created.', $grade);
+            // return JSON response
+            return $this->successResponse(new VendorGradeResource($query), $query->name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
+        }
     }
 
     /**
@@ -87,31 +88,27 @@ class VendorGradeController extends Controller
      */
     public function update(UpdateVendorGradeRequest $request, $id)
     {
-        // find the data
-        $grade = VendorGrade::findOrFail($id);
+        try {
+            // find the data
+            $query = VendorGrade::findOrFail($id);
 
-        // update to database
-        $grade->update(($request->validated() + [
-            'name' => $request->name,
-            'description' => $request->description,
-            'updated_by' => Auth::user()->id,
-        ]));
+            // update to database
+            $query->update(($request->validated() + [
+                'name' => $request->name,
+                'description' => $request->description,
+                'updated_by' => Auth::user()->id,
+            ]));
 
-        // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update grade information',
-            'description' => 'User ' . Auth::user()->name . ' update grade information ' . $grade->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // return json response
-        return new VendorGradeResource(true, $grade->name . ' has successfully been updated.', $grade);
+            // return JSON response
+            return $this->successResponse(new VendorGradeResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
+        }
     }
 
     /**
@@ -120,25 +117,18 @@ class VendorGradeController extends Controller
     public function destroy($id)
     {
         // find data
-        $grade = VendorGrade::findOrFail($id);
-        $grade->delete();
+        $query = VendorGrade::findOrFail($id);
+        $query->delete();
         // soft delete to database
-        $grade->deleted_by = Auth::user()->id;
-        $grade->save();
+        $query->deleted_by = Auth::user()->id;
+        $query->save();
 
         // activity log
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete grade',
-            'description' => 'User ' . Auth::user()->name . ' delete grade ' . $grade->name,
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-        ]);
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
         // return json response
-        return new VendorGradeResource(true, $grade->name . ' has successfully been deleted.', null);
+        return $this->successResponse(new VendorGradeResource($query), $query->name . ' has been deleted successfully.');
     }
 }
