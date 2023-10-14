@@ -14,12 +14,17 @@ class ProductVariant extends Model
     use SoftDeletes;
     use LogsActivity;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    // declare table name
+    protected $table = 'product_variants';
 
+    // this field must type date yyyy-mm-dd hh:mm:ss
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    // declare fillable fields
     protected $fillable = [
         'name',
         'product_attribute_id',
@@ -28,8 +33,19 @@ class ProductVariant extends Model
         'deleted_by',
     ];
 
-    // relation to product
-    public function product_attributes()
+    // logs activity
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['product_attribute_id', 'attribute_id', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} sales")
+            ->useLogName('Product Variant log');
+    }
+
+    // relation to product attribute
+    public function product_attribute()
     {
         return $this->belongsTo(ProductAttribute::class, 'product_attribute_id', 'id');
     }
@@ -38,12 +54,5 @@ class ProductVariant extends Model
     public function order_products()
     {
         return $this->hasMany(OrderProduct::class, 'product_variant_id', 'id');
-    }
-
-    // logs activity
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['product_attribute_id', 'attribute_id', 'created_by', 'updated_by', 'deleted_by']);
     }
 }
