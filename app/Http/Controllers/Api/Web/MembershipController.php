@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Web;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Traits\ApiResponseTrait;
 // resource
@@ -22,34 +23,35 @@ class MembershipController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // get all memberships with filter and pagination
-        $query = Membership::orderBy('from', 'asc');
-
-        // filter by name
-        if (request()->has('search')) {
-            $query->where('name', 'like', '%' . request('search') . '%');
-        }
-
-        // sort asc or desc
-        if (request()->has('sort')) {
-            $query->orderBy('name', request('sort'));
-        }
-
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
 
-        // Get data
-        $memberships = $query->paginate($perPage, ['*'], 'page', $page);
+        //set variable for search
+        $search = $request->query('search');
 
-        foreach ($memberships as $membership) {
+        //set condition if search not empty then find by name else then show all data
+        if (!empty($search)) {
+            $query = Membership::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
+
+            //check result
+            $recordsTotal = $query->count();
+            if (empty($recordsTotal)) {
+                return response(['Message' => 'Data not found!'], 404);
+            }
+        } else {
+            // get checklist item data and sort by name ascending
+            $query = Membership::orderBy('from', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        }
+
+        foreach ($query as $membership) {
             $membership->image = asset('storage/uploads/membership/' . $membership->image);
         }
 
         // return json response
-        return new MembershipCollection(true, 'Membership retrieved successfully', $memberships);
+        return new MembershipCollection(true, 'Membership retrieved successfully', $query);
     }
 
     /**
