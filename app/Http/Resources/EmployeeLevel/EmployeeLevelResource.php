@@ -16,7 +16,6 @@ class EmployeeLevelResource extends JsonResource
     {
         return [
             'id'         => $this->id,
-            'icon'       => $this->icon,
             'name'       => $this->name,
             'from'       => $this->from,
             'until'      => $this->until,

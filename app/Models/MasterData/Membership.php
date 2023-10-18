@@ -15,6 +15,17 @@ class Membership extends Model
     use SoftDeletes;
     use LogsActivity;
 
+    // declare table name
+    protected $table = 'memberships';
+
+    // this field must type date yyyy-mm-dd hh:mm:ss
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    // declare fillable fields
     protected $fillable = [
         'name',
         'image',
@@ -30,7 +41,11 @@ class Membership extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'image', 'from', 'until', 'point', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['name', 'image', 'from', 'until', 'point', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} bank account")
+            ->useLogName('Vendor Membership log');
     }
 
     //  1 membership memiliki banyak member benefit
