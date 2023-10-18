@@ -118,7 +118,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('allowance', AllowanceController::class)->names('allowance');
 
         // level
-        Route::resource('level', LevelController::class)->names('level');
+        Route::apiResource('level', LevelController::class);
 
         // employee
         Route::resource('employee', EmployeeController::class)->names('employee');

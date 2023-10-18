@@ -24,8 +24,8 @@ class StoreLevelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            //'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'name' => 'required|string|min:3|max:255',
             'from' => 'required|numeric',
             'until' => 'required|numeric',
         ];

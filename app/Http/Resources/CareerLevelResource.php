@@ -19,6 +19,7 @@ class CareerLevelResource extends JsonResource
             'career_level'  => $this->career_level,
             'description'   => $this->description,
             'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at
         ];
     }
 }

@@ -24,8 +24,8 @@ class UpdateLevelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            //'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'name' => 'required|string|min:3|max:255',
             'from' => 'required|numeric',
             'until' => 'required|numeric',
         ];
@@ -34,7 +34,6 @@ class UpdateLevelRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-
             'success'   => false,
             'message'   => 'Validation errors',
             'data'      => $validator->errors()

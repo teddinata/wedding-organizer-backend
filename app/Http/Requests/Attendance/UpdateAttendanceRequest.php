@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Allowance;
+namespace App\Http\Requests\Attendance;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class UpdateAllowanceRequest extends FormRequest
+class UpdateAttendanceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

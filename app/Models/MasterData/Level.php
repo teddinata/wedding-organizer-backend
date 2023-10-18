@@ -16,6 +16,14 @@ class Level extends Model
 
     protected $table = 'employee_levels';
 
+    // this field must type date yyyy-mm-dd hh:mm:ss
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    // declare fillable fields
     protected $fillable = [
         'icon',
         'name',
@@ -30,7 +38,11 @@ class Level extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['icon', 'name', 'from', 'until', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['icon', 'name', 'from', 'until', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} checklist_item")
+            ->useLogName('Employee Rank log');
     }
 
     // 1 level memiliki banyak employee

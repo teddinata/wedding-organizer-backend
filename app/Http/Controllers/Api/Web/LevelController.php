@@ -2,67 +2,58 @@
 
 namespace App\Http\Controllers\Api\Web;
 
-use App\Models\MasterData\Level;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Spatie\Activitylog\Models\Activity;
-use App\Http\Resources\LevelResource;
+use App\Traits\ApiResponseTrait;
+// resource
+use App\Http\Resources\EmployeeLevel\EmployeeLevelCollection;
+use App\Http\Resources\EmployeeLevel\EmployeeLevelResource;
+// model
+use App\Models\MasterData\Level;
+// request
 use App\Http\Requests\Level\StoreLevelRequest;
 use App\Http\Requests\Level\UpdateLevelRequest;
 
 
 class LevelController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // get all levels with filter and pagination
-        $level = Level::query();
-
-        // filter by name
-        if (request()->has('name')) {
-            $level->where('name', 'like', '%' . request('name') . '%');
-        }
-
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
 
-        // Get data
-        $levels = $level->paginate($perPage, ['*'], 'page', $page);
+        //set variable for search
+        $search = $request->query('search');
+
+        //set condition if search not empty then find by name else then show all data
+        if (!empty($search)) {
+            $query = Level::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
+
+            //check result
+            $recordsTotal = $query->count();
+            if (empty($recordsTotal)) {
+                return response(['Message' => 'Data not found!'], 404);
+            }
+        } else {
+            // get checklist item data and sort by name ascending
+            $query = Level::orderBy('from', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        }
 
         // foreach icon
-        foreach ($levels as $level) {
+        foreach ($query as $level) {
             $level->icon = asset('storage/uploads/level/' . $level->icon);
         }
 
-        // logs
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' show data Level',
-            'description' => 'User ' . Auth::user()->name . ' show data Level',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
         // return json response
-        return new LevelResource(true, 'Level retrieved successfully', $levels);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return new EmployeeLevelCollection(true, 'Level retrieved successfully', $query);
     }
 
     /**
@@ -70,45 +61,36 @@ class LevelController extends Controller
      */
     public function store(StoreLevelRequest $request)
     {
-        // create new level
-        $level = [
-            'name' => $request->name,
-            'from' => $request->from,
-            'until' => $request->until,
-            'created_by' => Auth::user()->id,
-        ];
+        try {
+            //store to database
+            $query = Level::create([
+                'name' => $request->name,
+                'from' => $request->from,
+                'until' => $request->until,
+                'created_by' => Auth::user()->id,
+            ] + $request->validated());
 
-        // check if request has icon
-        if ($request->hasFile('icon')) {
-            $icon = $request->file('icon');
-            $filename = 'level' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $icon->getClientOriginalName());
+            // check if request has icon
+            //if ($request->hasFile('icon')) {
+            //$icon = $request->file('icon');
+            //$filename = 'level' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $icon->getClientOriginalName());
 
-            $path = $icon->storeAs('uploads/level', $filename, 'public');
+            //$path = $icon->storeAs('uploads/level', $filename, 'public');
 
-            if ($path) {
-                $level['icon'] = $filename;
-            }
+            //if ($path) {
+            //$level['icon'] = $filename;
+            //}
+            //}
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
+
+            // return JSON response
+            return $this->successResponse(new EmployeeLevelResource($query), $query->name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
         }
-
-        // create level
-        $level = Level::create($level);
-
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' store data Level',
-            'description' => 'User ' . Auth::user()->name . ' store data Level',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        // return json response
-        return new LevelResource(true, 'Level created successfully', $level);
     }
 
     /**
@@ -120,57 +102,32 @@ class LevelController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Level $level)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateLevelRequest $request, Level $level)
+    public function update(UpdateLevelRequest $request, $id)
     {
-        // update level like store() method above
-        $level_update = [
-            'name' => $request->name,
-            'from' => $request->from,
-            'until' => $request->until,
-            'updated_by' => Auth::user()->id,
-        ];
+        try {
+            // find the data
+            $query = Level::findOrFail($id);
 
-        // check if request has icon
-        if ($request->hasFile('icon')) {
-            $icon = $request->file('icon');
-            $filename = 'level' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $icon->getClientOriginalName());
+            // update level
+            $query->update(($request->validated() + [
+                'name' => $request->name,
+                'from' => $request->from,
+                'until' => $request->until,
+                'updated_by' => Auth::user()->id,
+            ]));
 
-            $path = $icon->storeAs('uploads/level', $filename, 'public');
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-            if ($path) {
-                $level['icon'] = $filename;
-            }
+            // return JSON response
+            return $this->successResponse(new EmployeeLevelResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
         }
-
-        // update level
-        $level->update($level_update);
-
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update data Level',
-            'description' => 'User ' . Auth::user()->name . ' update data Level',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        // return json response
-        return new LevelResource(true, 'Level updated successfully', $level);
     }
 
     /**
@@ -179,30 +136,18 @@ class LevelController extends Controller
     public function destroy($id)
     {
         // find level
-        $level = Level::findOrFail($id);
-
-        // delete level
-        $level->delete();
-
+        $query = Level::findOrFail($id);
+        $query->delete();
         // deleted by
-        $level->deleted_by = Auth::user()->id;
-        $level->save();
+        $query->deleted_by = Auth::user()->id;
+        $query->save();
 
-        // logs
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete data Level',
-            'description' => 'User ' . Auth::user()->name . ' delete data Level',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        // activity log
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
         // return json response
-        return new LevelResource(true, 'Level deleted successfully', $level);
+        return $this->successResponse(new EmployeeLevelResource($query), $query->name . ' has been deleted successfully.');
     }
 }
