@@ -28,7 +28,7 @@ class StoreEmployeeRequest extends FormRequest
             'position_id' => 'nullable|exists:positions,id',
             'level_id' => 'nullable|exists:employee_levels,id',
             'fullname' => 'nullable|string|max:255',
-            'nik' => 'nullable|string|max:255',
+            'employee_number' => 'nullable|string|max:255',
             'phone_number' => 'nullable|string|min:10|max:13',
             'email' => 'nullable|string|max:255',
             'password' => 'nullable|string|max:255',

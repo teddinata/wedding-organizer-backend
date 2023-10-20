@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
         $this->call(EmployeeLevelTableSeeder::class);
         $this->call(ProductCategoryTableSeeder::class);
         $this->call(SalesTableSeeder::class);
-        $this->call(TeamTableSeeder::class);
+        // $this->call(TeamTableSeeder::class);
         $this->call(VendorGradesTableSeeder::class);
         $this->call(VendorLimitsTableSeeder::class);
         $this->call(VendorMembershipsTableSeeder::class);
