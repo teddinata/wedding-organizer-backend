@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Web;
 
 use App\Models\Operational\Order;
 use App\Models\Operational\OrderHistory;
+use App\Models\MasterData\Employee;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,11 +21,39 @@ class OrderController extends Controller
     public function index()
     {
         // get all order data
-        $query = Order::query();
+        $query = Order::with(['vendor']);
 
-        // filter by vendor_id
+        // filter search by every column
         if (request()->has('search')) {
-            $query->where('vendor_id', request('search'));
+            $searchTerm = request('search');
+
+            // Gabungkan tabel relasi employees dan cari berdasarkan employee_name
+            $query->orWhereHas('vendor', function ($query) use ($searchTerm) {
+                $query->where('name', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        if (request()->has('year')) {
+            // Ambil tahun dari permintaan
+            $selectedYear = request('year');
+
+            // Filter berdasarkan tahun yang lebih besar atau sama dengan yang dipilih
+            $query->whereYear('date', '=', $selectedYear);
+        }
+
+        if (request()->has('month')) {
+            // Ambil bulan dari permintaan
+            $selectedMonth = request('month');
+
+            // Filter berdasarkan bulan
+            $query->whereMonth('date', $selectedMonth);
+        }
+
+        if (request()->has('week_start') && request()->has('week_end')) {
+            $weekStart = request('week_start');
+            $weekEnd = request('week_end');
+
+            $query->whereBetween('date', [$weekStart, $weekEnd]);
         }
 
         // get pagination settings

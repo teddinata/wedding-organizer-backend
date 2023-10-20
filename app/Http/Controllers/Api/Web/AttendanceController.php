@@ -26,12 +26,45 @@ class AttendanceController extends Controller
 
         // filter search by every column
         if (request()->has('search')) {
-            $query->where('employee_id', request('search'))
-                ->orWhere('date', 'like', '%' . request('search') . '%')
-                ->orWhere('clock_in', 'like', '%' . request('search') . '%')
-                ->orWhere('clock_out', 'like', '%' . request('search') . '%')
-                ->orWhere('platform', 'like', '%' . request('search') . '%');
+            $searchTerm = request('search');
+
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('employee_id', $searchTerm)
+                    ->orWhere('date', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('clock_in', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('clock_out', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('platform', 'like', '%' . $searchTerm . '%');
+            });
+
+            // Gabungkan tabel relasi employees dan cari berdasarkan employee_name
+            $query->orWhereHas('employee', function ($query) use ($searchTerm) {
+                $query->where('fullname', 'like', '%' . $searchTerm . '%');
+            });
         }
+
+        if (request()->has('year')) {
+            // Ambil tahun dari permintaan
+            $selectedYear = request('year');
+
+            // Filter berdasarkan tahun yang lebih besar atau sama dengan yang dipilih
+            $query->whereYear('date', '=', $selectedYear);
+        }
+
+        if (request()->has('month')) {
+            // Ambil bulan dari permintaan
+            $selectedMonth = request('month');
+
+            // Filter berdasarkan bulan
+            $query->whereMonth('date', $selectedMonth);
+        }
+
+        if (request()->has('week_start') && request()->has('week_end')) {
+            $weekStart = request('week_start');
+            $weekEnd = request('week_end');
+
+            $query->whereBetween('date', [$weekStart, $weekEnd]);
+        }
+
 
         // Get pagination settings
         $perPage = request('per_page', 10);
