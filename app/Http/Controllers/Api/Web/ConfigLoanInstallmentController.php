@@ -41,12 +41,6 @@ class ConfigLoanInstallmentController extends Controller
                     'page',
                     $page
                 );
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get config installment data and sort by nominal ascending
             $query = ConfigLoanInstallment::orderBy('nominal', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -76,7 +70,6 @@ class ConfigLoanInstallmentController extends Controller
             //store to database
             $query = ConfigLoanInstallment::create([
                 'nominal' => $request->nominal,
-                'created_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -111,7 +104,6 @@ class ConfigLoanInstallmentController extends Controller
             // update to database
             $query->update(($request->validated() + [
                 'nominal' => $request->nominal,
-                'updated_by' => Auth::user()->id,
             ]));
 
             // activity log
@@ -133,8 +125,6 @@ class ConfigLoanInstallmentController extends Controller
         // find data
         $query = ConfigLoanInstallment::findOrFail($id);
         $query->delete();
-        // soft delete to database
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

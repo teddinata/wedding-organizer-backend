@@ -7,16 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Traits\CreatedUpdatedBy;
 
 class ConfigLoanInstallment extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
-
-    // declare table name
-    protected $table = 'config_loan_installments';
+    use CreatedUpdatedBy;
 
     // this field must type date yyyy-mm-dd hh:mm:ss
     protected $dates = [

@@ -8,15 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\CreatedUpdatedBy;
 
 class Department extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
-
-    // declare table name
-    protected $table = 'departments';
+    use CreatedUpdatedBy;
 
     // this field must type date yyyy-mm-dd hh:mm:ss
     protected $dates = [
@@ -46,6 +45,17 @@ class Department extends Model
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} departement")
             ->useLogName('Master Department log');
+    }
+
+    public function allowance()
+    {
+        return $this->hasMany(Allowance::class, 'department_allowances', 'department_id', 'allowance_id');
+    }
+
+    // relation department allowance
+    public function department_allowance()
+    {
+        return $this->hasMany(DepartmentAllowance::class, 'department_id');
     }
 
     // 1 department memiliki banyak employee

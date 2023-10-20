@@ -13,32 +13,25 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone_number')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            // otp
             $table->string('otp')->nullable();
+            $table->timestamp('otp_expiry')->nullable();
             $table->timestamp('otp_verified_at')->nullable();
-            // reset token
             $table->string('reset_token')->nullable();
-            // notification token
             $table->string('notification_token')->nullable();
-            // type of user
-            $table->string('type_user')->nullable();
             $table->rememberToken();
+            $table->timestamp('last_login')->nullable();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
-            // is darkmode active
             $table->boolean('is_dark_mode')->default(false);
-
-            // soft delete
-            $table->integer('created_by');
-            $table->integer('updated_by')->nullable();
-            $table->integer('deleted_by')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
-            // soft delete
             $table->softDeletes();
 
             // indexing

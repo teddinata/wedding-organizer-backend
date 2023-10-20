@@ -8,15 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\CreatedUpdatedBy;
 
 class Allowance extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
+    use CreatedUpdatedBy;
 
-    protected $table = 'allowances';
-
+    // declare fillable fields
     protected $fillable = [
         'department_id',
         'name',
@@ -30,17 +31,17 @@ class Allowance extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['department_id', 'name', 'description', 'created_by', 'updated_by', 'deleted_by'])
+            ->logOnly(['name', 'created_by', 'updated_by', 'deleted_by'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} allowance")
             ->useLogName('Master Allowance log');
     }
 
-    // relasi dengan department id
-    public function department()
+    // relasi dengan department 
+    public function departments()
     {
-        return $this->belongsTo(Department::class, 'department_id', 'id');
+        return $this->belongsToMany(Department::class, 'department_allowances', 'department_id', 'allowance_id');
     }
 
     // relasi dengan employee allowance

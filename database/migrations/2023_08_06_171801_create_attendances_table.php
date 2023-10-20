@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            // employee id
             $table->foreignId('employee_id')->constrained('employees')->onDelete('cascade');
-
             $table->date('date')->nullable();
             $table->dateTime('clock_in')->nullable();
             $table->string('clock_in_photo')->nullable();
@@ -25,16 +23,13 @@ return new class extends Migration
             $table->string('clock_out_photo')->nullable();
             $table->float('clock_out_location')->nullable();
             $table->string('clock_out_address')->nullable();
-            // status enum 1: ontime, 2: late
-            $table->enum('status', [1, 2])->nullable();
+            $table->enum('status', [1, 2])->nullable()->comment('Status: 1 = ontime, 2 = late');
             $table->enum('platform', ['web', 'mobile'])->nullable();
-
-            $table->integer('created_by')->nullable();
-            $table->integer('updated_by')->nullable();
-            $table->integer('deleted_by')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
         });
     }
 

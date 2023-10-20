@@ -35,12 +35,6 @@ class MembershipController extends Controller
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
             $query = Membership::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get checklist item data and sort by name ascending
             $query = Membership::orderBy('from', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -66,7 +60,6 @@ class MembershipController extends Controller
                 'from' => $request->input('from'),
                 'until' => $request->input('until'),
                 'point' => $request->input('point'),
-                'created_by' => Auth::user()->id,
             ];
 
             if ($request->hasFile('image')) {
@@ -114,7 +107,6 @@ class MembershipController extends Controller
                 'from' => $request->input('from'),
                 'until' => $request->input('until'),
                 'point' => $request->input('point'),
-                'updated_by' => Auth::user()->id,
             ];
 
             if ($request->hasFile('image')) {
@@ -150,10 +142,7 @@ class MembershipController extends Controller
         // find membership
         $query = Membership::findOrFail($id);
         $query->delete();
-        // deleted by
-        $query->update([
-            'deleted_by' => Auth::user()->id,
-        ]);
+        $query->save();
 
         // activity log
         activity('deleted')

@@ -12,9 +12,6 @@ class ChecklistCategory extends Model
     use HasFactory;
     use LogsActivity;
 
-    // declare table name
-    protected $table = 'checklist_categories';
-
     // this field must type date yyyy-mm-dd hh:mm:ss
     protected $dates = [
         'created_at',

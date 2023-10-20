@@ -13,48 +13,34 @@ return new class extends Migration
     {
         Schema::create('vendors', function (Blueprint $table) {
             $table->id();
-            // relationship
-            // limit_id
-            $table->foreignId('vendor_limit_id')->references('id')->on('vendor_limits')->onDelete('cascade');
-            // grade_id
-            $table->foreignId('vendor_grade_id')->references('id')->on('vendor_grades')->onDelete('cascade');
-            // membership_id
-            $table->foreignId('membership_id')->references('id')->on('memberships')->onDelete('cascade');
-            // logo
+            $table->string('cover_photo')->nullable();
             $table->string('logo')->nullable();
             $table->string('code');
             $table->string('name');
-            // point
+            $table->string('contact_person')->nullable();
+            $table->string('person_level')->nullable();
+            $table->string('contact_number')->nullable();
+            $table->string('website')->nullable();
+            $table->string('instagram')->nullable();
+            $table->longText('address')->nullable();
+            $table->string('city')->nullable();
+            $table->foreignId('vendor_limit_id')->references('id')->on('vendor_limits')->onDelete('cascade');
+            $table->foreignId('vendor_grade_id')->references('id')->on('vendor_grades')->onDelete('cascade');
+            $table->foreignId('membership_id')->references('id')->on('memberships')->onDelete('cascade');
             $table->integer('point')->default(0);
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
-            // otp password
             $table->string('otp')->nullable();
             $table->timestamp('otp_verified_at')->nullable();
-            // reset token
             $table->string('reset_token')->nullable();
-            // notification token
             $table->string('notification_token')->nullable();
-            // otp email
             $table->string('otp_email')->nullable();
-            // check login first time for mobile
-            $table->boolean('is_first_login')->default(1);
-            $table->string('contact_person');
-            $table->string('contact_number', 15);
-            $table->string('website')->nullable();
-            $table->string('instagram')->nullable();
-            // address use longtext
-            $table->longText('address');
-            $table->string('city');
-            // created by
-            $table->integer('created_by')->nullable();
-            // updated by
-            $table->integer('updated_by')->nullable();
-            // deleted by
-            $table->integer('deleted_by')->nullable();
+            $table->boolean('is_first_login')->default(true); // check login first time for mobile
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
-            // soft delete
             $table->softDeletes();
 
             // index

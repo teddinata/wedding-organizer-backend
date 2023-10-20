@@ -42,6 +42,8 @@ use App\Http\Controllers\Api\Web\LeadController;
 use App\Http\Controllers\Api\Web\OrderDriverController;
 use App\Http\Controllers\Api\Web\InvoiceController;
 use App\Http\Controllers\Api\Web\OrderHistoryController;
+use App\Http\Controllers\Api\Web\BenefitController;
+use App\Http\Controllers\Api\Web\DepartmentAllowanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -176,11 +178,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // route vehicle
         Route::apiResource('vehicle', VehicleController::class);
 
+        // route department allowance
+        Route::apiResource('department-allowance', DepartmentAllowanceController::class);
+
         // route config loan installment
         Route::apiResource('config-installment', ConfigLoanInstallmentController::class);
 
         // route career level
         Route::apiResource('career-level', CareerLevelController::class);
+
+        // route benefit
+        Route::apiResource('benefit', BenefitController::class);
 
         // route lead
         Route::resource('leads', LeadController::class)->names('lead');

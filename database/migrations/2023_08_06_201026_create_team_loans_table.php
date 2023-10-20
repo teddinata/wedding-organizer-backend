@@ -13,19 +13,17 @@ return new class extends Migration
     {
         Schema::create('team_loans', function (Blueprint $table) {
             $table->id();
-            // relation team_id
-            $table->foreignId('team_id')->constrained('teams')->onDelete('cascade');
             $table->string('loan_number')->nullable();
+            $table->date('loan_date')->nullable();
+            $table->foreignId('team_id')->constrained('teams')->onDelete('cascade');
             $table->string('description')->nullable();
-            $table->integer('amount')->nullable();
-            $table->enum('status', ['waiting approval', 'on going', 'paid', 'rejected'])->default(null)->nullable();
-
-            // created_by, updated_by, deleted_by
+            $table->integer('loan_amount')->nullable();
+            $table->enum('loan_status', ['waiting approval', 'approved', 'rejected'])->default(null)->nullable();
+            $table->enum('repayment_status', ['none', 'ongoing', 'paid', 'canceled'])->default('none')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
-            // soft delete
             $table->softDeletes();
         });
     }

@@ -4,19 +4,17 @@ namespace App\Models\MasterData;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\CreatedUpdatedBy;
 
 class Membership extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
-
-    // declare table name
-    protected $table = 'memberships';
+    use CreatedUpdatedBy;
 
     // this field must type date yyyy-mm-dd hh:mm:ss
     protected $dates = [
@@ -44,7 +42,7 @@ class Membership extends Model
             ->logOnly(['name', 'image', 'from', 'until', 'point', 'created_by', 'updated_by', 'deleted_by'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} bank account")
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} membership")
             ->useLogName('Vendor Membership log');
     }
 

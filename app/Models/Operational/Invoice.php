@@ -29,7 +29,7 @@ class Invoice extends Model
     protected $fillable = [
         'order_id',
         'bank_account_id',
-        'invoice_code',
+        'invoice_number',
         'amount',
         'transfer_proof',
         'transfer_date',
@@ -50,7 +50,7 @@ class Invoice extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['order_id', 'bank_account_id', 'invoice_code', 'amount', 'transfer_proof', 'transfer_date', 'transfer_proof_uploaded_at', 'transfer_proof_uploaded_by', 'status', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['order_id', 'bank_account_id', 'invoice_number', 'amount', 'transfer_proof', 'transfer_date', 'transfer_proof_uploaded_at', 'transfer_proof_uploaded_by', 'status', 'created_by', 'updated_by', 'deleted_by']);
     }
 
     // relasi dengan order

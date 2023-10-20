@@ -36,14 +36,7 @@ class ChecklistItemCollection extends ResourceCollection
         return [
             'success'   => $this->status,
             'message'   => $this->message,
-            'data'      => $this->resource
-        ];
-    }
-
-    public function with($request)
-    {
-        return [
-            'version' => '0.0.1'
+            'data'      => $this->collection
         ];
     }
 }

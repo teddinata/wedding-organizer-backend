@@ -36,12 +36,6 @@ class LevelController extends Controller
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
             $query = Level::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get checklist item data and sort by name ascending
             $query = Level::orderBy('from', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -67,7 +61,6 @@ class LevelController extends Controller
                 'name' => $request->name,
                 'from' => $request->from,
                 'until' => $request->until,
-                'created_by' => Auth::user()->id,
             ] + $request->validated());
 
             // check if request has icon
@@ -115,7 +108,6 @@ class LevelController extends Controller
                 'name' => $request->name,
                 'from' => $request->from,
                 'until' => $request->until,
-                'updated_by' => Auth::user()->id,
             ]));
 
             // activity log
@@ -138,8 +130,6 @@ class LevelController extends Controller
         // find level
         $query = Level::findOrFail($id);
         $query->delete();
-        // deleted by
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

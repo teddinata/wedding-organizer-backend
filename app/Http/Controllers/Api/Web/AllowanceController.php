@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Models\Activity;
+use App\Traits\ApiResponseTrait;
 // use resource
-use App\Http\Resources\AllowanceResource;
+use App\Http\Resources\Allowance\AllowanceCollection;
+use App\Http\Resources\Allowance\AllowanceResource;
 // use model
 use App\Models\MasterData\Allowance;
 // request
@@ -16,52 +17,48 @@ use App\Http\Requests\Allowance\UpdateAllowanceRequest;
 
 class AllowanceController extends Controller
 {
+    // use traits for success and error JSON response
+    use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // get all allowances with filter and pagination
-        $query = Allowance::orderBy('name', 'asc')->with(['department']);
-
-        // filter by name and description in one search field
-        if (request()->has('search')) {
-            $query->where(function ($q) {
-                $q->where('name', 'like', '%' . request('search') . '%');
-            });
-        }
-
-        // Get pagination settings
+        // get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
 
-        // Get data
-        $allowances = $query->paginate($perPage, ['*'], 'page', $page);
+        //set variable for search
+        $search = $request->query('search');
 
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' show data Allowance',
-            'description' => 'User ' . Auth::user()->name . ' show data Allowance',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        //set condition if search not empty then search by name
+        if (!empty($search)) {
+            $query = Allowance::where('name', 'like', '%' . $search . '%')
+                ->paginate(
+                    $perPage,
+                    ['*'],
+                    'page',
+                    $page
+                );
+        } else {
+            // get additional service data and sort by name ascending
+            $query = Allowance::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+        }
 
-        // return json response
-        return new AllowanceResource(true, 'Allowance retrieved successfully', $allowances);
-    }
+        // request by id then show detail data, not array
+        if ($request->has('id')) {
+            $id = $request->input('id');
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+            // find the data by id
+            $query = Allowance::findOrFail($id);
+
+            //return JSON response
+            return $this->successResponse(new AllowanceResource($query), 'Data found.');
+        }
+
+        //return resource collection
+        return new AllowanceCollection(true, 'Allowance retrieved successfully', $query);
     }
 
     /**
@@ -69,45 +66,22 @@ class AllowanceController extends Controller
      */
     public function store(StoreAllowanceRequest $request)
     {
-        // create new allowance
-        // $allowance = Allowance::create([
-        //     'name' => $request->name,
-        //     'department_id' => $request->department_id,
-        //     'created_by' => Auth::user()->id,
-        // ] + $request->validated());
+        try {
+            // create new additional service
+            $query = Allowance::create([
+                'name' => $request->name,
+            ] + $request->validated());
 
-        $department_id = $request->department_id;
+            // activity log
+            activity('created')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        // pengecekan apakah department_id sudah ada di allowance
-        foreach ($department_id as $department_id) {
-            // $allowance = Allowance::where('department_id', $request->department_id)->where('name', $request->name)->first();
-            // if ($allowance) {
-                // return response()->json(['message' => 'Allowance have already in this department'], 422);
-            // } else {
-                $allowance = Allowance::create([
-                    'name' => $request->name,
-                    'department_id' => $department_id,
-                    'created_by' => Auth::user()->id,
-                ] + $request->validated());
-            // }
+            // return JSON response
+            return $this->successResponse(new AllowanceResource($query), $query->name . ' has been created successfully.');
+        } catch (\Throwable $th) {
+            return $this->errorResponse('Data failed to save. Please try again!');
         }
-
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' store data Allowance',
-            'description' => 'User ' . Auth::user()->name . ' store data Allowance',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        // return json response
-        return new AllowanceResource(true, 'Allowance created successfully', $allowance);
     }
 
     /**
@@ -119,85 +93,30 @@ class AllowanceController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Allowance $allowance)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateAllowanceRequest $request, string $id)
     {
-        // update allowance
-        // $allowance->update([
-        //     'name' => $request->name,
-        //     'department_id' => $request->department_id,
-        //     'updated_by' => Auth::user()->id,
-        // ] + $request->validated());
+        try {
+            // find the data by id
 
-        // function update like store function above
-        // $allowance = Allowance::find($id);
-        // $department_id = $request->department_id;
-        // foreach ($department_id as $department_id) {
-        //     // pengecekan data department_id sudah ada di allowance berdasarkan id
-        //     $allowance = Allowance::find($id);
+            $query = Allowance::findOrFail($id);
 
-        //     // if ($allowance) {
-        //     //     return response()->json(['message' => 'Allowance have already in this department'], 422);
-        //     // } else {
-        //         // update allowance
-        //         $allowance->update([
-        //             'name' => $request->name,
-        //             'department_id' => $department_id,
-        //             'updated_by' => Auth::user()->id,
-        //         ] + $request->validated());
-        //     // }
-        // }
+            // update data
+            $query->update([
+                'name' => $request->name,
+            ] + $request->validated());
 
-        $allowance = Allowance::find($id);
-        $department_id = $request->input('department_id'); // Pastikan Anda memiliki input 'department_ids' yang sesuai dengan nama input Anda.
+            // activity log
+            activity('updated')
+                ->performedOn($query)
+                ->causedBy(Auth::user());
 
-        if (!$allowance) {
-            return response()->json(['message' => 'Allowance not found'], 404);
+            // return JSON response
+            return $this->successResponse(new AllowanceResource($query), 'Changes has been successfully saved.');
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false, 'message' => 'An error occurred. Data failed to update!'], 409);
         }
-
-        // Hapus loop foreach yang tidak perlu.
-
-        $updatedDepartments = [];
-
-        foreach ($department_id as $department_id) {
-            // Lakukan pengecekan apakah department_id sudah ada di daftar $updatedDepartments.
-            if (!in_array($department_id, $updatedDepartments)) {
-                $allowance->update([
-                    'name' => $request->name,
-                    'department_id' => $department_id,
-                    'updated_by' => Auth::user()->id,
-                ] + $request->validated());
-
-                // Tambahkan department_id ke daftar $updatedDepartments agar tidak ada duplikasi.
-                $updatedDepartments[] = $department_id;
-            }
-        }
-
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' update data Allowance',
-            'description' => 'User ' . Auth::user()->name . ' update data Allowance',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        // return json response
-        return new AllowanceResource(true, 'Allowance updated successfully', $allowance);
     }
 
     /**
@@ -205,31 +124,17 @@ class AllowanceController extends Controller
      */
     public function destroy($id)
     {
-        // find allowance
-        $allowance = Allowance::findOrFail($id);
+        // find data by id
+        $query = Allowance::findOrFail($id);
+        $query->delete();
+        $query->save();
 
-        // delete allowance
-        $allowance->delete();
+        // activity log
+        activity('deleted')
+            ->performedOn($query)
+            ->causedBy(Auth::user());
 
-        // deleted by
-        $allowance->deleted_by = Auth::user()->id;
-        $allowance->save();
-
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' delete data Allowance',
-            'description' => 'User ' . Auth::user()->name . ' delete data Allowance',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        // return json response
-        return new AllowanceResource(true, 'Allowance deleted successfully', $allowance);
+        // return JSON response
+        return $this->successResponse(new AllowanceResource($query), $query->name . ' has been deleted successfully.');
     }
 }

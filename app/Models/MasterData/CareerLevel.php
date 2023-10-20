@@ -12,8 +12,6 @@ class CareerLevel extends Model
     use HasFactory;
     use LogsActivity;
 
-    protected $table = 'career_levels';
-
     // this field must type date yyyy-mm-dd hh:mm:ss
     protected $dates = [
         'created_at',

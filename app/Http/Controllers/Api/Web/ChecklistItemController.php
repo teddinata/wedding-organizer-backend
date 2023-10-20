@@ -35,12 +35,6 @@ class ChecklistItemController extends Controller
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
             $query = ChecklistItem::where('name', 'like', '%' . $search . '%')->with(['checklist_category'])->paginate($perPage, ['*'], 'page', $page);
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get checklist item data and sort by name ascending
             $query = ChecklistItem::with(['checklist_category'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -58,9 +52,8 @@ class ChecklistItemController extends Controller
         try {
             //store to database
             $query = ChecklistItem::create([
-                'name' => $request->name,
                 'checklist_category_id' => $request->checklist_category_id,
-                'created_by' => Auth::user()->id,
+                'name' => $request->name,
             ] + $request->validated());
 
             // activity log
@@ -86,9 +79,8 @@ class ChecklistItemController extends Controller
 
             // update to database
             $query->update(($request->validated() + [
-                'name' => $request->name,
                 'checklist_category_id' => $request->checklist_category_id,
-                'updated_by' => Auth::user()->id,
+                'name' => $request->name,
             ]));
 
             // activity log
@@ -111,8 +103,6 @@ class ChecklistItemController extends Controller
         // find data by id
         $query = ChecklistItem::findOrFail($id);
         $query->delete();
-        // deleted by
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

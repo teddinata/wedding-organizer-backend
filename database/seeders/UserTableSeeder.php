@@ -15,10 +15,11 @@ class UserTableSeeder extends Seeder
      */
     public function run(): void
     {
+        // user account for super admin
         $user = User::create([
-            'name'      => 'Administrator',
-            'email'     => 'admin@gmail.com',
-            'password'  => bcrypt('password'),
+            'name'      => 'Angela Sherly',
+            'email'     => 'angelasherly@goodsoneid.com',
+            'password'  => bcrypt('password123'),
             'created_by'  => 1,
         ]);
 
@@ -34,16 +35,36 @@ class UserTableSeeder extends Seeder
         //assign role to user
         $user->assignRole($role);
 
-        // user create for manager
+        // user account for manager
         $user = User::create([
-            'name'      => 'Chandra',
+            'name'      => 'Manager Test',
             'email'     => 'manager@gmail.com',
             'password'  => bcrypt('password'),
             'created_by'  => 1,
         ]);
 
+        //get all permissions
+        $permissions = Permission::all();
+
         //get role manager
         $role = Role::find(2);
+
+        //assign role to user
+        $user->assignRole($role);
+
+        // user account for admin vendor
+        $user = User::create([
+            'name'      => 'Angela Developer',
+            'email'     => 'developer@goodsoneid.com',
+            'password'  => bcrypt('password123'),
+            'created_by'  => 1,
+        ]);
+
+        //get all permissions
+        $permissions = Permission::all();
+
+        //get role manager
+        $role = Role::find(3);
 
         //assign role to user
         $user->assignRole($role);

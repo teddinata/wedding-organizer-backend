@@ -25,7 +25,6 @@ class StoreAllowanceRequest extends FormRequest
     {
         return [
             'name' => 'required|min:3|max:75',
-            'department_id' => 'required|exists:departments,id',
         ];
     }
 

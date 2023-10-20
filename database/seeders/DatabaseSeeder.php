@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PermissionsTableSeeder::class);
         $this->call(UserTableSeeder::class);
         $this->call(BankAccountTableSeeder::class);
+        $this->call(CareerLevelTableSeeder::class);
         $this->call(ChecklistCategoryTableSeeder::class);
         $this->call(ConfigLoanInstallmentTableSeeder::class);
         $this->call(DepartmentTableSeeder::class);

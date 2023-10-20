@@ -24,11 +24,12 @@ class StoreTeamLoanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'team_id' => 'required|exists:teams,id',
             'loan_number' => 'required|string|max:255',
+            'loan_date' => 'required|date',
+            'team_id' => 'required|exists:teams,id',
             'description' => 'required|string|max:255',
-            'amount' => 'required|numeric',
-            'status' => 'required|in:waiting approval, on going, paid, rejected',
+            'loan_amount' => 'required|numeric',
+            'loan_status' => 'required|in:waiting approval, approved, rejected',
         ];
     }
 

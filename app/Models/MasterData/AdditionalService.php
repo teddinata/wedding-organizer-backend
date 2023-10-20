@@ -2,21 +2,22 @@
 
 namespace App\Models\MasterData;
 
+use App\Models\Operational\OrderAdditionalService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-use App\Models\Operational\OrderAdditionalService;
+use App\Traits\CreatedUpdatedBy;
 
 class AdditionalService extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
+    use CreatedUpdatedBy;
 
-    protected $table = 'additional_services';
-
+    // declare fillable fields
     protected $fillable = [
         'name',
         'created_by',

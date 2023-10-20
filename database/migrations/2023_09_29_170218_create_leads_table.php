@@ -13,21 +13,17 @@ return new class extends Migration
     {
         Schema::create('leads', function (Blueprint $table) {
             $table->id();
-            // vendor id
             $table->foreignId('vendor_id')->nullable()->constrained('vendors')->onDelete('cascade');
-
             $table->datetime('date')->nullable();
             $table->string('pic')->nullable();
             $table->enum('response', ['yes', 'no'])->nullable();
             $table->string('code')->nullable();
             $table->text('note')->nullable();
-
-            $table->integer('created_by')->nullable();
-            $table->integer('updated_by')->nullable();
-            $table->integer('deleted_by')->nullable();
-
-            $table->softDeletes();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

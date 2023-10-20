@@ -35,12 +35,6 @@ class ProductCategoryController extends Controller
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
             $query = ProductCategory::where('name', 'like', '%' . $search . '%')->withCount(['product_attributes'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get product category data and sort by name ascending
             $query = ProductCategory::withCount(['product_attributes'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -70,7 +64,6 @@ class ProductCategoryController extends Controller
             //store to database
             $query = ProductCategory::create([
                 'name' => $request->name,
-                'created_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -105,7 +98,6 @@ class ProductCategoryController extends Controller
             // update to database
             $query->update(($request->validated() + [
                 'name' => $request->name,
-                'updated_by' => Auth::user()->id,
             ]));
 
             // activity log
@@ -128,8 +120,6 @@ class ProductCategoryController extends Controller
         // find data by ID
         $query = ProductCategory::findOrFail($id);
         $query->delete();
-        // soft delete to database
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log
@@ -138,6 +128,6 @@ class ProductCategoryController extends Controller
             ->causedBy(Auth::user());
 
         // return JSON response
-        return $this->successResponse(new ProductCategoryResource($query), $query->account_holder . ' has been deleted successfully.');
+        return $this->successResponse(new ProductCategoryResource($query), $query->name . ' has been deleted successfully.');
     }
 }

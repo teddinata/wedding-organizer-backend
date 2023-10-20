@@ -13,19 +13,14 @@ return new class extends Migration
     {
         Schema::create('order_products', function (Blueprint $table) {
             $table->id();
-            // order id
             $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
-            // product attribute id
-            $table->foreignId('product_attribute_id')->constrained('product_attributes')->cascadeOnDelete();
-            // area id from decoration area
             $table->foreignId('area_id')->constrained('decoration_areas')->cascadeOnDelete();
-
+            $table->foreignId('product_attribute_id')->constrained('product_attributes')->cascadeOnDelete();
+            $table->foreignId('product_variant_id')->constrained('product_variants')->cascadeOnDelete();
             $table->string('slug')->nullable();
-            $table->integer('amount')->nullable();
             $table->integer('quantity')->default(1);
+            $table->integer('amount')->nullable();
             $table->text('notes')->nullable();
-
-            // created by, updated by, deleted by
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->unsignedBigInteger('deleted_by')->nullable();

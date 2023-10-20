@@ -98,7 +98,7 @@ class OrderController extends Controller
         $order = Order::create([
             'vendor_id' => $request->vendor_id,
             'sales_id' => $request->sales_id,
-            'employee_id' => $request->employee_id,
+            'coordinator_id' => $request->coordinator_id,
             'order_number' => 'GO-' . str_pad(Order::whereDate('created_at', now())->count() + 1, 6, '0', STR_PAD_LEFT) . '-V-' . date('Y/m/d') . '-' . str_pad(Order::whereDate('created_at', now())->count() + 1, 4, '0', STR_PAD_LEFT),
 
             'date' => $request->date,
@@ -130,7 +130,7 @@ class OrderController extends Controller
         // order created then created order history
         $orderHistory = OrderHistory::create([
             'order_id' => $order->id,
-            'employee_id' => $request->employee_id,
+            'coordinator_id' => $request->coordinator_id,
             'status' => 'new',
             // 'created_by' => Auth::user()->id,
         ]);
@@ -179,7 +179,7 @@ class OrderController extends Controller
         $order->update([
             'vendor_id' => $request->vendor_id,
             'sales_id' => $request->sales_id,
-            'employee_id' => $request->employee_id,
+            'coordinator_id' => $request->coordinator_id,
             // 'order_number' => 'GO-' . str_pad(Order::whereDate('created_at', now())->count() + 1, 6, '0', STR_PAD_LEFT) . '-V-' . date('Y/m/d') . '-' . str_pad(Order::whereDate('created_at', now())->count() + 1, 4, '0', STR_PAD_LEFT),
 
             'date' => $request->date,

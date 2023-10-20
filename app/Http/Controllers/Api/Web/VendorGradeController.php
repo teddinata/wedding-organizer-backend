@@ -35,12 +35,6 @@ class VendorGradeController extends Controller
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
             $query = VendorGrade::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get grade data and sort by id ascending
             $query = VendorGrade::orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -71,7 +65,6 @@ class VendorGradeController extends Controller
             $query = VendorGrade::create([
                 'name' => $request->name,
                 'description' => $request->description,
-                'created_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -107,7 +100,6 @@ class VendorGradeController extends Controller
             $query->update(($request->validated() + [
                 'name' => $request->name,
                 'description' => $request->description,
-                'updated_by' => Auth::user()->id,
             ]));
 
             // activity log
@@ -130,8 +122,6 @@ class VendorGradeController extends Controller
         // find data
         $query = VendorGrade::findOrFail($id);
         $query->delete();
-        // soft delete to database
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

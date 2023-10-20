@@ -19,9 +19,10 @@ class TeamLoan extends Model
     protected $fillable = [
         'team_id',
         'loan_number',
+        'loan_date',
         'description',
-        'amount',
-        'status',
+        'loan_amount',
+        'loan_status',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -31,15 +32,17 @@ class TeamLoan extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['team_id',
-                    'loan_number',
-                    'description',
-                    'amount',
-                    'status',
-                    'created_by',
-                    'updated_by',
-                    'deleted_by',
-                ]);
+            ->logOnly([
+                'team_id',
+                'loan_number',
+                'loan_date',
+                'description',
+                'loan_amount',
+                'loan_status',
+                'created_by',
+                'updated_by',
+                'deleted_by',
+            ]);
     }
 
     public function team()

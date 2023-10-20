@@ -11,17 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('additional_requests', function (Blueprint $table) {
+        Schema::create('additional_services', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            // created by
-            $table->integer('created_by')->nullable();
-            // updated by
-            $table->integer('updated_by')->nullable();
-            // deleted by
-            $table->integer('deleted_by')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
-            // soft delete
             $table->softDeletes();
         });
     }
@@ -31,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('additional_request');
+        Schema::dropIfExists('additional_services');
     }
 };

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Department;
 
+use App\Http\Resources\Allowance\AllowanceResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,7 +23,8 @@ class DepartmentResource extends JsonResource
             'clock_in' => $this->clock_in,
             'clock_out' => $this->clock_out,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at,
+            'allowance' => new AllowanceResource($this->whenLoaded('allowance'))
         ];
     }
 }

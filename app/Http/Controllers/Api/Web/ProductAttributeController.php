@@ -65,7 +65,6 @@ class ProductAttributeController extends Controller
             $query = ProductAttribute::create([
                 'product_category_id' => $request->input('product_category_id'),
                 'name' => $request->input('name'),
-                'created_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -102,7 +101,6 @@ class ProductAttributeController extends Controller
             $query->update([
                 'product_category_id' => $request->input('product_category_id'),
                 'name' => $request->input('name'),
-                'updated_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -125,8 +123,6 @@ class ProductAttributeController extends Controller
         // find data by id
         $query = ProductAttribute::findOrFail($id);
         $query->delete();
-        // deleted by
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

@@ -13,17 +13,12 @@ return new class extends Migration
     {
         Schema::create('positions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
             $table->string('name');
-
-            // created by
             $table->unsignedBigInteger('created_by')->nullable();
-            // updated by
             $table->unsignedBigInteger('updated_by')->nullable();
-            // deleted by
             $table->unsignedBigInteger('deleted_by')->nullable();
-
             $table->timestamps();
-            // soft delete
             $table->softDeletes();
 
             // index

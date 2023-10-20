@@ -13,15 +13,13 @@ return new class extends Migration
     {
         Schema::create('career_levels', function (Blueprint $table) {
             $table->id();
-            // supervisor, manager, staff
             $table->string('career_level')->nullable();
             $table->string('description')->nullable();
-            $table->integer('created_by')->nullable();
-            $table->integer('updated_by')->nullable();
-            $table->integer('deleted_by')->nullable();
-
-            $table->softDeletes();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

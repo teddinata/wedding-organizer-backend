@@ -13,17 +13,15 @@ return new class extends Migration
     {
         Schema::create('order_histories', function (Blueprint $table) {
             $table->id();
-            // order id
             $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
-            // employee id
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
-
-            // status entum new, on going, checklist done, on the way, arrived, work started, work done, handover,completed
             $table->enum('status', ['new', 'on going', 'checklist done', 'on the way', 'arrived', 'work started', 'work done', 'handover', 'completed'])->default('new');
             $table->string('photo')->nullable();
+            $table->text('location')->nullable();
             $table->integer('signed_by')->nullable();
             $table->string('signature')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -11,21 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('levels', function (Blueprint $table) {
+        Schema::create('employee_levels', function (Blueprint $table) {
             $table->id();
-            $table->string('icon')->nullable();
+            $table->string('image')->nullable();
             $table->string('name');
             $table->integer('from');
             $table->integer('until');
-
-            // created by
             $table->unsignedBigInteger('created_by')->nullable();
-            // updated by
             $table->unsignedBigInteger('updated_by')->nullable();
-            // deleted by
             $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
-            // soft delete
             $table->softDeletes();
 
             // index
@@ -38,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('levels');
+        Schema::dropIfExists('employee_levels');
     }
 };

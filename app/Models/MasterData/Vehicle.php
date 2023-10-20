@@ -7,16 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Traits\CreatedUpdatedBy;
 
 class Vehicle extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
-
-    // declare table name
-    protected $table = 'vehicles';
+    use CreatedUpdatedBy;
 
     // this field must type date yyyy-mm-dd hh:mm:ss
     protected $dates = [

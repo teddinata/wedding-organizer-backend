@@ -13,20 +13,22 @@ return new class extends Migration
     {
         Schema::create('employee_loans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
-
             $table->string('loan_number')->nullable();
+            $table->date('loan_date')->nullable();
+            $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
             $table->string('description')->nullable();
-            $table->integer('amount')->nullable();
+            $table->integer('loan_amount')->nullable();
+            $table->enum('repayment_term', [1, 2])->nullable()->comment('Status: 1 = weekly, 2 = monthly');
             $table->integer('installment_amount')->nullable();
-            $table->enum('status', ['waiting approval', 'on going', 'paid', 'rejected'])->default(null)->nullable();
-
             // approved by, declined by
             $table->unsignedBigInteger('approved_by')->nullable();
+            $table->dateTime('approved_at')->nullable();
             $table->unsignedBigInteger('declined_by')->nullable();
+            $table->dateTime('declined_at')->nullable();
             // reason
             $table->string('reason')->nullable();
-
+            $table->enum('loan_status', ['waiting approval', 'approved', 'rejected'])->default('waiting approval')->nullable();
+            $table->enum('repayment_status', ['none', 'ongoing', 'paid', 'canceled'])->default('none')->nullable();
             // created_by, updated_by, deleted_by
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

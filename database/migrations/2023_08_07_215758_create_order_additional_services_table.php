@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('order_additional_services', function (Blueprint $table) {
             $table->id();
-            // order id
             $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
-            // additional service id
-            $table->foreignId('additional_service_id')->constrained('additional_requests')->cascadeOnDelete();
-            // employee id
+            $table->foreignId('additional_service_id')->constrained('additional_services')->cascadeOnDelete();
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
-
             $table->integer('salary')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

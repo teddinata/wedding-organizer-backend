@@ -34,12 +34,6 @@ class PositionController extends Controller
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
             $query = Position::where('name', 'like', '%' . $search . '%')->with(['department', 'career_level'])->paginate($perPage, ['*'], 'page', $page);
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get position employee data and sort by name ascending
             $query = Position::with(['department', 'career_level'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -57,10 +51,9 @@ class PositionController extends Controller
         try {
             // create new position
             $query = Position::create([
-                'name' => $request->name,
                 'department_id' => $request->department_id,
                 'career_level_id' => $request->career_level_id,
-                'created_by' => Auth::user()->id,
+                'name' => $request->name,
             ] + $request->validated());
 
             // activity log
@@ -94,10 +87,9 @@ class PositionController extends Controller
 
             // update position
             $query->update([
-                'name' => $request->name,
                 'department_id' => $request->department_id,
                 'career_level_id' => $request->career_level_id,
-                'updated_by' => Auth::user()->id,
+                'name' => $request->name,
             ] + $request->validated());
 
             // activity log
@@ -119,8 +111,6 @@ class PositionController extends Controller
         // find position by id
         $query = Position::findOrFail($id);
         $query->delete();
-        // soft delete to database
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

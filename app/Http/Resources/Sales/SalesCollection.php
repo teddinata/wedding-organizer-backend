@@ -36,7 +36,7 @@ class SalesCollection extends ResourceCollection
         return [
             'success'   => $this->status,
             'message'   => $this->message,
-            'data'      => $this->resource
+            'data'      => $this->collection
         ];
     }
 }

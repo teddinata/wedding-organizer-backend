@@ -41,12 +41,6 @@ class DepartmentController extends Controller
                     'page',
                     $page
                 );
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get department data and sort by name ascending
             $query = Department::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -80,7 +74,6 @@ class DepartmentController extends Controller
                 'is_has_schedule' => $request->is_has_schedule,
                 'clock_in' => $request->clock_in,
                 'clock_out' => $request->clock_out,
-                'created_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -119,7 +112,6 @@ class DepartmentController extends Controller
                 'is_has_schedule' => $request->is_has_schedule,
                 'clock_in' => $request->clock_in,
                 'clock_out' => $request->clock_out,
-                'updated_by' => Auth::user()->id,
             ]));
 
             // activity log
@@ -142,8 +134,6 @@ class DepartmentController extends Controller
         // find data by ID
         $query = Department::findOrFail($id);
         $query->delete();
-        // soft delete to database
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

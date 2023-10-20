@@ -26,7 +26,7 @@ class LeadRequest extends FormRequest
         return [
             'vendor_id' => 'required',
             'response' => 'required',
-            'code' => 'required',
+            'code' => 'nullable',
             'note' => 'required',
         ];
     }

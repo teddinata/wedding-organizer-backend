@@ -31,12 +31,12 @@ class EmployeeController extends Controller
     public function index()
     {
         // get all employees with filter and pagination
-        $query = Employee::orderBy('nik', 'asc')->with(['department', 'position', 'level']);
+        $query = Employee::orderBy('employee_number', 'asc')->with(['department', 'position', 'level']);
 
-        // filter by name or nik or email in one search field
+        // filter by name or employee_number or email in one search field
         if (request()->has('search')) {
             $query->where('fullname', 'like', '%' . request('search') . '%')
-                ->orWhere('nik', 'like', '%' . request('search') . '%')
+                ->orWhere('employee_number', 'like', '%' . request('search') . '%')
                 ->orWhere('email', 'like', '%' . request('search') . '%');
         }
 
@@ -103,8 +103,8 @@ class EmployeeController extends Controller
         $employee->position_id = $request->input('position_id');
         $employee->level_id = $request->input('level_id');
         $employee->fullname = $request->input('fullname');
-        // $employee->nik = $request->input('nik');
-        // nik generate increment with format A0001
+        // $employee->employee_number = $request->input('employee_number');
+        // employee_number generate increment with format A0001
         $employee->employee_number = 'A' . sprintf("%04d", DB::table('employees')->count() + 1);
         $employee->phone_number = $request->input('phone_number');
         $employee->email = $request->input('email');
@@ -207,7 +207,7 @@ class EmployeeController extends Controller
         $employee->position_id = $request->input('position_id');
         $employee->level_id = $request->input('level_id');
         $employee->fullname = $request->input('fullname');
-        // $employee->nik = $request->input('nik');
+        // $employee->employee_number = $request->input('employee_number');
         $employee->phone_number = $request->input('phone_number');
         $employee->email = $request->input('email');
         $employee->password = bcrypt($request->input('password'));

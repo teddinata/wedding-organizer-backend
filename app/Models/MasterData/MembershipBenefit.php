@@ -15,13 +15,10 @@ class MembershipBenefit extends Model
     use SoftDeletes;
     use LogsActivity;
 
-    protected $table = 'membership_benefits';
-
+    // declare fillable fields
     protected $fillable = [
         'membership_id',
-        'id',
-        'image',
-        'description',
+        'benefit_id',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -31,7 +28,7 @@ class MembershipBenefit extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['membership_id', 'id', 'image', 'description', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['membership_id', 'benefit_id', 'created_by', 'updated_by', 'deleted_by']);
     }
 
     // banyak membership benefit dimiliki 1 membership

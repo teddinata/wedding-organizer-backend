@@ -47,12 +47,6 @@ class VendorLimitController extends Controller
                     'page',
                     $page
                 );
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get grade data and sort by id ascending
             $query = VendorLimit::orderBy('amount_limit', 'desc')->paginate($perPage, ['*'], 'page', $page);
@@ -83,8 +77,6 @@ class VendorLimitController extends Controller
             $query = VendorLimit::create([
                 'name' => $request->name,
                 'amount_limit' => $request->amount_limit,
-                'created_by' => Auth::user()->id,
-                'updated_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -120,7 +112,6 @@ class VendorLimitController extends Controller
             $query->update([
                 'name' => request('name'),
                 'amount_limit' => request('amount_limit'),
-                'updated_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -143,8 +134,6 @@ class VendorLimitController extends Controller
         // find data
         $query = VendorLimit::findOrFail($id);
         $query->delete();
-        // soft delete to database
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

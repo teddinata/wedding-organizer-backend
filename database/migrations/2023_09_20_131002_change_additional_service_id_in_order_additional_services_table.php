@@ -15,8 +15,6 @@ return new class extends Migration
             // change additional_service_id set to nullable
             $table->unsignedBigInteger('additional_service_id')->nullable()->change();
             $table->string('name')->nullable()->after('employee_id');
-            // soft deletes
-            $table->softDeletes();
         });
     }
 

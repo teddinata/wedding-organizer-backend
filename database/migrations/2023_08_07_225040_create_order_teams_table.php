@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete()->nullable();
             $table->integer('salary')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

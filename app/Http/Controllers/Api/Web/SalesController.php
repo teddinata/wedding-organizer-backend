@@ -35,12 +35,6 @@ class SalesController extends Controller
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
             $query = Sales::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get sales data and sort by name ascending
             $query = Sales::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -70,7 +64,6 @@ class SalesController extends Controller
             //store to database
             $query = Sales::create([
                 'name' => $request->name,
-                'created_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -106,7 +99,6 @@ class SalesController extends Controller
             // update to database
             $query->update(($request->validated() + [
                 'name' => $request->name,
-                'updated_by' => Auth::user()->id,
             ]));
 
             // activity log
@@ -130,8 +122,6 @@ class SalesController extends Controller
         // find data
         $query = Sales::findOrFail($id);
         $query->delete();
-        // soft delete to database
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

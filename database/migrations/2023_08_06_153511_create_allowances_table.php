@@ -13,20 +13,11 @@ return new class extends Migration
     {
         Schema::create('allowances', function (Blueprint $table) {
             $table->id();
-            // relation department id
-            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
-            // name
             $table->string('name');
-            // $table->text('description')->nullable();
-
-            // created by
             $table->unsignedBigInteger('created_by')->nullable();
-            // updated by
             $table->unsignedBigInteger('updated_by')->nullable();
-            // deleted by
             $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
-            // soft delete
             $table->softDeletes();
 
             // index

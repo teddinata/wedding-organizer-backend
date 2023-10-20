@@ -47,12 +47,6 @@ class VehicleController extends Controller
                     'page',
                     $page
                 );
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get config installment data and sort by nominal ascending
             $query = Vehicle::orderBy('model_name', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -83,7 +77,6 @@ class VehicleController extends Controller
             $query = Vehicle::create([
                 'model_name' => $request->model_name,
                 'plate_number' => $request->plate_number,
-                'created_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -119,7 +112,6 @@ class VehicleController extends Controller
             $query->update(($request->validated() + [
                 'model_name' => $request->model_name,
                 'plate_number' => $request->plate_number,
-                'updated_by' => Auth::user()->id,
             ]));
 
             // activity log
@@ -143,8 +135,6 @@ class VehicleController extends Controller
         // find data
         $query = Vehicle::findOrFail($id);
         $query->delete();
-        // soft delete to database
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

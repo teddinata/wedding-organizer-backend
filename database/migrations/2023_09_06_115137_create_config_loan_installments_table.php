@@ -14,14 +14,10 @@ return new class extends Migration
         Schema::create('config_loan_installments', function (Blueprint $table) {
             $table->id();
             $table->integer('nominal');
-            // created by
-            $table->integer('created_by')->nullable();
-            // updated by
-            $table->integer('updated_by')->nullable();
-            // deleted by
-            $table->integer('deleted_by')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
-            // soft delete
             $table->softDeletes();
 
             // index

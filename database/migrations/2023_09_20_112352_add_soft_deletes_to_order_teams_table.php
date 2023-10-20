@@ -15,7 +15,6 @@ return new class extends Migration
             // change team_id set to nullable
             $table->unsignedBigInteger('team_id')->nullable()->change();
             // created_by, updated_by, deleted_by
-            $table->softDeletes();
             // $table->unsignedBigInteger('created_by')->nullable();
             // $table->unsignedBigInteger('updated_by')->nullable();
             // $table->unsignedBigInteger('deleted_by')->nullable();

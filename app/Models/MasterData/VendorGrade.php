@@ -8,15 +8,14 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use App\Models\Operational\Vendor;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\CreatedUpdatedBy;
 
 class VendorGrade extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
-
-    // declare table name
-    protected $table = 'vendor_grades';
+    use CreatedUpdatedBy;
 
     // this field must type date yyyy-mm-dd hh:mm:ss
     protected $dates = [
@@ -39,7 +38,7 @@ class VendorGrade extends Model
             ->logOnly(['name', 'description', 'created_by', 'updated_by'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} sales")
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} vendor grade")
             ->useLogName('Vendor Grade log');
     }
 

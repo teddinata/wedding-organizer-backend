@@ -53,11 +53,12 @@ class TeamLoanController extends Controller
     {
         // create new team loan
         $teamLoan = TeamLoan::create([
-            'team_id' => $request->team_id,
             'loan_number' => $request->loan_number,
+            'loan_date' => $request->loan_date,
+            'team_id' => $request->team_id,
             'description' => $request->description,
-            'amount' => $request->amount,
-            'status' => $request->status,
+            'loan_amount' => $request->loan_amount,
+            'loan_status' => $request->loan_status,
             'created_by' => Auth::user()->id,
         ] + $request->validated());
 
@@ -118,13 +119,14 @@ class TeamLoanController extends Controller
      */
     public function update(UpdateTeamLoanRequest $request, TeamLoan $teamLoan)
     {
-       // update team loan
+        // update team loan
         $teamLoan->update([
-            'team_id' => $request->team_id,
             'loan_number' => $request->loan_number,
+            'loan_date' => $request->loan_date,
+            'team_id' => $request->team_id,
             'description' => $request->description,
-            'amount' => $request->amount,
-            'status' => $request->status,
+            'loan_amount' => $request->loan_amount,
+            'loan_status' => $request->loan_status,
             'updated_by' => Auth::user()->id,
         ] + $request->validated());
 

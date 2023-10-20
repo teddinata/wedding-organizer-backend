@@ -15,9 +15,6 @@ class DecorationArea extends Model
     use SoftDeletes;
     use LogsActivity;
 
-    // declare table name
-    protected $table = 'decoration_areas';
-
     // this field must type date yyyy-mm-dd hh:mm:ss
     protected $dates = [
         'created_at',

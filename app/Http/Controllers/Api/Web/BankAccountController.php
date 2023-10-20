@@ -34,7 +34,12 @@ class BankAccountController extends Controller
 
         //set condition if search not empty then search by account_holder or account_number else then show all data
         if (!empty($search)) {
-            $query = BankAccount::where('account_holder', 'like', '%' . $search . '%')
+            $query = BankAccount::where('bank', 'like', '%' . $search . '%')
+                ->orWhere(
+                    'account_holder',
+                    'like',
+                    '%' . $search . '%'
+                )
                 ->orWhere(
                     'account_number',
                     'like',
@@ -46,12 +51,6 @@ class BankAccountController extends Controller
                     'page',
                     $page
                 );
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get bank account data and sort by account_holder ascending
             $query = BankAccount::orderBy('account_holder', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -83,7 +82,6 @@ class BankAccountController extends Controller
                 'bank' => $request->bank,
                 'account_holder' => $request->account_holder,
                 'account_number' => $request->account_number,
-                'created_by' => Auth::user()->id,
             ] + $request->validated());
 
             // activity log
@@ -92,7 +90,7 @@ class BankAccountController extends Controller
                 ->causedBy(Auth::user());
 
             // return JSON response
-            return $this->successResponse(new BankAccountResource($query), $query->account_holder . ' has been created successfully.');
+            return $this->successResponse(new BankAccountResource($query), 'Bank account has been created successfully.');
         } catch (\Throwable $th) {
             return $this->errorResponse('Data failed to save. Please try again!');
         }
@@ -120,7 +118,6 @@ class BankAccountController extends Controller
                 'bank' => $request->bank,
                 'account_holder' => $request->account_holder,
                 'account_number' => $request->account_number,
-                'updated_by' => Auth::user()->id,
             ]));
 
             // activity log
@@ -143,8 +140,6 @@ class BankAccountController extends Controller
         // find data
         $query = BankAccount::findOrFail($id);
         $query->delete();
-        // soft delete to database
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log
@@ -153,6 +148,6 @@ class BankAccountController extends Controller
             ->causedBy(Auth::user());
 
         // return JSON response
-        return $this->successResponse(new BankAccountResource($query), $query->account_holder . ' has been deleted successfully.');
+        return $this->successResponse(new BankAccountResource($query), 'Bank account has been deleted successfully.');
     }
 }

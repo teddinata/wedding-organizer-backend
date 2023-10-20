@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ApiResponseTrait;
 // use resource
@@ -41,12 +40,6 @@ class AdditionalServiceController extends Controller
                     'page',
                     $page
                 );
-
-            //check result
-            $recordsTotal = $query->count();
-            if (empty($recordsTotal)) {
-                return response(['Message' => 'Data not found!'], 404);
-            }
         } else {
             // get additional service data and sort by name ascending
             $query = AdditionalService::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
@@ -76,7 +69,6 @@ class AdditionalServiceController extends Controller
             // create new additional service
             $query = AdditionalService::create([
                 'name' => $request->name,
-                'created_by' => auth()->user()->id,
             ] + $request->validated());
 
             // activity log
@@ -112,7 +104,6 @@ class AdditionalServiceController extends Controller
             // update data
             $query->update([
                 'name' => $request->name,
-                'updated_by' => auth()->user()->id,
             ] + $request->validated());
 
             // activity log
@@ -135,8 +126,6 @@ class AdditionalServiceController extends Controller
         // find data by id
         $query = AdditionalService::findOrFail($id);
         $query->delete();
-        // soft delete to database
-        $query->deleted_by = auth()->user()->id;
         $query->save();
 
         // activity log

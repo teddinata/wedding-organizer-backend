@@ -62,7 +62,6 @@ class ProductVariantController extends Controller
             $query = ProductVariant::create([
                 'product_attribute_id' => $request->product_attribute_id,
                 'name' => $request->name,
-                'created_by' => Auth::user()->id
             ] + $request->validated());
 
             // activity log
@@ -96,9 +95,8 @@ class ProductVariantController extends Controller
 
             // update data
             $query->update([
-                'name' => $request->name,
                 'product_attribute_id' => $request->product_attribute_id,
-                'updated_by' => Auth::user()->id
+                'name' => $request->name,
             ] + $request->validated());
 
             // activity log
@@ -121,9 +119,6 @@ class ProductVariantController extends Controller
         // delete product variant by id
         $query = ProductVariant::findOrFail($id);
         $query->delete();
-
-        // deleted by
-        $query->deleted_by = Auth::user()->id;
         $query->save();
 
         // activity log

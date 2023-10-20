@@ -34,18 +34,9 @@ class ChecklistCategoryCollection extends ResourceCollection
     public function toArray(Request $request): array
     {
         return [
-            //'success'   => $this->status,
-            //'message'   => $this->message,
-            //'data'      => $this->resource->map(function ($category) {
-            //return [
-            //'id' => $category->id,
-            //'name' => $category->name,
-            //'created_at' => $category->created_at,
-            //];
-            //}),
             'success'   => $this->status,
             'message'   => $this->message,
-            'data'      => $this->resource
+            'data'      => $this->collection
         ];
     }
 }

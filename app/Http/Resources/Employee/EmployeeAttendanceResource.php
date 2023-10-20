@@ -19,7 +19,7 @@ class EmployeeAttendanceResource extends JsonResource
             'department_id' => $this->department_id,
             'position_id' => $this->position_id,
             'photo' => $this->photo,
-            'nik' => $this->nik,
+            'employee_number' => $this->employee_number,
             'fullname' => $this->fullname,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at

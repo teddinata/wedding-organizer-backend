@@ -19,7 +19,7 @@ class Order extends Model
 
     protected $fillable = [
         'sales_id',
-        'employee_id',
+        'coordinator_id',
         'vendor_id',
         'order_number',
         'order_seq',
@@ -51,7 +51,7 @@ class Order extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['sales_id', 'employee_id', 'vendor_id', 'order_number', 'order_seq', 'date', 'loading_date', 'loading_time', 'event_date', 'event_time', 'venue', 'room', 'coordinator_schedule', 'subtotal', 'discount', 'total', 'notes', 'created_by', 'updated_by', 'deleted_by']);
+            ->logOnly(['sales_id', 'coordinator_id', 'vendor_id', 'order_number', 'order_seq', 'date', 'loading_date', 'loading_time', 'event_date', 'event_time', 'venue', 'room', 'coordinator_schedule', 'subtotal', 'discount', 'total', 'notes', 'created_by', 'updated_by', 'deleted_by']);
     }
 
     // relasi dengan sales
@@ -89,7 +89,4 @@ class Order extends Model
     {
         return $this->hasMany(OrderProduct::class, 'order_id', 'id');
     }
-
-
-
 }

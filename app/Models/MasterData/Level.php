@@ -7,14 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\CreatedUpdatedBy;
 
 class Level extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use LogsActivity;
+    use CreatedUpdatedBy;
 
-    protected $table = 'employee_levels';
+    public $table = 'employee_levels';
 
     // this field must type date yyyy-mm-dd hh:mm:ss
     protected $dates = [
@@ -41,7 +43,7 @@ class Level extends Model
             ->logOnly(['icon', 'name', 'from', 'until', 'created_by', 'updated_by', 'deleted_by'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} checklist_item")
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} employee level")
             ->useLogName('Employee Rank log');
     }
 

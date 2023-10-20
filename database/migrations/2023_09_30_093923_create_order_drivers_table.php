@@ -14,20 +14,16 @@ return new class extends Migration
         Schema::create('order_drivers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
-            $table->foreignId('vehicle_id')->constrained('vehicles')->cascadeOnDelete();
             $table->foreignId('driver_id')->constrained('employees')->cascadeOnDelete();
-
+            $table->foreignId('vehicle_id')->constrained('vehicles')->cascadeOnDelete();
             $table->string('route_from')->nullable();
             $table->string('route_to')->nullable();
             $table->integer('cost')->nullable();
-
-            // created by updateed by deleted by
-            $table->integer('created_by')->nullable();
-            $table->integer('updated_by')->nullable();
-            $table->integer('deleted_by')->nullable();
-
-            $table->softDeletes();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
