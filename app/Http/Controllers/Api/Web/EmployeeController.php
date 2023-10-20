@@ -105,7 +105,7 @@ class EmployeeController extends Controller
         $employee->fullname = $request->input('fullname');
         // $employee->nik = $request->input('nik');
         // nik generate increment with format A0001
-        $employee->nik = 'A' . sprintf("%04d", DB::table('employees')->count() + 1);
+        $employee->employee_number = 'A' . sprintf("%04d", DB::table('employees')->count() + 1);
         $employee->phone_number = $request->input('phone_number');
         $employee->email = $request->input('email');
         $employee->password = Hash::make($request->input('password'));

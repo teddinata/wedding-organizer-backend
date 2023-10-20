@@ -29,7 +29,7 @@ class Employee extends Model
         'level_id',
         'photo',
         'fullname',
-        'nik',
+        'employee_number',
         'phone_number',
         'email',
         'email_verified_at',
