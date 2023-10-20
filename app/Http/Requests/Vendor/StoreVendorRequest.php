@@ -36,8 +36,8 @@ class StoreVendorRequest extends FormRequest
             'contact_number' => ['required'],
             'contact_person' => ['required'],
             'person_level' => ['nullable'], // 'owner', 'manager', 'supervisor', 'staff
-            'website' => ['required'],
-            'instagram' => ['required'],
+            'website' => ['nullable'],
+            'instagram' => ['nullable'],
             'address' => ['required'],
             'city' => ['required'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
