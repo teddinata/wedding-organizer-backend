@@ -45,10 +45,10 @@ class LeadController extends Controller
         $totalFollowUp = Lead::where('vendor_id', $request->vendor_grade_id)->whereMonth('date', date('m'))->count();
 
         // count total response yes
-        $totalResponseYes = Lead::where('vendor_id', $request->vendor_grade_id)->where('response', 'yes')->count();
+        $totalResponseYes = Lead::where('vendor_id', $request->vendor_grade_id)->where('response', 'yes')->whereMonth('date', date('m'))->count();
 
         // count total response no
-        $totalResponseNo = Lead::where('vendor_id', $request->vendor_grade_id)->where('response', 'no')->count();
+        $totalResponseNo = Lead::where('vendor_id', $request->vendor_grade_id)->where('response', 'no')->whereMonth('date', date('m'))->count();
 
         // log activity
         // Activity::create([
