@@ -34,10 +34,10 @@ class ProductCategoryController extends Controller
 
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
-            $query = ProductCategory::where('name', 'like', '%' . $search . '%')->withCount(['product_attributes'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = ProductCategory::where('name', 'like', '%' . $search . '%')->withCount(['product_attributes'])->orderBy('name', 'asc')->get();
         } else {
             // get product category data and sort by name ascending
-            $query = ProductCategory::withCount(['product_attributes'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = ProductCategory::withCount(['product_attributes'])->orderBy('name', 'asc')->get();
         }
 
         // request by id then show detail data, not array
@@ -51,8 +51,9 @@ class ProductCategoryController extends Controller
             return $this->successResponse(new ProductCategoryResource($query), 'Data found.');
         }
 
-        //return collection of product category
-        return new ProductCategoryCollection(true, 'Product category retrieved successfully', $query);
+        //return resource collection
+        $showData = new ProductCategoryCollection(true, 'Product category retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

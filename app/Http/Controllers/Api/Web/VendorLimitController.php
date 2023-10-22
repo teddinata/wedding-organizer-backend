@@ -41,15 +41,10 @@ class VendorLimitController extends Controller
                     'like',
                     '%' . $search . '%'
                 )
-                ->paginate(
-                    $perPage,
-                    ['*'],
-                    'page',
-                    $page
-                );
+                ->get();
         } else {
             // get grade data and sort by id ascending
-            $query = VendorLimit::orderBy('amount_limit', 'desc')->paginate($perPage, ['*'], 'page', $page);
+            $query = VendorLimit::orderBy('amount_limit', 'desc')->get();
         }
 
         // request by id then show detail data, not array
@@ -63,8 +58,9 @@ class VendorLimitController extends Controller
             return $this->successResponse(new VendorLimitResource($query), 'Data found.');
         }
 
-        //return collection of grade vendor as a resource
-        return new VendorLimitCollection(true, 'Limit retrieved successfully', $query);
+        //return resource collection
+        $showData = new VendorLimitCollection(true, 'Vendor limit retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

@@ -33,19 +33,13 @@ class AdditionalServiceController extends Controller
 
         //set condition if search not empty then search by name
         if (!empty($search)) {
-            $query = AdditionalService::where('name', 'like', '%' . $search . '%')
-                ->paginate(
-                    $perPage,
-                    ['*'],
-                    'page',
-                    $page
-                );
+            $query = AdditionalService::where('name', 'like', '%' . $search . '%')->get();
         } else {
             // get additional service data and sort by name ascending
-            $query = AdditionalService::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = AdditionalService::orderBy('name', 'asc')->get();
         }
 
-        // request by id then show detail data, not array
+        // if has request by id then show detail data by id 
         if ($request->has('id')) {
             $id = $request->input('id');
 
@@ -57,7 +51,8 @@ class AdditionalServiceController extends Controller
         }
 
         //return resource collection
-        return new AdditionalServiceCollection(true, 'Additional Service retrieved successfully', $query);
+        $showData = new AdditionalServiceCollection(true, 'Additional service retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

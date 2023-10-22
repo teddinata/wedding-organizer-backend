@@ -41,15 +41,10 @@ class VehicleController extends Controller
                     'like',
                     '%' . $search . '%'
                 )
-                ->paginate(
-                    $perPage,
-                    ['*'],
-                    'page',
-                    $page
-                );
+                ->get();
         } else {
             // get config installment data and sort by nominal ascending
-            $query = Vehicle::orderBy('model_name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = Vehicle::orderBy('model_name', 'asc')->get();
         }
 
         // request by id then show detail data, not array
@@ -64,7 +59,8 @@ class VehicleController extends Controller
         }
 
         //return resource collection
-        return new VehicleCollection(true, 'Vehicle retrieved successfully.', $query);
+        $showData = new VehicleCollection(true, 'Vehicle retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

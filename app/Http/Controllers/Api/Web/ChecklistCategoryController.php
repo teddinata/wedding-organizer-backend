@@ -31,8 +31,9 @@ class ChecklistCategoryController extends Controller
         // Get category data and sort by name ascending
         $query = ChecklistCategory::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
 
-        // return json response
-        return new ChecklistCategoryCollection(true, 'Checklist categories retrieved successfully', $query);
+        //return resource collection
+        $showData = new ChecklistCategoryCollection(true, 'Checklist category retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

@@ -50,10 +50,11 @@ class ProductAttributeController extends Controller
         $page = request('page', 1);
 
         // Get data
-        $product_attributes = $query->paginate($perPage, ['*'], 'page', $page);
+        $product_attributes = $query->get();
 
-        // return json response
-        return new ProductAttributeCollection(true, 'Product attributes retrieved successfully', $product_attributes);
+        //return resource collection
+        $showData = new ProductAttributeCollection(true, 'Product attribute retrieved successfully', $product_attributes);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

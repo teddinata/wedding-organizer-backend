@@ -47,10 +47,11 @@ class ProductVariantController extends Controller
         $page = request('page', 1);
 
         // Get data
-        $product_variants = $query->paginate($perPage, ['*'], 'page', $page);
+        $product_variants = $query->get();
 
-        // return json response
-        return new ProductVariantCollection(true, 'Product variant retrieved successfully', $product_variants);
+        //return resource collection
+        $showData = new ProductVariantCollection(true, 'Product variant retrieved successfully', $product_variants);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

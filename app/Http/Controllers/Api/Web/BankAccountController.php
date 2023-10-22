@@ -45,15 +45,10 @@ class BankAccountController extends Controller
                     'like',
                     '%' . $search . '%'
                 )
-                ->paginate(
-                    $perPage,
-                    ['*'],
-                    'page',
-                    $page
-                );
+                ->get();
         } else {
             // get bank account data and sort by account_holder ascending
-            $query = BankAccount::orderBy('account_holder', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = BankAccount::orderBy('account_holder', 'asc')->get();
         }
 
         // request by id then show detail data, not array
@@ -68,7 +63,8 @@ class BankAccountController extends Controller
         }
 
         //return resource collection
-        return new BankAccountCollection(true, 'Bank account retrieved successfully', $query);
+        $showData = new BankAccountCollection(true, 'Bank account retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

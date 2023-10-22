@@ -33,14 +33,15 @@ class PositionController extends Controller
 
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
-            $query = Position::where('name', 'like', '%' . $search . '%')->with(['department', 'career_level'])->paginate($perPage, ['*'], 'page', $page);
+            $query = Position::where('name', 'like', '%' . $search . '%')->with(['department', 'career_level'])->get();
         } else {
             // get position employee data and sort by name ascending
-            $query = Position::with(['department', 'career_level'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = Position::with(['department', 'career_level'])->orderBy('name', 'asc')->get();
         }
 
         //return resource collection
-        return new PositionCollection(true, 'Employee position retrieved successfully', $query);
+        $showData = new PositionCollection(true, 'Employee position retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

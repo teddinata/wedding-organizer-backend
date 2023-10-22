@@ -34,14 +34,15 @@ class ChecklistItemController extends Controller
 
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
-            $query = ChecklistItem::where('name', 'like', '%' . $search . '%')->with(['checklist_category'])->paginate($perPage, ['*'], 'page', $page);
+            $query = ChecklistItem::where('name', 'like', '%' . $search . '%')->with(['checklist_category'])->get();
         } else {
             // get checklist item data and sort by name ascending
-            $query = ChecklistItem::with(['checklist_category'])->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = ChecklistItem::with(['checklist_category'])->orderBy('name', 'asc')->get();
         }
 
-        // return json response
-        return new ChecklistItemCollection(true, 'Checklist items retrieved successfully', $query);
+        //return resource collection
+        $showData = new ChecklistItemCollection(true, 'Checklist items retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**
