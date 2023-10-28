@@ -73,11 +73,18 @@ class VendorLimitController extends Controller
     public function store(StoreVendorLimitRequest $request)
     {
         try {
-            //store to database
-            $query = VendorLimit::create([
-                'name' => $request->name,
-                'amount_limit' => $request->amount_limit,
-            ] + $request->validated());
+
+            // check if amount limit is greater than data that already exists
+            $check = VendorLimit::where('amount_limit', '>', $request->amount_limit)->first();
+            //store to database with check
+            if ($check) {
+                $query = VendorLimit::create([
+                    'name' => request('name'),
+                    'amount_limit' => request('amount_limit'),
+                ] + $request->validated());
+            } else {
+                return $this->errorResponse('Amount limit must be greater than data that already exists!');
+            }
 
             // activity log
             activity('created')

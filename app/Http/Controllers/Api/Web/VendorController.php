@@ -117,7 +117,11 @@ class VendorController extends Controller
             'vendor_grade_id' => $request->vendor_grade_id,
             'vendor_limit_id' => $request->vendor_limit_id,
             'membership_id' => $request->membership_id,
-            'code' => $request->code,
+            // 'code' => $request->code,
+            // $employee->employee_number = 'A' . sprintf("%04d", DB::table('employees')->count() + 1);
+            // code auto generate
+            'code' => 'V-' . sprintf("%04d", Vendor::count() + 1),
+
             'name' => $request->name,
             'point' => $request->point,
             'email' => $request->email,
@@ -204,7 +208,7 @@ class VendorController extends Controller
             'vendor_limit_id' => $request->vendor_limit_id,
             'membership_id' => $request->membership_id,
             'email' => $request->email,
-            'code' => $request->code,
+            // 'code' => $request->code,
             'name' => $request->name,
             'point' => $request->point,
             'contact_number' => $request->contact_number,

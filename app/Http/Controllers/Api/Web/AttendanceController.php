@@ -83,18 +83,18 @@ class AttendanceController extends Controller
         }
 
         // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' show data Attendance',
-            'description' => 'User ' . Auth::user()->name . ' show data Attendance',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        // Activity::create([
+        //     'log_name' => 'User ' . Auth::user()->name . ' show data Attendance',
+        //     'description' => 'User ' . Auth::user()->name . ' show data Attendance',
+        //     'subject_id' => Auth::user()->id,
+        //     'subject_type' => 'App\Models\User',
+        //     'causer_id' => Auth::user()->id,
+        //     'causer_type' => 'App\Models\User',
+        //     'properties' => request()->ip(),
+        //     // 'host' => request()->ip(),
+        //     'created_at' => now(),
+        //     'updated_at' => now()
+        // ]);
 
         // return json response
         return new AttendanceResource(true, 'Attendance retrieved successfully', $attendances);

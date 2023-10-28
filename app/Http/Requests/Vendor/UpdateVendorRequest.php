@@ -28,7 +28,7 @@ class UpdateVendorRequest extends FormRequest
             'vendor_grade_id' => ['required'],
             'vendor_limit_id' => ['required'],
             'membership_id' => ['required'],
-            'code' => ['required'],
+            'code' => ['nullable'],
             'name' => ['required'],
             // email harus unique di table vendor tetapi exclude deleted_at
             'email' => ['required', 'email'],
