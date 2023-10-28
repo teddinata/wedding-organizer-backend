@@ -34,18 +34,19 @@ class MembershipController extends Controller
 
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
-            $query = Membership::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
+            $query = Membership::where('name', 'like', '%' . $search . '%')->get();
         } else {
             // get checklist item data and sort by name ascending
-            $query = Membership::orderBy('from', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = Membership::orderBy('from', 'asc')->get();
         }
 
         foreach ($query as $membership) {
             $membership->image = asset('storage/uploads/membership/' . $membership->image);
         }
 
-        // return json response
-        return new MembershipCollection(true, 'Membership retrieved successfully', $query);
+        //return resource collection
+        $showData = new MembershipCollection(true, 'Membership retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

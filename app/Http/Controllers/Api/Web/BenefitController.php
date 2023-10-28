@@ -34,18 +34,19 @@ class BenefitController extends Controller
 
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
-            $query = Benefit::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
+            $query = Benefit::where('name', 'like', '%' . $search . '%')->get();
         } else {
             // get benefit data and sort by name ascending
-            $query = Benefit::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = Benefit::orderBy('name', 'asc')->get();
         }
 
         foreach ($query as $benefit) {
             $benefit->image = asset('storage/uploads/benefit/' . $benefit->image);
         }
 
-        // return json response
-        return new BenefitCollection(true, 'Benefit retrieved successfully', $query);
+        //return resource collection
+        $showData = new BenefitCollection(true, 'Benefit retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

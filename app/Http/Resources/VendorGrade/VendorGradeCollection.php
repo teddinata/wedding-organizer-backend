@@ -16,12 +16,12 @@ class VendorGradeCollection extends ResourceCollection
      *
      * @param  mixed $status
      * @param  mixed $message
-     * @param  mixed $resource
+     * @param  mixed $collection
      * @return void
      */
-    public function __construct($status, $message, $resource)
+    public function __construct($status, $message, $collection)
     {
-        parent::__construct($resource);
+        parent::__construct($collection);
         $this->status  = $status;
         $this->message = $message;
     }

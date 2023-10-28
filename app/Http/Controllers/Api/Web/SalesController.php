@@ -34,10 +34,10 @@ class SalesController extends Controller
 
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
-            $query = Sales::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
+            $query = Sales::where('name', 'like', '%' . $search . '%')->get();
         } else {
             // get sales data and sort by name ascending
-            $query = Sales::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = Sales::orderBy('name', 'asc')->get();
         }
 
         // request by id then show detail data, not array
@@ -52,7 +52,8 @@ class SalesController extends Controller
         }
 
         //return resource collection
-        return new SalesCollection(true, 'Sales retrieved successfully', $query);
+        $showData = new SalesCollection(true, 'Sales retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

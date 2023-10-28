@@ -35,10 +35,10 @@ class LevelController extends Controller
 
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
-            $query = Level::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
+            $query = Level::where('name', 'like', '%' . $search . '%')->get();
         } else {
             // get checklist item data and sort by name ascending
-            $query = Level::orderBy('from', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = Level::orderBy('from', 'asc')->get();
         }
 
         // foreach icon
@@ -46,8 +46,9 @@ class LevelController extends Controller
             $level->icon = asset('storage/uploads/level/' . $level->icon);
         }
 
-        // return json response
-        return new EmployeeLevelCollection(true, 'Level retrieved successfully', $query);
+        //return resource collection
+        $showData = new EmployeeLevelCollection(true, 'Employee level retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

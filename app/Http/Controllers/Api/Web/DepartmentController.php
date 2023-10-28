@@ -34,16 +34,10 @@ class DepartmentController extends Controller
 
         //set condition if search not empty then search by name
         if (!empty($search)) {
-            $query = Department::where('name', 'like', '%' . $search . '%')
-                ->paginate(
-                    $perPage,
-                    ['*'],
-                    'page',
-                    $page
-                );
+            $query = Department::where('name', 'like', '%' . $search . '%')->get();
         } else {
             // get department data and sort by name ascending
-            $query = Department::orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = Department::orderBy('name', 'asc')->get();
         }
 
         // request by id then show detail data, not array
@@ -58,7 +52,8 @@ class DepartmentController extends Controller
         }
 
         //return resource collection
-        return new DepartmentCollection(true, 'Department retrieved successfully', $query);
+        $showData = new DepartmentCollection(true, 'Employee department retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

@@ -34,10 +34,10 @@ class VendorGradeController extends Controller
 
         //set condition if search not empty then find by name else then show all data
         if (!empty($search)) {
-            $query = VendorGrade::where('name', 'like', '%' . $search . '%')->paginate($perPage, ['*'], 'page', $page);
+            $query = VendorGrade::where('name', 'like', '%' . $search . '%')->get();
         } else {
             // get grade data and sort by id ascending
-            $query = VendorGrade::orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = VendorGrade::orderBy('id', 'asc')->get();
         }
 
         // request by id then show detail data, not array
@@ -51,8 +51,9 @@ class VendorGradeController extends Controller
             return $this->successResponse(new VendorGradeResource($query), 'Data found.');
         }
 
-        //return collection of grade vendor as a resource
-        return new VendorGradeCollection(true, 'Grade retrieved successfully', $query);
+        //return resource collection
+        $showData = new VendorGradeCollection(true, 'Vendor grade retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**

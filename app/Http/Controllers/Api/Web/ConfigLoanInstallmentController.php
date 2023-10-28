@@ -34,16 +34,10 @@ class ConfigLoanInstallmentController extends Controller
 
         //set condition if search not empty then search by nominal else then show all data
         if (!empty($search)) {
-            $query = ConfigLoanInstallment::where('nominal', 'like', '%' . $search . '%')
-                ->paginate(
-                    $perPage,
-                    ['*'],
-                    'page',
-                    $page
-                );
+            $query = ConfigLoanInstallment::where('nominal', 'like', '%' . $search . '%')->get();
         } else {
             // get config installment data and sort by nominal ascending
-            $query = ConfigLoanInstallment::orderBy('nominal', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = ConfigLoanInstallment::orderBy('nominal', 'asc')->get();
         }
 
         // request by id then show detail data, not array
@@ -58,7 +52,8 @@ class ConfigLoanInstallmentController extends Controller
         }
 
         //return resource collection
-        return new ConfigLoanInstallmentCollection(true, 'Config Installment retrieved successfully', $query);
+        $showData = new ConfigLoanInstallmentCollection(true, 'Config loan installment retrieved successfully', $query);
+        return  $showData->paginate($perPage, $page);
     }
 
     /**
