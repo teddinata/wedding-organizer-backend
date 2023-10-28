@@ -40,4 +40,15 @@ class DepartmentAllowance extends Model
             ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} departement allowance")
             ->useLogName('Department Allowance log');
     }
+
+    // pivot table to department table and allowance table (many to many)
+    public function department()
+    {
+        return $this->belongsToMany(Department::class, 'department_allowances', 'department_id', 'id');
+    }
+
+    public function allowance()
+    {
+        return $this->belongsToMany(Allowance::class, 'department_allowances', 'allowance_id', 'id');
+    }
 }
