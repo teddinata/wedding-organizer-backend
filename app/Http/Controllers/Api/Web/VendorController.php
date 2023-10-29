@@ -34,23 +34,10 @@ class VendorController extends Controller
         // request by id then show detail data, not array
         if (request('id')) {
             $id = request('id');
-            $vendor = $query->findOrFail($id);
+            $vendor = Vendor::with(['vendor_grade', 'vendor_limit'])->findOrFail($id);
 
             // logo
             $vendor->logo = asset('storage/uploads/vendor/' . $vendor->logo);
-
-            Activity::create([
-                'log_name' => 'User ' . Auth::user()->name . ' show data vendor detail ' . $vendor->name,
-                'description' => 'User ' . Auth::user()->name . ' show data vendor detail ' . $vendor->name,
-                'subject_id' => Auth::user()->id,
-                'subject_type' => 'App\Models\User',
-                'causer_id' => Auth::user()->id,
-                'causer_type' => 'App\Models\User',
-                'properties' => request()->ip(),
-                // 'host' => request()->ip(),
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
 
             return response()->json([
                 'success' => true,

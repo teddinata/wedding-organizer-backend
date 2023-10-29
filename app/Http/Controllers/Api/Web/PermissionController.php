@@ -74,4 +74,78 @@ class PermissionController extends Controller
 
         return new Resource(true, 'Permissions retrieved successfully', $permissions);
     }
+
+
+    // function for store data permission
+    public function store(Request $request)
+    {
+        // validate request
+        $request->validate([
+            'name' => 'required|unique:permissions,name',
+        ]);
+
+        // store to database
+        $query = Permission::create([
+            'name' => $request->name,
+            'guard_name' => 'web'
+        ]);
+
+        // Log Activity
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' store data permission ' . $query->name,
+            'description' => 'User ' . Auth::user()->name . ' store data permission ' . $query->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $query->name . ' has been created successfully.',
+            'data' => $query
+        ], 201);
+    }
+
+    // function for update data permission
+    public function update(Request $request, $id)
+    {
+        // validate request
+        $request->validate([
+            'name' => 'required'
+        ]);
+
+        // find the data
+        $query = Permission::findOrFail($id);
+
+        // update to database
+        $query->update([
+            'name' => $request->name,
+            'guard_name' => 'web'
+        ]);
+
+        // Log Activity
+        Activity::create([
+            'log_name' => 'User ' . Auth::user()->name . ' update data permission ' . $query->name,
+            'description' => 'User ' . Auth::user()->name . ' update data permission ' . $query->name,
+            'subject_id' => Auth::user()->id,
+            'subject_type' => 'App\Models\User',
+            'causer_id' => Auth::user()->id,
+            'causer_type' => 'App\Models\User',
+            'properties' => request()->ip(),
+            // 'host' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $query->name . ' has been updated successfully.',
+            'data' => $query
+        ], 200);
+    }
 }
