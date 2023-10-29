@@ -58,11 +58,42 @@ class LevelController extends Controller
     {
         try {
             //store to database
-            $query = Level::create([
-                'name' => $request->name,
-                'from' => $request->from,
-                'until' => $request->until,
-            ] + $request->validated());
+            // $query = Level::create([
+            //     'name' => $request->name,
+            //     'from' => $request->from,
+            //     'until' => $request->until,
+            // ] + $request->validated());
+
+            // check from harus lebih besar dari until di level lain yang sudah ada di database dan tidak boleh sama dengan until di level lain yang sudah ada di database dan cek request from dan until tidak boleh sama
+            $fromCheck = Level::where('from', '>=', $request->from)->first();
+            $untilCheck = Level::where('until', '>=', $request->until)->first();
+            $fromEqualCheck = Level::where('from', '=', $request->from)->first();
+            $untilEqualCheck = Level::where('until', '=', $request->until)->first();
+
+            if ($fromCheck) {
+                return $this->errorResponse('From must be greater than the previous level: ' . $fromCheck->name);
+            }
+
+            if ($untilCheck) {
+                return $this->errorResponse('Until must be greater than the previous level: ' . $untilCheck->name);
+            }
+
+            if ($fromEqualCheck) {
+                return $this->errorResponse('From cannot be the same as the previous level: ' . $fromEqualCheck->name);
+            }
+
+            if ($untilEqualCheck) {
+                return $this->errorResponse('Until cannot be the same as the previous level: ' . $untilEqualCheck->name);
+            }
+
+            if (!$fromCheck && !$untilCheck && !$fromEqualCheck && !$untilEqualCheck) {
+                $query = Level::create([
+                    'name' => $request->name,
+                    'from' => $request->from,
+                    'until' => $request->until,
+                ] + $request->validated());
+            }
+
 
             // check if request has icon
             //if ($request->hasFile('icon')) {
@@ -101,15 +132,38 @@ class LevelController extends Controller
     public function update(UpdateLevelRequest $request, $id)
     {
         try {
-            // find the data
+            // Find the data
             $query = Level::findOrFail($id);
 
-            // update level
-            $query->update(($request->validated() + [
+            // Check if the update would violate any conditions
+            $fromCheck = Level::where('from', '>=', $request->from)->where('id', '<>', $id)->first();
+            $untilCheck = Level::where('until', '>=', $request->until)->where('id', '<>', $id)->first();
+            $fromEqualCheck = Level::where('from', '=', $request->from)->where('id', '<>', $id)->first();
+            $untilEqualCheck = Level::where('until', '=', $request->until)->where('id', '<>', $id)->first();
+
+            if ($fromCheck) {
+                return $this->errorResponse('From must be greater than the previous level: ' . $fromCheck->name);
+            }
+
+            if ($untilCheck) {
+                return $this->errorResponse('Until must be greater than the previous level: ' . $untilCheck->name);
+            }
+
+            if ($fromEqualCheck) {
+                return $this->errorResponse('From cannot be the same as the previous level: ' . $fromEqualCheck->name);
+            }
+
+            if ($untilEqualCheck) {
+                return $this->errorResponse('Until cannot be the same as the previous level: ' . $untilEqualCheck->name);
+            }
+
+            // If no violations are found, update the level
+            $query->update($request->validated() + [
                 'name' => $request->name,
                 'from' => $request->from,
                 'until' => $request->until,
-            ]));
+            ]);
+
 
             // activity log
             activity('updated')

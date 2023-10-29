@@ -72,14 +72,16 @@ class VendorLimitController extends Controller
 
             // check if amount limit is greater than data that already exists
             $check = VendorLimit::where('amount_limit', '>', $request->amount_limit)->first();
-            //store to database with check
-            if ($check) {
+            // check if data not found
+            if (!$check) {
+                // create vendor limit
                 $query = VendorLimit::create([
                     'name' => request('name'),
                     'amount_limit' => request('amount_limit'),
                 ] + $request->validated());
             } else {
-                return $this->errorResponse('Amount limit must be greater than data that already exists!');
+                // return error response
+                return $this->errorResponse('Amount limit must be greater than ' . $check->name . '!');
             }
 
             // activity log
@@ -111,11 +113,19 @@ class VendorLimitController extends Controller
             // get vendor limit by id
             $query = VendorLimit::findOrFail($id);
 
-            // update vendor limit
-            $query->update([
-                'name' => request('name'),
-                'amount_limit' => request('amount_limit'),
-            ] + $request->validated());
+            // check if amount limit is greater than data that already exists
+            $check = VendorLimit::where('amount_limit', '>', $request->amount_limit)->first();
+            // check if data not found
+            if (!$check) {
+                // update vendor limit
+                $query->update([
+                    'name' => request('name'),
+                    'amount_limit' => request('amount_limit'),
+                ] + $request->validated());
+            } else {
+                // return error response
+                return $this->errorResponse('Amount limit must be greater than ' . $check->name . '!');
+            }
 
             // activity log
             activity('updated')

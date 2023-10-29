@@ -26,7 +26,7 @@ class UpdateBankAccountRequest extends FormRequest
         return [
             'bank' => ['required', 'string', 'min:3', 'max:255'],
             'account_holder' => ['required', 'string', 'min:3', 'max:255'],
-            'account_number' => ['required', 'digits_between:7,16'],
+            'account_number' => ['required', 'string', 'min:7', 'max:20'],
         ];
     }
 
