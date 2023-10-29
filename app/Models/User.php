@@ -107,4 +107,9 @@ class User extends Authenticatable
     //         ->logOnlyDirty();
     // }
 
+    // notifikasi
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
 }
