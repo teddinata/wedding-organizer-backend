@@ -44,6 +44,7 @@ use App\Http\Controllers\Api\Web\InvoiceController;
 use App\Http\Controllers\Api\Web\OrderHistoryController;
 use App\Http\Controllers\Api\Web\BenefitController;
 use App\Http\Controllers\Api\Web\DepartmentAllowanceController;
+use App\Http\Controllers\Api\Web\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -201,6 +202,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('invoice/waiting-payment', [InvoiceController::class, 'indexWaitingForPayment'])->name('invoice.waiting-payment');
         // invoice route resource
         Route::resource('invoice', InvoiceController::class)->names('invoice');
+
+        // route notification resource
+        Route::resource('notification', NotificationController::class)->names('notification');
     });
 
     // route for permission

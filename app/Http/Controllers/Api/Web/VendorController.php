@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 use App\Models\Operational\Vendor;
 use App\Models\User;
+// notification
+use App\Models\Notification;
 use App\Http\Resources\VendorResource;
 use App\Http\Requests\Vendor\StoreVendorRequest;
 use App\Http\Requests\Vendor\UpdateVendorRequest;
@@ -147,6 +149,17 @@ class VendorController extends Controller
         }
 
         $vendor = Vendor::create($vendor + $request->validated());
+
+        // kirim ke notication table
+        $notification = new Notification();
+        $notification->user_id = Auth::user()->id;
+        $notification->type = 'Vendor Created';
+        // data
+        $notification->data = [
+            'vendor_name' => $vendor->name,
+            'message' => 'New vendor has been created by ' . Auth::user()->name,
+        ];
+        $notification->save();
 
         // Log Activity
         Activity::create([
