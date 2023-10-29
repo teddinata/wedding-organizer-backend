@@ -205,6 +205,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // route for permission
     Route::get('v2/permission', [PermissionController::class, 'index']);
+    // create permission
+    Route::post('v2/permission', [PermissionController::class, 'store']);
+    // update permission
+    Route::put('v2/permission/{id}', [PermissionController::class, 'update']);
 });
 
 Route::prefix('v2')->group(function () {
