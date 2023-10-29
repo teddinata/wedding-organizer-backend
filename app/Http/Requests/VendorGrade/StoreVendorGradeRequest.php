@@ -24,7 +24,7 @@ class StoreVendorGradeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'min:3', 'max:255'],
+            'name' => ['required', 'string', 'min:3', 'max:255', 'unique:vendor_grades'],
             'description' => ['string', 'min:5', 'max:255']
         ];
     }
