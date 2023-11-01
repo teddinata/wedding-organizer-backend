@@ -22,11 +22,6 @@ class MembershipBenefitController extends Controller
         // get all membership benefits with filter and pagination
         $query = MembershipBenefit::orderBy('created_at', 'asc');
 
-        // filter by name
-        if (request()->has('search')) {
-            $query->where('description', 'like', '%' . request('search') . '%');
-        }
-
         // Get pagination settings
         $perPage = request('per_page', 10);
         $page = request('page', 1);
@@ -34,19 +29,19 @@ class MembershipBenefitController extends Controller
         // Get data
         $membership_benefits = $query->paginate($perPage, ['*'], 'page', $page);
 
-        // log activity
-        Activity::create([
-            'log_name' => 'User ' . Auth::user()->name . ' show data Membership Benefit',
-            'description' => 'User ' . Auth::user()->name . ' show data Membership Benefit',
-            'subject_id' => Auth::user()->id,
-            'subject_type' => 'App\Models\User',
-            'causer_id' => Auth::user()->id,
-            'causer_type' => 'App\Models\User',
-            'properties' => request()->ip(),
-            // 'host' => request()->ip(),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        // // log activity
+        // Activity::create([
+        //     'log_name' => 'User ' . Auth::user()->name . ' show data Membership Benefit',
+        //     'description' => 'User ' . Auth::user()->name . ' show data Membership Benefit',
+        //     'subject_id' => Auth::user()->id,
+        //     'subject_type' => 'App\Models\User',
+        //     'causer_id' => Auth::user()->id,
+        //     'causer_type' => 'App\Models\User',
+        //     'properties' => request()->ip(),
+        //     // 'host' => request()->ip(),
+        //     'created_at' => now(),
+        //     'updated_at' => now()
+        // ]);
 
         // return json response
         return new MembershipBenefitResource(true, 'Membership Benefits retrieved successfully', $membership_benefits);
@@ -65,27 +60,20 @@ class MembershipBenefitController extends Controller
      */
     public function store(StoreMembershipBenefitRequest $request)
     {
-        // create membership benefit
-        $membership_benefit = [
-            'description' => $request->input('description'),
-            'membership_id' => $request->input('membership_id'),
-            'created_by' => Auth::user()->id,
-        ];
+        $membership_ids = $request->membership_id;
 
-        // check if request has image
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = 'membership_benefit' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $image->getClientOriginalName());
-
-            $path = $image->storeAs('uploads/membership_benefit', $filename, 'public');
-
-            if ($path) {
-                $membership_benefit['image'] = $filename;
+        foreach ($membership_ids as $membership_id) {
+            $membership_benefit = MembershipBenefit::where('membership_id', $membership_id)->where('benefit_id', $request->benefit_id)->first();
+            if ($membership_benefit) {
+                return response()->json(['message' => 'Membership has already had this benefit'], 422);
+            } else {
+                $membership_benefit = MembershipBenefit::create([
+                    'benefit_id' => $request->benefit_id,
+                    'membership_id' => $membership_id,
+                    // 'created_by' => auth()->user()->id,
+                ]);
             }
         }
-
-        // create membership benefit
-        $membershipBenefit = MembershipBenefit::create($membership_benefit + $request->validated());
 
         // log activity
         Activity::create([
@@ -102,7 +90,7 @@ class MembershipBenefitController extends Controller
         ]);
 
         // return json response
-        return new MembershipBenefitResource(true, 'Membership Benefit created successfully', $membershipBenefit);
+        return new MembershipBenefitResource(true, 'Membership Benefit created successfully', $membership_benefit);
 
     }
 
@@ -127,29 +115,38 @@ class MembershipBenefitController extends Controller
      */
     public function update(UpdateMembershipBenefitRequest $request, MembershipBenefit $membershipBenefit)
     {
-        // update membership benefit like store() method above
-        $membershipData = [
-            'description' => $request->input('description'),
-            'membership_id' => $request->input('membership_id'),
-            'updated_by' => Auth::user()->id,
-        ];
+        $membership_benefit = $membershipBenefit;
+        // dd($membership_benefit);
+        $benefit_id = $membership_benefit->benefit_id;
+        $membership_ids = $request->membership_id;
 
+        // Ambil semua anggota tim yang ada dalam database untuk tim tertentu
+        // $existing_team_members = TeamMember::where('team_id', $team_id)->get();
+        $existing_membership_benefit = MembershipBenefit::where('membership_id', $membership_benefit->membership_id)->get();
 
-        // check if request has image
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = 'membership_benefit' . '_' . rand(100000, 999999) . '_' . str_replace(' ', '_', $image->getClientOriginalName());
+        // Loop melalui anggota tim yang ada
+        foreach ($existing_membership_benefit as $existing_member) {
+            $membership_id = $existing_member->membership_id;
 
-            $path = $image->storeAs('uploads/membership_benefit', $filename, 'public');
-
-            if ($path) {
-                $membershipData['image'] = $filename;
+            // Jika employee_id tidak ada dalam daftar baru, hapus anggota tim tersebut
+            if (!in_array($membership_id, $membership_ids)) {
+                $existing_member->delete();
             }
         }
-        // dd($request->image);
 
-        // update membership benefit
-        $membershipBenefit->update($membershipData + $request->validated());
+        // Tambahkan anggota tim baru
+        foreach ($membership_ids as $membership_id) {
+            // Periksa apakah anggota tim sudah ada dalam database
+            $existing_member = MembershipBenefit::where('benefit_id', $benefit_id)->where('membership_id', $membership_id)->first();
+
+            if (!$existing_member) {
+                // Jika tidak ada, tambahkan anggota tim baru
+                MembershipBenefit::create([
+                    'benefit_id' => $benefit_id,
+                    'membership_id' => $membership_id,
+                ]);
+            }
+        }
 
         // log activity
         Activity::create([
@@ -166,7 +163,7 @@ class MembershipBenefitController extends Controller
         ]);
 
         // return json response
-        return new MembershipBenefitResource(true, 'Membership Benefit updated successfully', $membershipBenefit);
+        return new MembershipBenefitResource(true, 'Membership Benefit updated successfully', $membership_benefit);
     }
 
     /**

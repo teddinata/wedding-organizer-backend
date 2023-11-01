@@ -34,7 +34,7 @@ class DepartmentAllowanceController extends Controller
     {
         $allowance_ids = $request->allowance_id;
 
-        // check if allowance has been added or not 
+        // check if allowance has been added or not
         foreach ($allowance_ids as $allowance_id) {
             $deptAllowance = DepartmentAllowance::where('department_id', $request->department_id)->where('allowance_id', $allowance_id)->first();
             if ($deptAllowance) {
@@ -56,7 +56,7 @@ class DepartmentAllowanceController extends Controller
         $deptAllowance = DepartmentAllowance::where('id', $deptAllowance->id)->with('allowance')->first();
 
         // return json response
-        return $this->successResponse(new DepartmentAllowanceResource($deptAllowance), 'Allowance has been added.');
+        return $this->successResponse(new DepartmentAllowanceResource($deptAllowance), 'Department Allowance has been added successfully to this department,');
     }
 
     /**

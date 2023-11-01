@@ -36,4 +36,10 @@ class MembershipBenefit extends Model
     {
         return $this->belongsTo(Membership::class, 'membership_id', 'id');
     }
+
+    // relation pivot membership benefit ke benefit
+    public function benefit()
+    {
+        return $this->belongsTo(Benefit::class, 'benefit_id', 'id');
+    }
 }

@@ -248,6 +248,16 @@ class VendorController extends Controller
         // update data vendor
         $vendor->update($vendor_id + $request->validated());
 
+        $notification = new Notification();
+        $notification->user_id = Auth::user()->id;
+        $notification->type = 'Vendor Created';
+        // data
+        $notification->data = [
+            'vendor_name' => $vendor->name,
+            'message' => 'Vendor ' . $vendor->name . ' has been updated by ' . Auth::user()->name,
+        ];
+        $notification->save();
+
 
         // Log Activity
         Activity::create([

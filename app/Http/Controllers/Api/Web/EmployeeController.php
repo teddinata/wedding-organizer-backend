@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 // user
 use App\Models\User;
+use App\Models\Notification;
 
 class EmployeeController extends Controller
 {
@@ -108,7 +109,7 @@ class EmployeeController extends Controller
         $employee->employee_number = 'A' . sprintf("%04d", DB::table('employees')->count() + 1);
         $employee->phone_number = $request->input('phone_number');
         $employee->email = $request->input('email');
-        $employee->password = Hash::make($request->input('password'));
+        // $employee->password = Hash::make($request->input('password'));
 
         $employee->dateofbirth = $request->input('dateofbirth');
         $employee->gender = $request->input('gender');
@@ -156,6 +157,15 @@ class EmployeeController extends Controller
         }
 
         $employee->save();
+
+        $notification = new Notification();
+        $notification->user_id = Auth::user()->id;
+        $notification->type = 'Vendor Created';
+        // data
+        $notification->data = [
+            'message' => 'New Employee has been registered by ' . Auth::user()->name,
+        ];
+        $notification->save();
 
         // logs
         Activity::create([
@@ -210,7 +220,8 @@ class EmployeeController extends Controller
         // $employee->employee_number = $request->input('employee_number');
         $employee->phone_number = $request->input('phone_number');
         $employee->email = $request->input('email');
-        $employee->password = bcrypt($request->input('password'));
+        // $employee->password = bcrypt($request->input('password'));
+        $employee->password = Hash::make($request->input('password'));
         $employee->dateofbirth = $request->input('dateofbirth');
         $employee->gender = $request->input('gender');
         $employee->salary = $request->input('salary');
