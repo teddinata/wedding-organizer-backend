@@ -138,6 +138,15 @@ class OrderController extends Controller
         // hit order history
         // $order->orderHistory()->save($orderHistory);
 
+        $notification = new Notification();
+        $notification->user_id = Auth::user()->id;
+        $notification->type = 'Vendor Created';
+        // data
+        $notification->data = [
+            'message' => 'New Order with order number ' . $order->order_number . ' has been created by ' . Auth::user()->name,
+        ];
+        $notification->save();
+
         // dd($order);
         // logs activity
         Activity::create([

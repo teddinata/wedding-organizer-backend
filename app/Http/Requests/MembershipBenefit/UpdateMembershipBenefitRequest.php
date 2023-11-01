@@ -24,9 +24,9 @@ class UpdateMembershipBenefitRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'description' => 'required|string',
-            'membership_id' => 'required|integer',
+            // 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            // 'description' => 'required|string',
+            // 'membership_id' => 'required|integer',
         ];
     }
 

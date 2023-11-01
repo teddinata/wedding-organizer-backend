@@ -29,7 +29,7 @@ class UpdateEmployeeRequest extends FormRequest
             'level_id' => 'nullable|exists:employee_levels,id',
             'fullname' => 'nullable|string|max:255',
             'employee_number' => 'nullable|string|max:255',
-            'phone_number' => 'nullable|string|min:10|max:13',
+            'phone_number' => 'nullable|string|min:10|max:15',
             'email' => 'nullable|email',
             'password' => 'nullable|string|max:255',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
