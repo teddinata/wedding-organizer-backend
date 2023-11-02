@@ -34,10 +34,10 @@ class AllowanceController extends Controller
 
         //set condition if search not empty then search by name
         if (!empty($search)) {
-            $query = Allowance::where('name', 'like', '%' . $search . '%')->get();
+            $query = Allowance::where('name', 'like', '%' . $search . '%')->with('department')->get();
         } else {
             // get additional service data and sort by name ascending
-            $query = Allowance::orderBy('name', 'asc')->get();
+            $query = Allowance::orderBy('name', 'asc')->with('department')->get();
         }
 
         // request by id then show detail data, not array
@@ -45,7 +45,7 @@ class AllowanceController extends Controller
             $id = $request->input('id');
 
             // find the data by id
-            $query = Allowance::findOrFail($id);
+            $query = Allowance::with('department')->findOrFail($id);
 
             //return JSON response
             return $this->successResponse(new AllowanceResource($query), 'Data found.');
