@@ -24,7 +24,11 @@ class DepartmentAllowanceController extends Controller
      */
     public function index()
     {
-        //
+        // get department allowance data
+        $query = DepartmentAllowance::with('allowance', 'department')->get();
+
+        // return JSON response
+        return $this->successResponse(DepartmentAllowanceResource::collection($query), 'Department Allowance retrieved successfully.');
     }
 
     /**
