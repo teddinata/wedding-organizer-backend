@@ -34,10 +34,10 @@ class DepartmentController extends Controller
 
         //set condition if search not empty then search by name
         if (!empty($search)) {
-            $query = Department::where('name', 'like', '%' . $search . '%')->with('allowance')->get();
+            $query = Department::where('name', 'like', '%' . $search . '%')->with('department_allowance')->get();
         } else {
             // get department data and sort by name ascending
-            $query = Department::orderBy('name', 'asc')->with('allowance')->get();
+            $query = Department::orderBy('name', 'asc')->with('department_allowance')->get();
         }
 
         // request by id then show detail data, not array
@@ -45,7 +45,7 @@ class DepartmentController extends Controller
             $id = $request->input('id');
 
             // find the data by id
-            $query = Department::with('allowance')->findOrFail($id);
+            $query = Department::with('department_allowance')->findOrFail($id);
 
             //return JSON response
             return $this->successResponse(new DepartmentResource($query), 'Data found.');
