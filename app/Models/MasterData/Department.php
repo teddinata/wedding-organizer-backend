@@ -47,10 +47,16 @@ class Department extends Model
             ->useLogName('Master Department log');
     }
 
-    public function allowance()
+    // public function allowance()
+    // {
+    //     return $this->hasMany(Allowance::class, 'department_allowances', 'department_id', 'allowance_id');
+    // }
+
+    public function allowances()
     {
-        return $this->hasMany(Allowance::class, 'department_allowances', 'department_id', 'allowance_id');
+        return $this->belongsToMany(Allowance::class, 'department_allowances', 'department_id', 'allowance_id');
     }
+
 
     // relation department allowance
     public function department_allowance()

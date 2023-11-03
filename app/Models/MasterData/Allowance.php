@@ -38,11 +38,17 @@ class Allowance extends Model
             ->useLogName('Master Allowance log');
     }
 
-    // relasi dengan department 
+    // relasi dengan department
+    // public function departments()
+    // {
+    //     return $this->belongsToMany(Department::class, 'department_allowances', 'department_id', 'allowance_id');
+    // }
+
     public function departments()
     {
-        return $this->belongsToMany(Department::class, 'department_allowances', 'department_id', 'allowance_id');
+        return $this->belongsToMany(Department::class, 'department_allowances', 'allowance_id', 'department_id');
     }
+
 
     // relasi dengan employee allowance
     public function employee_allowance()

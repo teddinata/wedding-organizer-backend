@@ -24,11 +24,26 @@ class DepartmentAllowanceController extends Controller
      */
     public function index()
     {
-        // get department allowance data
-        $query = DepartmentAllowance::with('allowance', 'department')->get();
+        $query = DepartmentAllowance::with('allowance', 'department');
+
+        // // filter by department
+        // if (request()->has('department_id')) {
+        //     $query->where('department_id', request('department_id'));
+        // }
+        // dd($query);
+
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
+        $query = $query->paginate($perPage, ['*'], 'page', $page);
 
         // return JSON response
-        return $this->successResponse(DepartmentAllowanceResource::collection($query), 'Department Allowance retrieved successfully.');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Department Allowance retrieved successfully.',
+            'data' => $query
+        ]);
+        // return $this->successResponse(DepartmentAllowanceResource::collection($query), 'Department Allowance retrieved successfully.');
     }
 
     /**
