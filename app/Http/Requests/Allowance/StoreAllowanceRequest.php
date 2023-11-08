@@ -24,7 +24,7 @@ class StoreAllowanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|min:3|max:75',
+            'name' => 'required|min:3|max:75|unique:allowances,name,deleted_at',
         ];
     }
 

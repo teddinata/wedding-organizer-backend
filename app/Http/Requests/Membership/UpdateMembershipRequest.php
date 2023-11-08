@@ -25,7 +25,7 @@ class UpdateMembershipRequest extends FormRequest
     {
         return [
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:memberships,name,id,deleted_at,NULL',
             'from' => 'required|integer',
             'until' => 'required|integer',
             'point' => 'required|integer',

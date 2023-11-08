@@ -32,13 +32,20 @@ class EmployeeController extends Controller
     public function index()
     {
         // get all employees with filter and pagination
-        $query = Employee::orderBy('employee_number', 'asc')->with(['department', 'position', 'level']);
+        $query = Employee::orderBy('employee_number', 'asc')
+                ->with(['department', 'position', 'level', 'attendance'])
+                ->where('is_active', 1);
 
         // filter by name or employee_number or email in one search field
         if (request()->has('search')) {
             $query->where('fullname', 'like', '%' . request('search') . '%')
                 ->orWhere('employee_number', 'like', '%' . request('search') . '%')
                 ->orWhere('email', 'like', '%' . request('search') . '%');
+        }
+
+        // filter is active
+        if (request()->has('is_active')) {
+            $query->where('is_active', request('is_active'));
         }
 
         // filter by department
@@ -54,6 +61,16 @@ class EmployeeController extends Controller
         // filter by level
         if (request()->has('level_id')) {
             $query->where('level_id', request('level_id'));
+        }
+
+        if (request()->has('has_attendance_this_week')) {
+            // Ambil tanggal awal dan akhir minggu ini
+            $startDate = now()->startOfWeek();
+            $endDate = now()->endOfWeek();
+
+            $query->whereHas('attendance', function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('date', [$startDate, $endDate]);
+            });
         }
 
         // get pagination settings
@@ -84,6 +101,9 @@ class EmployeeController extends Controller
             'data' => $employees
         ], 200);
     }
+
+    // function for employee have attendance this week
+
 
     /**
      * Show the form for creating a new resource.

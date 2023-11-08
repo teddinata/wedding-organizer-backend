@@ -24,7 +24,7 @@ class StoreInstallemntRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nominal' => ['required', 'numeric'],
+            'nominal' => ['required', 'numeric', 'unique:config_loan_installments,nominal,deleted_at'],
         ];
     }
 

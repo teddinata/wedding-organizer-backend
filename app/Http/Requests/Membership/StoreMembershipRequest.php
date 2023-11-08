@@ -24,8 +24,8 @@ class StoreMembershipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'name' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'name' => 'required|string|unique:memberships,name,deleted_at|max:255',
             'from' => 'required|integer',
             'until' => 'required|integer',
             'point' => 'required|integer',

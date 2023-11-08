@@ -22,7 +22,7 @@ class VendorController extends Controller
     public function index()
     {
         // get all vendor with filter and paginate
-        $query = Vendor::orderBy('name', 'asc');
+        $query = Vendor::orderBy('name', 'asc')->with(['vendor_limit', 'orders']);
 
         if (request('search')) {
             $query->where('name', 'like', '%' . request('search') . '%');
@@ -31,6 +31,19 @@ class VendorController extends Controller
         // request sort asc or desc
         if (request('sort')) {
             $query->orderBy('name', request('sort'));
+        }
+
+        // Tambahkan filter untuk menampilkan vendor dengan total pesanan di bawah batas
+        if (request()->has('total_below_limit')) {
+            $query->with(['vendor_limit', 'orders'])
+                ->whereHas('orders', function ($subQuery) {
+                    $subQuery->selectRaw('vendor_id, orders.id, SUM(total) as total_orders')
+                        ->whereColumn('vendors.id', 'orders.vendor_id')
+                        ->groupBy('vendor_id', 'orders.id')
+                        ->havingRaw('SUM(total) <= (SELECT vendor_limits.amount_limit FROM vendor_limits WHERE vendor_limits.id = vendors.vendor_limit_id)');
+                })
+                ->orWhereDoesntHave('orders'); // Menyertakan vendor yang tidak memiliki pesanan (order)
+
         }
 
         // request by id then show detail data, not array

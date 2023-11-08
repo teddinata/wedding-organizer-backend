@@ -71,19 +71,44 @@ class LevelController extends Controller
             $untilEqualCheck = Level::where('until', '=', $request->until)->first();
 
             if ($fromCheck) {
-                return $this->errorResponse('From must be greater than the previous level: ' . $fromCheck->name);
+                // return $this->errorResponse('From must be greater than the previous level: ' . $fromCheck->name);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'from' => ['From must be greater than the previous level: ' . $fromCheck->name]
+                    ]
+                ], 409);
             }
 
             if ($untilCheck) {
-                return $this->errorResponse('Until must be greater than the previous level: ' . $untilCheck->name);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'until' => ['Until must be greater than the previous level: ' . $untilCheck->name]
+                    ]
+                ], 409);
             }
 
             if ($fromEqualCheck) {
-                return $this->errorResponse('From cannot be the same as the previous level: ' . $fromEqualCheck->name);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'from' => ['From cannot be the same as the previous level: ' . $fromEqualCheck->name]
+                    ]
+                ], 409);
             }
 
             if ($untilEqualCheck) {
-                return $this->errorResponse('Until cannot be the same as the previous level: ' . $untilEqualCheck->name);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'until' => ['Until cannot be the same as the previous level: ' . $untilEqualCheck->name]
+                    ]
+                ], 409);
             }
 
             if (!$fromCheck && !$untilCheck && !$fromEqualCheck && !$untilEqualCheck) {
@@ -142,19 +167,44 @@ class LevelController extends Controller
             $untilEqualCheck = Level::where('until', '=', $request->until)->where('id', '<>', $id)->first();
 
             if ($fromCheck) {
-                return $this->errorResponse('From must be greater than the previous level: ' . $fromCheck->name);
+                // return $this->errorResponse('From must be greater than the previous level: ' . $fromCheck->name);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'from' => ['From must be greater than the previous level: ' . $fromCheck->name]
+                    ]
+                ], 409);
             }
 
             if ($untilCheck) {
-                return $this->errorResponse('Until must be greater than the previous level: ' . $untilCheck->name);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'until' => ['Until must be greater than the previous level: ' . $untilCheck->name]
+                    ]
+                ], 409);
             }
 
             if ($fromEqualCheck) {
-                return $this->errorResponse('From cannot be the same as the previous level: ' . $fromEqualCheck->name);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'from' => ['From cannot be the same as the previous level: ' . $fromEqualCheck->name]
+                    ]
+                ], 409);
             }
 
             if ($untilEqualCheck) {
-                return $this->errorResponse('Until cannot be the same as the previous level: ' . $untilEqualCheck->name);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'until' => ['Until cannot be the same as the previous level: ' . $untilEqualCheck->name]
+                    ]
+                ], 409);
             }
 
             // If no violations are found, update the level

@@ -25,7 +25,9 @@ class StoreLevelRequest extends FormRequest
     {
         return [
             //'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'name' => 'required|string|min:3|max:255|unique:employee_levels',
+            // 'name' => 'required|string|min:3|max:255|unique:employee_levels
+            // name harus unique di table employee_levels tetapi exclude deleted_at
+            'name' => 'required|string|min:3|max:255|unique:employee_levels,name,deleted_at',
             'from' => 'required|numeric',
             'until' => 'required|numeric',
         ];

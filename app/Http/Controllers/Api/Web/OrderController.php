@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Resources\OrderResource;
 use App\Http\Requests\Order\StoreOrderRequest;
+use App\Models\Notification;
 
 
 class OrderController extends Controller
@@ -118,8 +119,8 @@ class OrderController extends Controller
             'is_checklist_melamin' => $request->is_checklist_melamin,
             'is_checklist_lighting' => $request->is_checklist_lighting,
             'is_checklist_gazebo' => $request->is_checklist_gazebo,
-            'points' => $request->points,
-            'extra_points' => $request->extra_points,
+            // 'points' => $request->points,
+            // 'extra_points' => $request->extra_points,
             'notes' => $request->notes,
             'created_by' => Auth::user()->id,
         ] + $request->validated());
@@ -208,8 +209,8 @@ class OrderController extends Controller
             'is_checklist_melamin' => $request->is_checklist_melamin,
             'is_checklist_lighting' => $request->is_checklist_lighting,
             'is_checklist_gazebo' => $request->is_checklist_gazebo,
-            'points' => $request->points,
-            'extra_points' => $request->extra_points,
+            // 'points' => $request->points,
+            // 'extra_points' => $request->extra_points,
             'notes' => $request->notes,
             'updated_by' => Auth::user()->id,
         ] + $request->validated());

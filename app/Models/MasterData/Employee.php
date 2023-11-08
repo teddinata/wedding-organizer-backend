@@ -14,6 +14,9 @@ use App\Models\MasterData\Department;
 use App\Models\MasterData\Position;
 use App\Models\MasterData\Level;
 use App\Models\Operational\OrderDriver;
+use App\Models\Operational\Team;
+use App\Models\Operational\Attendance;
+
 
 class Employee extends Model
 {
@@ -142,5 +145,11 @@ class Employee extends Model
     public function order_driver()
     {
         return $this->belongsToMany(OrderDriver::class, 'driver_id', 'id');
+    }
+
+    // attendance
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class, 'employee_id', 'id');
     }
 }

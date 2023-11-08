@@ -55,13 +55,60 @@ class MembershipController extends Controller
     public function store(StoreMembershipRequest $request)
     {
         try {
-            // Jika validasi berhasil, Anda dapat melanjutkan dengan menyimpan data Membership ke database.
+            // check from harus lebih besar dari until di membership lain yang sudah ada di database dan tidak boleh sama dengan until di level lain yang sudah ada di database dan cek request from dan until tidak boleh sama
+            $fromCheck = Membership::where('from', '>=', $request->from)->first();
+            $untilCheck = Membership::where('until', '>=', $request->until)->first();
+            $fromEqualCheck = Membership::where('from', '=', $request->from)->first();
+            $untilEqualCheck = Membership::where('until', '=', $request->until)->first();
+
+            if ($fromCheck) {
+                // return $this->errorResponse('From must be greater than the previous level: ' . $fromCheck->name);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'from' => ['From must be greater than the previous membership: ' . $fromCheck->name]
+                    ]
+                ], 409);
+            }
+
+            if ($untilCheck) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'until' => ['Until must be greater than the previous membership: ' . $untilCheck->name]
+                    ]
+                ], 409);
+            }
+
+            if ($fromEqualCheck) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'from' => ['From cannot be the same as the previous membership: ' . $fromEqualCheck->name]
+                    ]
+                ], 409);
+            }
+
+            if ($untilEqualCheck) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'until' => ['Until cannot be the same as the previous membership: ' . $untilEqualCheck->name]
+                    ]
+                ], 409);
+            }
+
+           // Persiapkan data Membership
             $membershipData = [
-                'name' => $request->input('name'),
-                'from' => $request->input('from'),
-                'until' => $request->input('until'),
+                'name' => $request->name,
+                'from' => $request->from,
+                'until' => $request->until,
                 'point' => $request->input('point'),
-            ];
+            ] + $request->validated();
 
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
@@ -74,6 +121,7 @@ class MembershipController extends Controller
                 }
             }
 
+            // Buat entitas Membership
             $membership = Membership::create($membershipData + $request->validated());
 
             // activity log
@@ -102,13 +150,62 @@ class MembershipController extends Controller
     public function update(UpdateMembershipRequest $request, Membership $membership)
     {
         try {
+
             // update membership like store() method above
+             // Pengecekan 'from' dan 'until'
+            $fromCheck = Membership::where('from', '>', $request->from)->where('id', '!=', $membership->id)->first();
+            $untilCheck = Membership::where('until', '>', $request->until)->where('id', '!=', $membership->id)->first();
+            $fromEqualCheck = Membership::where('from', '=', $request->from)->where('id', '!=', $membership->id)->first();
+            $untilEqualCheck = Membership::where('until', '=', $request->until)->where('id', '!=', $membership->id)->first();
+
+            if ($fromCheck) {
+                // return $this->errorResponse('From must be greater than the previous level: ' . $fromCheck->name);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'from' => ['From must be greater than the previous membership: ' . $fromCheck->name]
+                    ]
+                ], 409);
+            }
+
+            if ($untilCheck) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'until' => ['Until must be greater than the previous membership: ' . $untilCheck->name]
+                    ]
+                ], 409);
+            }
+
+            if ($fromEqualCheck) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'from' => ['From cannot be the same as the previous membership: ' . $fromEqualCheck->name]
+                    ]
+                ], 409);
+            }
+
+            if ($untilEqualCheck) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation errors',
+                    'data' => [
+                        'until' => ['Until cannot be the same as the previous membership: ' . $untilEqualCheck->name]
+                    ]
+                ], 409);
+            }
+
+            // Persiapkan data Membership
             $membershipData = [
-                'name' => $request->input('name'),
-                'from' => $request->input('from'),
-                'until' => $request->input('until'),
+                'name' => $request->name,
+                'from' => $request->from,
+                'until' => $request->until,
                 'point' => $request->input('point'),
-            ];
+            ] + $request->validated();
 
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
@@ -121,12 +218,14 @@ class MembershipController extends Controller
                 }
             }
 
-            $membership->update($membershipData + $request->validated());
+            // Perbarui data Membership
+            $membership->update($membershipData);
 
-            // activity log
+            // Activity Log
             activity('updated')
                 ->performedOn($membership)
-                ->causedBy(Auth::user());
+                ->causedBy(Auth::user())
+                ->log('Membership updated');
 
             // return JSON response
             return $this->successResponse(new MembershipResource($membership), 'Changes has been successfully saved.');

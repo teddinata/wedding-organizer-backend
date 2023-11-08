@@ -26,7 +26,7 @@ class StoreOrderRequest extends FormRequest
         return [
             'vendor_id' => 'required|exists:vendors,id',
             'sales_id' => 'required|exists:sales,id',
-            'employee_id' => 'required|exists:employees,id',
+            'coordinator_id' => 'required|exists:employees,id',
             'date' => 'required|date',
             'loading_date' => 'required|date',
             'loading_time' => 'required',

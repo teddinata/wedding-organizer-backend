@@ -24,7 +24,7 @@ class UpdateInstallmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nominal' => ['required', 'numeric'],
+            'nominal' => ['required', 'numeric']
         ];
     }
 
