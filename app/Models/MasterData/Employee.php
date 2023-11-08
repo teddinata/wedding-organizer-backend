@@ -86,7 +86,11 @@ class Employee extends Model
                 'created_by',
                 'updated_by',
                 'deleted_by',
-            ]);
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $eventName) => auth()->user()->name . " {$eventName} employee")
+            ->useLogName('Employee log');
     }
 
     // relasi dengan user
