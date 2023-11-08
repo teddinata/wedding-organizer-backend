@@ -128,6 +128,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/employee/{id}/generate-user-account', [EmployeeController::class, 'generateUserAccount'])->name('employee.generate-user-account');
         // generate password for employee
         Route::post('/employee/{id}/generate-password', [EmployeeController::class, 'generatePasswordEmployee'])->name('employee.generate-password');
+        // endpoint to sent employee data to canteen app
+        Route::get('getEmployee', [EmployeeController::class, 'GetEmployeeWithoutPagination'])->name('getEmployee');
 
         // attendance
         Route::resource('attendance', AttendanceController::class)->names('attendance');

@@ -104,6 +104,18 @@ class EmployeeController extends Controller
 
     // function for employee have attendance this week
 
+    public function GetEmployeeWithoutPagination()
+    {
+        // get all employees together with department, position, and level without pagination
+        $query = Employee::orderBy('employee_number', 'asc')->with(['department', 'position', 'level'])->get();
+
+        // return json response
+        return response()->json([
+            'success' => true,
+            'message' => 'Employees retrieved successfully.',
+            'data' => $query
+        ], 200);
+    }
 
     /**
      * Show the form for creating a new resource.
