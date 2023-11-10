@@ -43,7 +43,7 @@ class TeamController extends Controller
             }
         } else {
             // get team data and sort by name ascending with lead and member
-            $query = Team::with('lead', 'member')->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $query = Team::with('lead', 'team_member')->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
 
         //return collection of teams as a resource

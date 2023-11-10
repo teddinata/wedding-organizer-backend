@@ -42,7 +42,12 @@ class TeamMemberController extends Controller
         foreach ($employee_ids as $employee_id) {
             $teamMember = TeamMember::where('team_id', $request->team_id)->where('employee_id', $employee_id)->first();
             if ($teamMember) {
-                return response()->json(['message' => 'Member have already in this team'], 422);
+                return response()->json([
+                    'message' => 'Member have already in this team',
+                    'data' => [
+                        'employee_id' => ['Member have already in this team']
+                    ]
+                ], 422);
             } else {
                 $teamMember = TeamMember::create([
                     'team_id' => $request->team_id,
